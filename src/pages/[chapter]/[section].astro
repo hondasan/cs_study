@@ -3,13 +3,6 @@ import BookLayout from '../../layouts/BookLayout.astro';
 
 export function getStaticPaths() {
   return [
-    // 第6章 ネットワーク
-    { params: { chapter: 'chapter6', section: 'section1' }, props: { title: '6-1. 通信プロトコルとレイヤー構造', prev: 'chapter5/section5', next: 'chapter6/section2' } },
-    { params: { chapter: 'chapter6', section: 'section2' }, props: { title: '6-2. IPアドレスとルーティング', prev: 'chapter6/section1', next: 'chapter6/section3' } },
-    { params: { chapter: 'chapter6', section: 'section3' }, props: { title: '6-3. TCPと信頼性のある通信', prev: 'chapter6/section2', next: 'chapter6/section4' } },
-    { params: { chapter: 'chapter6', section: 'section4' }, props: { title: '6-4. 名前解決：DNSの仕組み', prev: 'chapter6/section3', next: 'chapter6/section5' } },
-    { params: { chapter: 'chapter6', section: 'section5' }, props: { title: '6-5. HTTPとWebの仕組み', prev: 'chapter6/section4', next: 'chapter7/section1' } },
-    
     // 第7章 データベース
     { params: { chapter: 'chapter7', section: 'section1' }, props: { title: '7-1. なぜデータベースが必要か', prev: 'chapter6/section5', next: 'chapter7/section2' } },
     { params: { chapter: 'chapter7', section: 'section2' }, props: { title: '7-2. 関係モデルとテーブル設計', prev: 'chapter7/section1', next: 'chapter7/section3' } },

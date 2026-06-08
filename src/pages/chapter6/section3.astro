@@ -1,0 +1,123 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="6-3. TCPと信頼性のある通信" 
+  description="ベストエフォートであるIP通信の上に、データの欠落や順序の入れ替わりを自動修復して完璧な信頼性を提供するプロトコル『TCP』の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter6/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第6章: ネットワーク</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第6章 3節</div>
+    <h1 class="section-title">TCPと信頼性のある通信</h1>
+    <p class="section-intro">
+      前節で学んだ「IP」によるパケット送信は、実は<b>「ベストエフォート（最善は尽くすが、結果は保証しない）」</b>という非常にいい加減な仕組みです。パケットは途中でロストして消えたり、順番が入れ替わって届いたりします。これでは、メールの一部が消えたり、プログラムファイルの一部が破損して動かなくなったりします。この頼りないIP通信の上に、完璧な「信頼性のある通信」を作り出すマジックが、トランスポート層の<b>TCP</b>というプロトコルです。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. IPの限界とTCPの使命</h2>
+    <p>
+      IP（インターネット層）は、目的地へ向けてパケットを送り出しますが、そのパケットが途中のルーターの過負荷で破棄されても、通知してくれません。また、別々のルートを通ったパケットは、送信時と異なる順番で届くこともあります。
+    </p>
+    <p>
+      この頼りないネットワーク上で、<b>「送信したデータが、1ビットの狂いもなく、順番通りに受信側に届く」</b>ことを保証するのが、トランスポート層の主要プロトコルである <b>TCP（Transmission Control Protocol）</b> です。
+    </p>
+
+    <h2>2. スリーウェイ・ハンドシェイク（Three-way Handshake）</h2>
+    <p>
+      TCPは、データを送信する前に、まず送信側と受信側の間で「これから通信を開始しますよ」という合意（コネクション）をしっかりと確立します。この手順を<b>スリーウェイ・ハンドシェイク</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Two lifelines -->
+          <line x1="80" y1="30" x2="80" y2="150" stroke="#1E3A60" stroke-width="2" />
+          <text x="80" y="20" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">クライアント</text>
+          
+          <line x1="370" y1="30" x2="370" y2="150" stroke="#1E3A60" stroke-width="2" />
+          <text x="370" y="20" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">サーバー</text>
+
+          <!-- 3 Steps Arrows -->
+          <!-- Step 1: SYN -->
+          <path d="M 80 40 L 370 75" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 363 71 L 370 75 L 365 79 Z" fill="#E06C75" />
+          <text x="225" y="48" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">① SYN (接続したい！)</text>
+
+          <!-- Step 2: SYN-ACK -->
+          <path d="M 370 85 L 80 120" stroke="#98C379" stroke-width="1.5" />
+          <path d="M 87 124 L 80 120 L 85 116 Z" fill="#98C379" />
+          <text x="225" y="93" font-family="var(--font-sans)" font-size="8" fill="#98C379" font-weight="600" text-anchor="middle">② SYN-ACK (承諾！そちらも準備OK？)</text>
+
+          <!-- Step 3: ACK -->
+          <path d="M 80 130 L 370 145" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 363 141 L 370 145 L 365 149 Z" fill="#1E3A60" />
+          <text x="225" y="133" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">③ ACK (こちらもOK！接続完了)</text>
+        </svg>
+      </div>
+      <figcaption>図 6-4：スリーウェイ・ハンドシェイクによる接続確立プロセス</figcaption>
+    </figure>
+
+    <p>
+      お互いが「もしもし、聞こえますか？」「はい、聞こえますよ。そちらも聞こえますか？」「はい、聞こえます。では始めましょう」と、3ステップで対話を確認し合ってから、初めて実際のデータ送信を開始します。
+    </p>
+
+    <h2>3. 信頼性を保証する3つの仕組み</h2>
+    <p>
+      通信が始まった後、TCPは以下の仕組みを用いてデータの欠落や乱れを完全に修復します。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">TCPの信頼性制御</div>
+      <ul>
+        <li><b>シーケンス番号（整列）：</b> 送信する各パケットに対して、「これはデータの何バイト目か」を示す通し番号（シーケンス番号）を振ります。受信側は、パケットがバラバラの順番で届いても、この番号を頼りに元の順番へ正確にパズルを組み立て直します。</li>
+        <li><b>確認応答（ACK）：</b> 受信側は、パケットが無事に届くたびに、送信側に対して「何バイト目まで無事に届いた」という通知メール（<b>ACK信号</b>）を返します。</li>
+        <li><b>再送制御（ロスト救済）：</b> 送信側は、パケットを送った後、一定時間経っても「届いた」という通知（ACK）が返ってこない場合、そのパケットが途中でロスト（紛失）したとみなして、自動的に同じパケットをもう一度再送します。</li>
+      </ul>
+    </div>
+
+    <h2>4. IPアドレスが「住所」なら、ポート番号は「部屋番号」</h2>
+    <p>
+      TCP（およびUDP）には、通信先のプログラムを正しく特定するために<b>ポート番号（Port Number）</b>という概念があります。
+    </p>
+    <p>
+      PCに割り振られたIPアドレスが「アパートの住所（建物）」だとすれば、ポート番号は「アパートの各部屋番号（プログラム）」に相当します。
+    </p>
+    <p>
+      アパートの玄関まで郵便（IPパケット）が届いても、何号室宛てかが書かれていなければ、住人に渡せません。同様に、PCのOSまでデータが届いても、それがブラウザアプリ（80番や443番ポート）宛てなのか、メールアプリ（110番ポート）宛てなのかを識別するために、TCPヘッダには必ずポート番号が記載されています。
+    </p>
+
+    <blockquote>
+      <b>UDP（User Datagram Protocol）とは？</b><br/>
+      トランスポート層には、TCPのほかに <b>UDP</b> というプロトコルもあります。UDPは、TCPのようなハンドシェイクや再送制御を一切行わず、一方的にデータを送りつける「投げっぱなし」の通信です。データの欠落を防げない代わりに、TCPのような確認待ちのオーバーヘッドがないため、<b>圧倒的に高速でリアルタイム性が高い</b>という特徴があります。このため、数フレームのデータ欠落が許容される「オンラインゲームのリアルタイム対戦」や「動画配信（ストリーミング）」「音声通話」などの用途には、あえてUDPが使われています。
+    </blockquote>
+
+    <p>
+      次のセクションでは、無機質な数字の羅列であるIPアドレスを、人間が覚えやすい英語名（ドメイン）に変換するインターネットの巨大な住所録「DNS」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter6/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">6-2. IPアドレスとルーティング</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter6/section4`}>
+        <span class="label">6-4. 名前解決：DNSの仕組み</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

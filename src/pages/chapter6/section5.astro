@@ -1,0 +1,152 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="6-5. HTTPとWebの仕組み" 
+  description="ウェブページを閲覧するための基本プロトコル『HTTP』のリクエストとレスポンス、ステータスコード、およびブラウザがページを描画する仕組みを学びます。"
+  currentPath={`${baseUrl}chapter6/section5`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第6章: ネットワーク</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第6章 5節</div>
+    <h1 class="section-title">HTTPとWebの仕組み</h1>
+    <p class="section-intro">
+      DNSによってIPアドレスがわかり、TCPの接続が確立されたら、ついに私たちが普段見ている「ウェブサイト」のデータをやり取りする段階に入ります。ここで活躍するのが、アプリケーション層の代表的なプロトコルである<b>HTTP</b>です。ブラウザとサーバーが交わすリクエストとレスポンスの対話、そして受け取ったデータが画面に描画されるまでの仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. クライアント・サーバーシステムとHTTP</h2>
+    <p>
+      ウェブの世界は、<b>クライアント（依頼者：ブラウザ）</b>と<b>サーバー（提供者：ウェブサーバー）</b>が対話を行う「クライアント・サーバーモデル」で成り立っています。
+    </p>
+    <p>
+      この両者が会話をするための共通言語（プロトコル）が <b>HTTP（Hypertext Transfer Protocol）</b> です。
+    </p>
+    <p>
+      HTTPの対話は、常にクライアントからの<b>リクエスト（要求）</b>で始まり、サーバーからの<b>レスポンス（応答）</b>で終わる、シンプルな「往復」で構成されています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="480" height="150" viewBox="0 0 480 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Client Browser (Left) -->
+          <rect x="30" y="40" width="100" height="60" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="80" y="65" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">Webブラウザ</text>
+          <text x="80" y="80" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">(クライアント)</text>
+
+          <!-- Request Arrow (Top-right) -->
+          <path d="M 140 60 L 330 60" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 325 56 L 330 60 L 325 64 Z" fill="#E06C75" />
+          <text x="235" y="50" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">HTTPリクエスト (GET /index.html)</text>
+
+          <!-- Response Arrow (Bottom-left) -->
+          <path d="M 330 85 L 140 85" stroke="#98C379" stroke-width="1.5" />
+          <path d="M 145 89 L 140 85 L 145 81 Z" fill="#98C379" />
+          <text x="235" y="100" font-family="var(--font-sans)" font-size="8" fill="#98C379" font-weight="600" text-anchor="middle">HTTPレスポンス (200 OK + HTMLデータ)</text>
+
+          <!-- Web Server (Right) -->
+          <rect x="340" y="40" width="100" height="60" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="390" y="65" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">Webサーバー</text>
+          <text x="390" y="80" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">(データ提供者)</text>
+        </svg>
+      </div>
+      <figcaption>図 6-7：HTTPによるリクエストとレスポンスの往復モデル</figcaption>
+    </figure>
+
+    <h2>2. HTTPリクエストの構成</h2>
+    <p>
+      ブラウザは、サーバーに対して「〇〇のデータをください」という手紙を送ります。
+      この手紙の最も重要な要素は<b>リクエストメソッド（要求方法）</b>です。
+    </p>
+    <ul>
+      <li><b>GET：</b> ウェブページや画像などを「取得」したいときに使います。</li>
+      <li><b>POST：</b> お問い合わせフォームの入力データや、ログイン用のパスワードなどをサーバーに「送信・登録」したいときに使います。</li>
+    </ul>
+
+    <h2>3. HTTPレスポンスとステータスコード</h2>
+    <p>
+      リクエストを受け取ったサーバーは、処理結果を記載したレスポンスを返します。
+      レスポンスの先頭には、処理結果が成功したのか失敗したのかを3桁の数字で表す<b>ステータスコード（Status Code）</b>が書かれています。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>コード範囲</th>
+          <th>代表的なコード</th>
+          <th>意味と動作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>2xx (成功)</b></td>
+          <td><code>200 OK</code></td>
+          <td>リクエストは正常に受け付けられ、要求されたデータが同封されています。</td>
+        </tr>
+        <tr>
+          <td><b>3xx (転送)</b></td>
+          <td><code>301 Moved Permanently</code></td>
+          <td>要求されたページは別のアドレスに引っ越しました。自動的に転送（リダイレクト）します。</td>
+        </tr>
+        <tr>
+          <td><b>4xx (クライアントエラー)</b></td>
+          <td><code>404 Not Found</code></td>
+          <td>要求されたページやファイルが見つかりません。アドレスの入力間違いなどが原因です。</td>
+        </tr>
+        <tr>
+          <td><b>5xx (サーバーエラー)</b></td>
+          <td><code>500 Internal Server Error</code></td>
+          <td>サーバー側のプログラムでバグが発生し、正しく応答できません。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. ブラウザによる描画：レンダリング（Rendering）</h2>
+    <p>
+      サーバーから返ってきたレスポンスの本体（ボディ）には、通常 <b>HTML（構造）</b>、<b>CSS（見た目の装飾）</b>、<b>JavaScript（動的な処理）</b>のプログラムコードが書き込まれています。
+    </p>
+    <p>
+      ブラウザは、これらの生コードを読み込み、内部で木構造（DOMツリー）へと組み立て直した上で、グラフィックエンジンを用いてディスプレイのピクセルデータへと落とし込み、人間に見える綺麗なウェブページとして描画します。このプロセスのことを<b>レンダリング（Rendering）</b>と呼びます。
+    </p>
+
+    <h2>5. より安全な通信：HTTPS（Sが付く意味）</h2>
+    <p>
+      初期のHTTPでは、やり取りされるすべてのデータが「暗号化されない平文」でインターネットを流れていました。これでは、途中のルーターを盗聴されると、ログインIDやクレジットカード番号がそのまま盗まれてしまいます。
+    </p>
+    <p>
+      そこで開発されたのが<b>HTTPS（HTTP Secure）</b>です。
+      HTTPSでは、HTTPの対話データを<b>SSL/TLS</b>と呼ばれる暗号化プロトコルで包み込んでから送信します。これにより、万が一通信が傍受されても、中身は解読不可能な乱数パターンにしか見えず、安全なオンライン決済やプライバシー保護が実現されています。
+    </p>
+
+    <p>
+      第6章では、コンピュータ同士が繋がるネットワークの世界を学びました。プロトコルの階層化、IPによるルーティング、TCPによる信頼性保証、DNSによる名前解決、そしてHTTPによる情報のやり取りまで、現代のインターネットがどのように有機的に組み合わさっているのかを体系的に理解できたはずです。
+    </p>
+    <p>
+      次の第7章では、これらネットワークを流れる膨大なデータや、企業の重要資産を、矛盾なく安全に保管・抽出する「データベース」の仕組みについて学んでいきましょう。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter6/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">6-4. 名前解決：DNSの仕組み</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter7/section1`}>
+        <span class="label">7-1. なぜデータベースが必要か</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

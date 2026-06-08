@@ -1,0 +1,166 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="6-2. IPアドレスとルーティング" 
+  description="インターネット層で使われる『IPアドレス』の仕組みと、パケットがバケツリレーのようにルーターを経由して目的地に届く『ルーティング』の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter6/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第6章: ネットワーク</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第6章 2節</div>
+    <h1 class="section-title">IPアドレスとルーティング</h1>
+    <p class="section-intro">
+      郵便物を送るためには、相手の「住所」が必要です。世界中に繋がっているインターネットでも、目的地を正しく識別するための住所＝「IPアドレス」がすべての機器に割り当てられています。そして、送信されたデータ（パケット）は、ネットワークの交差点に置かれた中継機「ルーター」のナビゲーションによって、バケツリレーのように目的地へ運ばれます。その仕組みを解き明かします。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. ネットワーク上の住所：IPアドレス</h2>
+    <p>
+      <b>IPアドレス（IP Address）</b>は、インターネットに接続されているすべてのコンピュータやスマートフォン、サーバーに割り振られる一意の「住所」です。
+    </p>
+    <p>
+      IPアドレスには、現在主流の<b>IPv4</b>と、新しい<b>IPv6</b>の2つの規格があります。
+    </p>
+    <ul>
+      <li><b>IPv4（IP version 4）：</b> 32ビットの整数で住所を表現します。<code>192.168.1.1</code> のように、0〜255の数字を4つドットで区切って表記します。表現できるアドレス数は約43億個（$2^{32}$）ですが、世界中の機器の増加に伴い、すでにアドレスが足りなくなる「枯渇問題」が起きています。</li>
+      <li><b>IPv6（IP version 6）：</b> 128ビットの整数で表現します（約340澗個＝無限に近い数）。IPv4の枯渇問題を根本解決するために開発され、現在は徐々に移行が進んでいます。</li>
+    </ul>
+
+    <h2>2. グローバルIPとプライベートIPの違い</h2>
+    <p>
+      すべての機器に個別にグローバルなIPアドレスを割り当てると、あっという間にアドレスがなくなってしまいます。
+      そこで、IPアドレスは用途別に大きく2つに分けられて運用されています。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>種類</th>
+          <th>割り当て範囲</th>
+          <th>特徴</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>グローバルIPアドレス</b></td>
+          <td>インターネット全体</td>
+          <td>世界中で絶対に重複しない一意のアドレス。インターネット上のサーバー等に割り当てられます。</td>
+        </tr>
+        <tr>
+          <td><b>プライベートIPアドレス</b></td>
+          <td>家庭や会社などの組織内のみ</td>
+          <td>組織の内部だけで自由に使用してよいアドレス。例えば、あなたの家のスマホとPCは、組織内（自宅LAN内）でこのプライベートIPを使用しています。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      家庭のルーターは、外部のインターネットと通信する際、複数のプライベートIPを1つのグローバルIPに自動で変換する技術（NAT/NAPT）を使うことで、IPアドレスを大幅に節約しています。
+    </p>
+
+    <h2>3. データを細切れにする「パケット（Packet）」</h2>
+    <p>
+      インターネットでデータを送る際、数メガバイトある写真や数ギガバイトある動画ファイルをそのまま一つの塊として回線に流すことはありません。なぜなら、1台のPCが巨大なファイルを送り続けている間、他のPCが回線を使えなくなってしまうからです。
+    </p>
+    <p>
+      そこで、データは送信しやすいように、通常1,500バイト程度の小さな「荷物」に細切れにして送信されます。この細切れにされたデータ単位のことを<b>パケット（Packet：小包）</b>と呼びます。
+    </p>
+    <p>
+      各パケットの先頭には、送信元IPアドレスと宛先IPアドレスが書かれた「送り状（IPヘッダ）」が貼り付けられます。
+    </p>
+
+    <h2>4. ルーターによるバケツリレー：ルーティング（Routing）</h2>
+    <p>
+      宛先が書かれたパケットは、どのようなルートを通って目的のサーバーにたどり着くのでしょうか。
+      インターネットは、多数のネットワークが<b>ルーター（Router）</b>と呼ばれる中継機器で網の目のように繋がってできています。
+    </p>
+    <p>
+      パケットが目的地まで運ばれる仕組みは、まさに郵便物の「バケツリレー」です。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="180" viewBox="0 0 500 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Routing Path: PC -> Router A -> Router B -> Server -->
+          <!-- Source PC -->
+          <rect x="20" y="70" width="50" height="40" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="45" y="93" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">PC (送信元)</text>
+          
+          <path d="M 70 90 L 110 90" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 105 86 L 110 90 L 105 94 Z" fill="#1E3A60" />
+
+          <!-- Router 1 -->
+          <circle cx="140" cy="90" r="25" fill="#FAF9F5" stroke="#E06C75" stroke-width="2" />
+          <text x="140" y="93" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">ルーター A</text>
+          
+          <!-- Path branches -->
+          <path d="M 160 75 L 230 45" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 225 43 L 230 45 L 227 50 Z" fill="#1E3A60" />
+
+          <path d="M 160 105 L 230 135" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="3 3" />
+
+          <!-- Router 2 (Top Branch) -->
+          <circle cx="260" cy="35" r="25" fill="#FAF9F5" stroke="#E06C75" stroke-width="2" />
+          <text x="260" y="38" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">ルーター B</text>
+
+          <!-- Router 3 (Bottom Branch) -->
+          <circle cx="260" cy="145" r="25" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          <text x="260" y="148" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">ルーター C</text>
+
+          <!-- Merge path to Server -->
+          <path d="M 285 45 L 355 75" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 352 70 L 355 75 L 350 77 Z" fill="#1E3A60" />
+
+          <!-- Destination Server -->
+          <rect x="380" y="60" width="70" height="60" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="415" y="90" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">ウェブサーバー</text>
+          <text x="415" y="105" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">(宛先)</text>
+
+          <!-- Moving Packet Icon -->
+          <rect x="180" y="47" width="24" height="14" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+          <text x="192" y="57" font-family="var(--font-sans)" font-size="6" fill="#98C379" font-weight="600" text-anchor="middle">パケット</text>
+        </svg>
+      </div>
+      <figcaption>図 6-3：ルーター間の連携によるパケットのバケツリレー（ルーティング）モデル</figcaption>
+    </figure>
+
+    <ol>
+      <li>PCから送信されたパケットは、まず家庭や会社のルーターに届きます。</li>
+      <li>ルーターは、パケットに貼られた「宛先IPアドレス」を読み取ります。</li>
+      <li>ルーターの内部にある<b>ルーティングテーブル（経路決定表）</b>という道案内マップを参照し、「このIPアドレス宛なら、隣のルーターBに渡すのが最短だ」と判断し、Bにパケットを転送します。</li>
+      <li>パケットを受け取ったルーターBも同様の判断を行い、次のルーターやプロバイダの設備へバケツリレーします。</li>
+      <li>これを繰り返すことで、パケットは世界中を数ミリ秒から数十ミリ秒で駆け抜け、目的地であるサーバーへたどり着きます。</li>
+    </ol>
+    <p>
+      このルーティングの凄さは、もし途中の通信回線（例えばルーターCへの道）が地震などで切断されても、手前のルーターが自動的に別の生きているルート（ルーターB経由）へと迂回させて届けてくれる、極めて頑強な耐障害性を持っている点にあります。
+    </p>
+    <p>
+      次のセクションでは、ルーティングされたパケットが途中で消えたり順序が入れ替わったりした際、通信の「抜け漏れ」を監視して完璧なデータを組み立て直す「トランスポート層（TCP）」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter6/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">6-1. 通信プロトコルとレイヤー構造</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter6/section3`}>
+        <span class="label">6-3. TCPと信頼性のある通信</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

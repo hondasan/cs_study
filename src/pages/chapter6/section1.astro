@@ -1,0 +1,161 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="6-1. 通信プロトコルとレイヤー構造" 
+  description="世界中のコンピュータが繋がるインターネットの共通ルール『通信プロトコル』と、複雑なネットワークを階層に分けて整理する『TCP/IP 4層モデル』を学びます。"
+  currentPath={`${baseUrl}chapter6/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第6章: ネットワーク</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第6章 1節</div>
+    <h1 class="section-title">通信プロトコルとレイヤー構造</h1>
+    <p class="section-intro">
+      コンピュータが1台だけでは、ただの計算機に過ぎません。しかし、それらがネットワークで結ばれると、世界中の情報へアクセスし、遠くの人と対話できる強力なツールへと進化します。メーカーや国籍が全く異なる何億台ものコンピュータが、なぜ混乱することなくデータをやり取りできるのでしょうか。そこには「共通のルール（プロトコル）」と「階層設計」という高度な仕組みがあります。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 通信プロトコル（Protocol）とは？</h2>
+    <p>
+      人間同士がコミュニケーションを取るとき、お互いが「日本語」という共通の言語（ルール）を共有していなければ、会話は成り立ちません。
+    </p>
+    <p>
+      コンピュータ同士の通信も全く同じです。メーカーやOSが違っていても、データの送り方、データの形式、エラーが起きたときの対処法などについて、あらかじめ世界共通の約束事を決めておく必要があります。この通信における共通の約束事（規約）のことを<b>通信プロトコル（Protocol）</b>と呼びます。
+    </p>
+    <p>
+      インターネットでは、HTTPやTCP、IPなど、用途に合わせた多数のプロトコルが組み合わされて動いています。
+    </p>
+
+    <h2>2. ネットワークの階層設計：TCP/IP 4層モデル</h2>
+    <p>
+      ネットワークを通じてデータを送るという処理は、物理的な光回線やWi-Fiの制御から、ウェブページの文字の表示方法まで、信じられないほど多岐にわたる処理が必要です。これを1つのプログラムで処理しようとすると、プログラムが巨大で複雑になりすぎ、修正も困難になります。
+    </p>
+    <p>
+      そこで、現代のネットワーク（インターネット）は、役割ごとに4つの階層に分けて処理を行う<b>TCP/IP 4層モデル</b>を採用しています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="200" viewBox="0 0 450 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- 4 Layers boxes -->
+          <!-- Layer 4: Application -->
+          <rect x="50" y="20" width="200" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="150" y="42" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">4. アプリケーション層 (HTTP, DNS)</text>
+
+          <!-- Layer 3: Transport -->
+          <rect x="50" y="60" width="200" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="150" y="82" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">3. トランスポート層 (TCP, UDP)</text>
+
+          <!-- Layer 2: Internet -->
+          <rect x="50" y="100" width="200" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="150" y="122" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">2. インターネット層 (IP)</text>
+
+          <!-- Layer 1: Link -->
+          <rect x="50" y="140" width="200" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="150" y="162" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">1. リンク層 (Ethernet, Wi-Fi)</text>
+
+          <!-- Explanation box (Right) -->
+          <rect x="270" y="20" width="150" height="155" rx="4" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="345" y="40" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">階層設計のメリット</text>
+          <line x1="280" y1="48" x2="410" y2="48" stroke="#EBE6DC" />
+          <text x="285" y="65" font-family="var(--font-serif)" font-size="8" fill="#555555">・各階層は独立している</text>
+          <text x="285" y="85" font-family="var(--font-serif)" font-size="8" fill="#555555">・例えば有線(LAN)から</text>
+          <text x="285" y="100" font-family="var(--font-serif)" font-size="8" fill="#555555">　Wi-Fiに変更しても、</text>
+          <text x="285" y="115" font-family="var(--font-serif)" font-size="8" fill="#555555">　上の層(HTTP)のアプリ</text>
+          <text x="285" y="130" font-family="var(--font-serif)" font-size="8" fill="#555555">　コードは修正不要！</text>
+        </svg>
+      </div>
+      <figcaption>図 6-1：TCP/IP 4層モデルの構成とレイヤー化のメリット</figcaption>
+    </figure>
+
+    <h3>各レイヤーの主な役割</h3>
+    <ol>
+      <li><b>アプリケーション層：</b> ブラウザやメールソフトといった、個々のアプリケーションごとのやり取りのルールを定義します。（例：HTTP, DNS, SMTP）</li>
+      <li><b>トランスポート層：</b> 通信するプログラム同士（ポート）を繋ぎ、データが途中で消えたり壊れたりしていないかチェックする、通信の「信頼性」を保証します。（例：TCP, UDP）</li>
+      <li><b>インターネット層：</b> データの最終目的地（IPアドレス）を指定し、世界中のネットワークの中からどのルートを通ってデータを届けるか（ルーティング）を制御します。（例：IP）</li>
+      <li><b>リンク層（ネットワークインターフェース層）：</b> LANケーブルや電波（Wi-Fi）など、物理的な回線を通じて、隣り合う機器へデータを0と1の電気・光信号で実際に送り出す役割を持ちます。（例：イーサネット, Wi-Fi）</li>
+    </ol>
+
+    <h2>3. データの包み込み：カプセル化（Encapsulation）</h2>
+    <p>
+      送信側のPCからデータが送り出されるとき、データは最上部のアプリケーション層から順に、下の階層へと下りていきます。
+    </p>
+    <p>
+      このとき、各レイヤーを通るたびに、その階層のプロトコルが必要とする制御用の付箋（送信元・宛先情報やチェック用数値など）がデータの頭にくっつけられます。このヘッダと呼ばれる付箋を付け加えていくプロセスのことを<b>カプセル化（Encapsulation）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Encapsulation visualization (nested boxes) -->
+          <!-- Top: App Data -->
+          <g transform="translate(100, 10)">
+            <rect x="100" y="0" width="100" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="150" y="13" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle">データ本体 (HTTP)</text>
+          </g>
+
+          <path d="M 250 35 L 250 45" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+
+          <!-- Middle: TCP Segment -->
+          <g transform="translate(60, 50)">
+            <rect x="70" y="0" width="70" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="105" y="13" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">TCPヘッダ</text>
+
+            <rect x="140" y="0" width="100" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="190" y="13" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle">データ本体 (HTTP)</text>
+          </g>
+
+          <path d="M 250 75 L 250 85" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+
+          <!-- Bottom: IP Packet -->
+          <g transform="translate(20, 90)">
+            <rect x="40" y="0" width="70" height="20" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="75" y="13" font-family="var(--font-sans)" font-size="8" fill="#98C379" font-weight="600" text-anchor="middle">IPヘッダ</text>
+
+            <rect x="110" y="0" width="70" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" />
+            <text x="145" y="13" font-family="var(--font-sans)" font-size="8" fill="#E06C75" text-anchor="middle">TCPヘッダ</text>
+
+            <rect x="180" y="0" width="100" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="230" y="13" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle">データ本体 (HTTP)</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 6-2：送信時のカプセル化（上のレイヤーのデータをヘッダで包み込む）イメージ</figcaption>
+    </figure>
+
+    <p>
+      受信側のPCにデータが届くと、今度は逆に下から上へと階層を上がっていきます。
+      それぞれの階層のOSプログラムが、自分向けの付箋（ヘッダ）を読み取り、処理を行ってから付箋を剥ぎ取り、上の階層へと引き渡します。これを<b>非カプセル化（またはカプセル化の解除）</b>と呼びます。
+    </p>
+    <p>
+      このカプセル化の仕組みにより、各階層は「自分が必要とする付箋」だけに関心を持てばよくなり、他の階層が何をしているかを気にする必要がありません。
+    </p>
+    <p>
+      次のセクションでは、インターネットの要となる「IP（インターネット層）」に焦点を当て、データパケットが世界中のネットワークを旅して目的地に届く「IPアドレスとルーティング」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter5/section5`}>
+        <span class="arrow">←</span>
+        <span class="label">5-5. ソートアルゴリズム</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter6/section2`}>
+        <span class="label">6-2. IPアドレスとルーティング</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
