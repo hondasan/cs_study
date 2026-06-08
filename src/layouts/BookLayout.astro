@@ -105,6 +105,48 @@ const chapters = [
 ];
 
 const normalizedCurrentPath = currentPath.replace(/\/$/, "");
+
+// Dynamic SEO config
+const siteUrl = Astro.site ? Astro.site.href : "https://hondasan.github.io/cs_study/";
+const canonicalUrl = new URL(currentPath ? currentPath : baseUrl, siteUrl).href;
+const isHomepage = normalizedCurrentPath === baseUrl.replace(/\/$/, "");
+const ogImageUrl = new URL(`${baseUrl}og-image.png`, siteUrl).href;
+
+// Environment variables for analytics and monetization
+const gaId = import.meta.env.PUBLIC_GA_ID;
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+const enableAds = import.meta.env.PUBLIC_ENABLE_ADS === 'true';
+
+const jsonLd = isHomepage 
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "コンピュータサイエンスの教科書",
+      "description": "物理世界（トランジスタ）から計算限界（P≠NP予想）までを繋ぐ、体系的で美しいコンピュータサイエンスの入門教科書。",
+      "url": canonicalUrl,
+      "inLanguage": "ja",
+      "author": {
+        "@type": "Person",
+        "name": "honda"
+      }
+    }
+  : {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": title,
+      "description": description,
+      "url": canonicalUrl,
+      "inLanguage": "ja",
+      "isPartOf": {
+        "@type": "Book",
+        "name": "コンピュータサイエンスの教科書",
+        "url": siteUrl
+      },
+      "author": {
+        "@type": "Person",
+        "name": "honda"
+      }
+    };
 ---
 
 <!DOCTYPE html>
@@ -114,6 +156,47 @@ const normalizedCurrentPath = currentPath.replace(/\/$/, "");
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} | コンピュータサイエンスの教科書</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={isHomepage ? "website" : "article"} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={`${title} | コンピュータサイエンスの教科書`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="コンピュータサイエンスの教科書" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={`${title} | コンピュータサイエンスの教科書`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImageUrl} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Google Analytics (GA4) -->
+    {gaId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `} />
+      </>
+    )}
+
+    <!-- Google AdSense -->
+    {adsenseClient && (
+      <script 
+        async 
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`} 
+        crossorigin="anonymous"
+      ></script>
+    )}
     
     <!-- Google Fonts: Lora (Serif) & Outfit (Sans) & Noto Serif JP -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -329,7 +412,49 @@ const normalizedCurrentPath = currentPath.replace(/\/$/, "");
           width: 100%;
         }
       }
+
+      /* Ad Styles */
+      .ad-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 0.3rem;
+        font-family: var(--font-sans);
+        letter-spacing: 0.05em;
+      }
+      
+      .ad-box {
+        background-color: var(--quote-bg);
+        border: 1px dashed var(--border-color);
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100px;
+        padding: 0.5rem;
+      }
+      
+      .ad-placeholder {
+        font-family: var(--font-sans);
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      .sidebar-ad {
+        margin-top: 2rem;
+        padding: 0 0.2rem;
+      }
+
+      .content-ad {
+        margin-top: 3.5rem;
+        margin-bottom: 1.5rem;
+      }
     </style>
+    <script is:inline>
+      // Load adsense script again for dynamcially injected tags if needed
+    </script>
   </head>
   <body>
     <div class="layout-container">
@@ -367,6 +492,23 @@ const normalizedCurrentPath = currentPath.replace(/\/$/, "");
             </div>
           ))}
         </nav>
+        {enableAds && (
+          <div class="sidebar-ad no-print">
+            <div class="ad-label">スポンサーリンク</div>
+            <div class="ad-box">
+              {adsenseClient ? (
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client={adsenseClient}
+                     data-ad-slot="xxxxxxxxxx"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+              ) : (
+                <div class="ad-placeholder">広告掲載スペース</div>
+              )}
+            </div>
+          </div>
+        )}
       </aside>
 
       <!-- Main Content Area -->
@@ -374,6 +516,23 @@ const normalizedCurrentPath = currentPath.replace(/\/$/, "");
         <main class="content-body">
           <article class="main-content">
             <slot />
+            {enableAds && (
+              <div class="content-ad no-print">
+                <div class="ad-label">スポンサーリンク</div>
+                <div class="ad-box">
+                  {adsenseClient ? (
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client={adsenseClient}
+                         data-ad-slot="yyyyyyyyyy"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                  ) : (
+                    <div class="ad-placeholder">広告掲載スペース</div>
+                  )}
+                </div>
+              </div>
+            )}
           </article>
         </main>
 

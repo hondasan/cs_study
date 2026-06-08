@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hondasan.github.io/cs_study/sitemap-index.xml
