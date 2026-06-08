@@ -1,0 +1,237 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="8-4. P ≠ NP予想と計算量の壁" 
+  description="現代数学・コンピュータサイエンス最大の未解決問題である『P≠NP予想』と、どれだけコンピュータが進化しても超えられない『計算量の壁（多項式時間と指数時間）』の本質に迫ります。"
+  currentPath={`${baseUrl}chapter8/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第8章: セキュリティと計算の限界</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第8章 4節</div>
+    <h1 class="section-title">P ≠ NP予想と計算量の壁</h1>
+    <p class="section-intro">
+      前節では、コンピュータがどんなに進化しても「理論上絶対に解けない問題（計算不可能問題）」が存在することを示しました。しかし、たとえ「解くアルゴリズムが存在する」問題であっても、現実的な時間内に解くことができない<b>「計算量の壁」</b>が存在します。現代のコンピュータサイエンスにおける最大の未解決問題<b>「P ≠ NP予想」</b>を通じて、計算の難しさとその本質を紐解きます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 計算量の壁：多項式時間と指数時間</h2>
+    <p>
+      アルゴリズムの効率は、「入力サイズ N に対して処理ステップ数がどのように増加するか」を表す「計算量」（O記法）で評価することを第5章3節で学びました。
+      この計算量において、現実的な時間で解けるかどうかの境界線を決めるのが、以下の2つの世界です。
+    </p>
+
+    <ul>
+      <li>
+        <b>多項式時間（Polynomial Time / クラスP）：</b><br/>
+        計算量が <code>O(N)</code>、<code>O(N log N)</code>、<code>O(N^2)</code> などのように、入力サイズ N の多項式で抑えられるアルゴリズム。
+        N が数千、数万と大きくなっても、現代のコンピュータならミリ秒から数分といった「現実的な時間」で処理を終えることができます。
+      </li>
+      <li>
+        <b>指数時間（Exponential Time）：</b><br/>
+        計算量が <code>O(2^N)</code> や <code>O(N!)</code> （階乗）のように、N が少し増えるだけで計算ステップ数が爆発的に増加するアルゴリズム。
+        これを<b>組み合わせ爆発</b>と呼びます。
+      </li>
+    </ul>
+
+    <p>
+      指数時間の恐ろしさは、数値で比較すると一目瞭然です。
+      例えば、入力サイズ <code>N = 100</code> の問題があったとします。多項式時間 <code>O(N^2)</code> のアルゴリズムなら、計算ステップ数はわずか 1万回で、スマホでも一瞬で終わります。
+      しかし、指数時間 <code>O(2^N)</code> のアルゴリズムでは、ステップ数は <code>2^100</code> （約 <code>1.27 × 10^30</code>）回になります。
+      1秒間に10京回（<code>10^17</code>）計算できる世界最高峰のスーパーコンピュータを動員しても、この計算を終えるには<b>約3900億年</b>かかります。これは宇宙の年齢（約138億年）を遥かに超える時間です。
+    </p>
+    <p>
+      このように、理論上は「解く手順（アルゴリズム）」が分かっていても、現実には「この宇宙が終わるまでに計算が終わらない」ため、実質的に解くことができない問題があります。これが「計算量の壁」です。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="240" viewBox="0 0 450 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Axes -->
+          <line x1="50" y1="200" x2="410" y2="200" stroke="#1E3A60" stroke-width="1.5" marker-end="url(#arrow-x)" />
+          <line x1="60" y1="210" x2="60" y2="30" stroke="#1E3A60" stroke-width="1.5" marker-end="url(#arrow-y)" />
+          
+          <!-- Axis Labels -->
+          <text x="390" y="218" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">入力サイズ N</text>
+          <text x="50" y="22" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">必要な計算時間</text>
+          
+          <!-- Grid/Threshold line -->
+          <line x1="60" y1="90" x2="380" y2="90" stroke="#E06C75" stroke-dasharray="3 3" stroke-width="1" />
+          <text x="380" y="85" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="end">現実的な限界の壁（宇宙寿命など）</text>
+
+          <!-- Polynomial curve (O(N^2)) -->
+          <path d="M 60 200 Q 200 185 380 160" stroke="#1E3A60" stroke-width="2" fill="none" />
+          <text x="385" y="163" font-family="var(--font-mono)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="start">O(N^2) 多項式時間</text>
+          
+          <!-- Exponential curve (O(2^N)) -->
+          <path d="M 60 200 C 100 198 120 180 135 35" stroke="#E06C75" stroke-width="2" fill="none" />
+          <text x="142" y="45" font-family="var(--font-mono)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="start">O(2^N) 指数時間</text>
+          <text x="142" y="58" font-family="var(--font-sans)" font-size="8" fill="#E06C75" text-anchor="start">（わずかなNの増加で爆発）</text>
+
+          <!-- Markers -->
+          <defs>
+            <marker id="arrow-x" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#1E3A60" />
+            </marker>
+            <marker id="arrow-y" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 2 10 L 5 0 L 8 10 z" fill="#1E3A60" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 8-7：多項式時間と指数時間の計算ステップ数増加の対比</figcaption>
+    </figure>
+
+    <p>
+      この計算量の壁の代表例が、<b>「巡回セールスマン問題（Traveling Salesman Problem）」</b>です。
+      「いくつかの都市とそれぞれの間の距離が与えられたとき、すべての都市を1回ずつ巡って元の都市に戻る最短ルートを求める」という一見シンプルな問題です。
+      都市の数が N のとき、すべての可能性を網羅して調べる全探索を行うと、調べる必要があるルートの数は <code>(N-1)! / 2</code> 通り（階乗）になり、都市が30を超えるだけで、現代のスーパーコンピュータでも宇宙の寿命を超える計算時間がかかります。
+    </p>
+
+    <h2>2. クラスP と クラスNP</h2>
+    <p>
+      コンピュータサイエンスでは、問題を「解きやすさ」や「検証のしやすさ」によってグループ分け（クラス化）しています。
+    </p>
+
+    <ul>
+      <li>
+        <b>クラスP：</b><br/>
+        効率的なアルゴリズムが存在し、<b>「多項式時間で解くことができる」</b>判定問題のグループ。<br/>
+        例：二分探索、ソート（並べ替え）、最短経路問題（カーナビのルート検索など）。
+      </li>
+      <li>
+        <b>クラスNP（Non-deterministic Polynomial）：</b><br/>
+        自力で答えを導き出すのは極めて難しいかもしれないが、誰かが「これが答え（証拠）だ」と提示してくれたとき、それが正しいかどうかを<b>「多項式時間で検証できる」</b>判定問題のグループ。
+      </li>
+    </ul>
+
+    <p>
+      ここでよくある誤解は「NPは多項式（Polynomial）で解けない（Not）」の略ではないという点です。NPは<b>「非決定性多項式時間（Non-deterministic Polynomial）」</b>の略であり、あくまで「検証が多項式時間で可能」という意味です。
+    </p>
+    <p>
+      例えば「数独（ナンプレ）」を考えてみましょう。
+      空白だらけの巨大な数独をゼロから解くのは非常に困難（指数時間がかかる）ですが、誰かが「これが完成した数独です」とグリッドを見せてくれたとき、その縦・横・3x3のブロックに1〜9が重複なく収まっているか確認（検証）するのは、一瞬（多項式時間）で終わります。
+      したがって、数独を解く問題はクラスNPに属します。
+    </p>
+    <p>
+      当然ですが、<b>「解くのが簡単な問題（クラスP）は、検証するのも簡単」</b>です。そのため、クラスPの問題はすべてクラスNPに含まれます（P ⊆ NP）。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- P != NP case (Left) -->
+          <g transform="translate(10, 0)">
+            <rect x="5" y="15" width="205" height="150" rx="6" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="107" y="33" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">仮説1：P ≠ NP（有力）</text>
+            
+            <!-- NP Ellipse -->
+            <ellipse cx="107" cy="100" rx="80" ry="42" fill="#FAF9F5" stroke="#555555" stroke-dasharray="2 2" stroke-width="1.2" />
+            <text x="107" y="73" font-family="var(--font-mono)" font-size="9" fill="#555555" font-weight="600" text-anchor="middle">クラスNP (検証が容易)</text>
+            
+            <!-- P Circle -->
+            <circle cx="85" cy="112" r="24" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="85" y="115" font-family="var(--font-mono)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">クラスP</text>
+            
+            <!-- NP-complete (NPC) -->
+            <circle cx="150" cy="112" r="18" fill="#FCE8E6" stroke="#E06C75" stroke-width="1.2" />
+            <text x="150" y="110" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">NPC</text>
+            <text x="150" y="121" font-family="var(--font-sans)" font-size="6" fill="#E06C75" text-anchor="middle">(NP完全)</text>
+          </g>
+
+          <!-- P = NP case (Right) -->
+          <g transform="translate(225, 0)">
+            <rect x="5" y="15" width="205" height="150" rx="6" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="107" y="33" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">仮説2：P = NP</text>
+            
+            <!-- P = NP Circle -->
+            <circle cx="107" cy="100" r="42" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="107" y="94" font-family="var(--font-mono)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">クラスP</text>
+            <text x="107" y="106" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">||</text>
+            <text x="107" y="119" font-family="var(--font-mono)" font-size="11" fill="#555555" font-weight="600" text-anchor="middle">クラスNP</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 8-8：P ≠ NP予想における包含関係の2つのシナリオ</figcaption>
+    </figure>
+
+    <h2>3. 世紀の未解決問題「P ≠ NP予想」</h2>
+    <p>
+      ここで生まれるのが、現代数学およびコンピュータサイエンス最大の謎である<b>「P ≠ NP予想」</b>です。
+    </p>
+    
+    <div class="note-box" style="border-left-color: var(--accent-color);">
+      <b>「検証することが簡単な問題（NP）は、実は自力で解くことも簡単に（多項式時間で）できるのだろうか？ それとも、検証するよりも解く方が本質的に難しいのだろうか？」</b>
+    </div>
+
+    <p>
+      直感的には、「テストの解答を作る（解く）」方が「配られた解答が合っているか確認する（検証）」よりも遥かに難しいため、「P ≠ NP（解く方が本質的に難しい）」であることは当たり前に思えます。
+      しかし、提示されてから半世紀以上経った今でも、これが正しいという厳密な証明（または否定）には誰も成功していません。
+      クレイ数学研究所は、この証明に対して100万ドル（約1.5億円）の懸賞金をかけています。
+    </p>
+
+    <h3>もし「P = NP」だった世界はどうなるか？</h3>
+    <p>
+      もし「P = NP」であることが証明され、あらゆるNP問題を多項式時間で解く魔法のようなアルゴリズムが発見されたら、世界は以下のように激変します。
+    </p>
+
+    <ul>
+      <li>
+        <b>インターネット暗号の即時崩壊：</b><br/>
+        第8章1節・2節で学んだ「公開鍵暗号」や「ハッシュ関数」はすべて、「暗号を作る（検証する）のは一瞬だが、鍵なしで解読する（解く）には宇宙寿命レベルの時間がかかる」という非対称性を前提にしています。
+        もし P = NP ならば、この非対称性が消失し、すべての暗号が瞬時に解読され、オンライン決済や通信の安全は完全に失われます。
+      </li>
+      <li>
+        <b>人類の課題の超高速解決：</b><br/>
+        一方で、物流や交通網の完全な最適化（巡回セールスマン問題の解決）、極めて効率的な新薬の自動分子設計（タンパク質折り畳み問題の解決）、あらゆる新素材のシミュレーション、さらには超高度なAIの学習が瞬時に終わるようになります。人類にとって不可能とされていた多くの科学的難問が、一瞬で解決されることになります。
+      </li>
+    </ul>
+
+    <h3>現実世界での妥協と「近似」</h3>
+    <p>
+      現在の科学者の間では、<b>「やはり P と NP は等しくない（P ≠ NP）」</b>と広く予想されています。つまり、宇宙には「解くためにはどうしても膨大な時間がかかる問題」が本質的に存在するということです。
+    </p>
+    <p>
+      しかし、巡回セールスマン問題のような難解なNP問題でも、私たちは現実の配送ルート決定などで毎日解く必要があります。
+      そこで現代のテクノロジーは、完璧な「最短ルート（最適解）」を求めるのを諦め、わずかな時間で「98%正解に近いルート」を見つけ出す<b>「近似アルゴリズム」</b>や、人間の経験則を取り入れた<b>「ヒューリスティクス」</b>を活用し、計算量の壁を巧みに回避して社会を動かしています。
+    </p>
+
+    <hr/>
+
+    <h2>本書を読み終えたあなたへ</h2>
+    <p>
+      第1章の「電球1個のオン・オフ」から始まった旅は、CPUの設計、OSによる並行処理の調停、世界を繋ぐネットワークの規律、情報の信頼性を支えるデータベース、そして最後に「計算不可能な停止性問題」と「P ≠ NPという計算量の壁」まで辿り着きました。
+    </p>
+    <p>
+      コンピュータサイエンスとは、単なる「プログラミングの手順」を学ぶ実用的な道具ではありません。
+      それは、人類が「情報」と「計算」という目に見えない抽象的な概念を捉え、それを物理世界で制御するために創り上げてきた、壮大で美しい知的迷宮です。
+    </p>
+    <p>
+      本書を通じて得た基礎的な思考と知識は、技術のトレンドがどれだけ移り変わろうとも、あなたがこれから出会うあらゆるソフトウェアやシステムの根底で、決して揺らぐことのない確固たる羅針盤となるでしょう。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter8/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">8-3. チューリングマシンと計算可能性</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={baseUrl}>
+        <span class="label">読了：ホームへ戻る</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

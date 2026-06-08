@@ -1,0 +1,179 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="8-1. 共通鍵暗号と公開鍵暗号" 
+  description="情報の盗聴を防ぐセキュリティ技術の基本である『共通鍵暗号』と、鍵配送問題を解決した近代セキュリティの金字塔『公開鍵暗号』の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter8/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第8章: セキュリティと計算の限界</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第8章 1節</div>
+    <h1 class="section-title">共通鍵暗号と公開鍵暗号</h1>
+    <p class="section-intro">
+      第6章の「HTTPS」でも触れたように、インターネットを流れるデータは常に悪意あるハッカーからの「盗聴」の危険に晒されています。クレジットカード情報や個人情報を安全に送るためには、データを解読不可能な形に変換する「暗号」の技術が不可欠です。暗号技術の歴史を塗り替えた「共通鍵暗号」と「公開鍵暗号」の仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 暗号の基本概念：平文、暗号化、復号</h2>
+    <p>
+      暗号の世界では、以下の用語が使用されます。
+    </p>
+    <ul>
+      <li><b>平文（ひらぶん / Plaintext）：</b> 誰でも読める元のメッセージ。</li>
+      <li><b>暗号化（Encryption）：</b> 平文を、ルール（アルゴリズム）に従って解読不能な「暗号文」に変換する処理。</li>
+      <li><b>復号（Decryption）：</b> 暗号文を元の平文に書き戻す処理（「解読」は鍵なしで無理やり破ることを指すため区別されます）。</li>
+      <li><b>鍵（Key）：</b> 暗号化や復号の際に使用する、変換のパラメータとなる「パスワードの数値」です。</li>
+    </ul>
+
+    <h2>2. 共通鍵暗号（Symmetric-key Cryptography）</h2>
+    <p>
+      <b>共通鍵暗号</b>は、<b>「暗号化と復号に、全く同じ1つの鍵（共通鍵）」</b>を使用する方式です。
+      自宅の玄関の鍵と同じで、同じ鍵を使ってガチャリと閉め、同じ鍵で開けます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="100" viewBox="0 0 450 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Symmetric key flow -->
+          <text x="50" y="55" font-family="var(--font-sans)" font-size="10" fill="#2A2A2A" font-weight="600" text-anchor="middle">平文</text>
+          
+          <path d="M 80 50 L 120 50" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 115 46 L 120 50 L 115 54 Z" fill="#1E3A60" />
+
+          <!-- Encryptor -->
+          <rect x="120" y="30" width="60" height="40" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="150" y="54" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">暗号化</text>
+
+          <path d="M 180 50 L 220 50" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 215 46 L 220 50 L 215 54 Z" fill="#1E3A60" />
+
+          <text x="250" y="55" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">暗号文</text>
+
+          <path d="M 280 50 L 320 50" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 315 46 L 320 50 L 315 54 Z" fill="#1E3A60" />
+
+          <!-- Decryptor -->
+          <rect x="320" y="30" width="60" height="40" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+          <text x="350" y="54" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">復号</text>
+
+          <path d="M 380 50 L 410 50" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 405 46 L 410 50 L 405 54 Z" fill="#1E3A60" />
+
+          <text x="430" y="55" font-family="var(--font-sans)" font-size="10" fill="#2A2A2A" font-weight="600" text-anchor="middle">平文</text>
+
+          <!-- Key above -->
+          <rect x="225" y="0" width="50" height="15" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1" />
+          <text x="250" y="10" font-family="var(--font-sans)" font-size="7" fill="#1E3A60" font-weight="600" text-anchor="middle">共通鍵🔑</text>
+          <path d="M 225 7 L 150 7 L 150 25" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" fill="none" />
+          <path d="M 275 7 L 350 7 L 350 25" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" fill="none" />
+        </svg>
+      </div>
+      <figcaption>図 8-1：共通鍵暗号のモデル。暗号化と復号に同じ「共通鍵」を使用する</figcaption>
+    </figure>
+
+    <div class="note-box">
+      <div class="note-box-title">共通鍵暗号の特徴</div>
+      <ul>
+        <li><b>メリット：圧倒的スピード</b><br/>データの変換計算（ビット反転や排他的論理和など）が極めてシンプルであるため、大容量のデータを高速に暗号化するのに最適です。（代表例：AES）</li>
+        <li><b>デメリット：鍵配送問題（Key Distribution Problem）</b><br/>暗号文を送る前に、相手に安全に鍵を渡さなければなりません。インターネットを介して「暗号化されていない回線」で鍵を送ってしまっては、鍵そのものを盗聴されてしまい、暗号の意味がなくなります。直接手渡しするか、別の安全な手段をとる必要があり、これが鍵配送問題と呼ばれる歴史的な難問でした。</li>
+      </ul>
+    </div>
+
+    <h2>3. 世紀のイノベーション：公開鍵暗号（Public-key Cryptography）</h2>
+    <p>
+      鍵配送問題を数学的に完全に解決したのが、1970年代に発明された<b>公開鍵暗号</b>です。
+    </p>
+    <p>
+      この方式では、<b>「暗号化と復号に、対（ペア）となる異なる2つの鍵」</b>を使用します。
+    </p>
+    <ul>
+      <li><b>公開鍵（Public Key）：</b> 誰にでも公開して配る鍵。データを「暗号化」する専用の鍵です。</li>
+      <li><b>秘密鍵（Private Key）：</b> 自分だけが絶対に他人に漏らさず保管しておく鍵。暗号文を「復号」する専用の鍵です。</li>
+    </ul>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Public key flow: Box locks with Public key, Unlocks only with Private key -->
+          <!-- Sender (Encrypts with Recipient's Public Key) -->
+          <g transform="translate(30, 20)">
+            <rect x="0" y="20" width="120" height="80" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="60" y="35" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">送信者 (アリス)</text>
+            <rect x="10" y="50" width="100" height="40" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="60" y="65" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">受信者の【公開鍵】</text>
+            <text x="60" y="75" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600" text-anchor="middle">🔓 で鍵をかける</text>
+          </g>
+
+          <path d="M 160 70 L 280 70" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 275 66 L 280 70 L 275 74 Z" fill="#1E3A60" />
+          <text x="220" y="60" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">暗号文をネットワーク送信</text>
+
+          <!-- Recipient (Decrypts with Private Key) -->
+          <g transform="translate(290, 20)">
+            <rect x="0" y="20" width="120" height="80" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+            <text x="60" y="35" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">受信者 (ボブ)</text>
+            <rect x="10" y="50" width="100" height="40" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="60" y="65" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">自分だけの【秘密鍵】</text>
+            <text x="60" y="75" font-family="var(--font-sans)" font-size="7" fill="#98C379" font-weight="600" text-anchor="middle">🔑 でのみ解錠可能</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 8-2：公開鍵暗号のモデル。誰でもかけられる南京錠（公開鍵）でロックし、受信者本人だけが自分の鍵（秘密鍵）で開ける</figcaption>
+    </figure>
+
+    <p>
+      この方式の動作モデルは、<b>「南京錠」</b>と<b>「解錠用の鍵」</b>の関係に似ています。
+    </p>
+    <ol>
+      <li>受信者は、誰でもカチッと閉められる「開いた状態の南京錠（公開鍵）」を世界中に配ります。</li>
+      <li>送信者は、手に入れた受信者の南京錠（公開鍵）を使って、メッセージを金庫に入れてカチッとロック（暗号化）して送信します。</li>
+      <li>一度ロックされると、ロックに使った南京錠（公開鍵）では二度と開けることはできません。世界中で、受信者が誰にも見せずに持っている「解錠用の鍵（秘密鍵）」だけがこの金庫を開ける（復号する）ことができます。</li>
+    </ol>
+    <p>
+      このため、ネットワーク上に「解錠用の鍵（秘密鍵）」を流す必要は一切なくなり、鍵配送問題は完全に解消されました。（代表例：RSA暗号）
+    </p>
+
+    <h2>4. ハイブリッド暗号方式：美味しいとこ取り</h2>
+    <p>
+      公開鍵暗号は完璧ですが、大きな素数を用いた巨大な掛け算やべき乗の数学的計算を伴うため、<b>共通鍵暗号に比べて何百倍も処理が遅い</b>という欠点があります。
+    </p>
+    <p>
+      そこで、現代のインターネット通信（HTTPSなど）では、両者の長所を組み合わせた<b>ハイブリッド暗号方式</b>が使われています。
+    </p>
+    <ol>
+      <li>最初の通信開始時だけ、処理の遅い<b>「公開鍵暗号」</b>を使って、その場限りの使い捨ての「共通鍵」の数値を安全に配送します。</li>
+      <li>お互いが無事に共通鍵の数値を共有した後は、処理の圧倒的に速い<b>「共通鍵暗号」</b>に切り替えて、ウェブデータや画像などの大容量ファイルを高速に暗号通信します。</li>
+    </ol>
+    <p>
+      この賢いハイブリッド設計により、インターネット全体の安全と超高速な読み込みが同時に両立しています。
+    </p>
+    <p>
+      次のセクションでは、データが「改ざん」されていないかチェックしたり、データの同一性を証明したりする「ハッシュ関数」と「デジタル署名」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter7/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">7-4. トランザクションとACID特性</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter8/section2`}>
+        <span class="label">8-2. ハッシュ関数とデジタル署名</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

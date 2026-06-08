@@ -1,0 +1,159 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="8-3. チューリングマシンと計算可能性" 
+  description="コンピュータサイエンスの理論の基礎であるアラン・チューリングの計算機械モデル『チューリングマシン』と、アルゴリズムでは絶対に解けない『停止性問題』の限界を学びます。"
+  currentPath={`${baseUrl}chapter8/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第8章: セキュリティと計算の限界</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第8章 3節</div>
+    <h1 class="section-title">チューリングマシンと計算可能性</h1>
+    <p class="section-intro">
+      コンピュータは、これまで見てきたように計算を行い、複雑なアルゴリズムを処理する万能の機械のように見えます。しかし、コンピュータは「どんな問題でも、時間をかければアルゴリズムによって必ず解決できる」のでしょうか。数学者アラン・チューリングが示した計算の抽象モデルと、コンピュータがどれだけ進化しても「絶対に解けない問題（停止性問題）」の存在について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 計算のモデル：チューリングマシン（Turing Machine）</h2>
+    <p>
+      1936年、コンピュータがまだこの世に影も形もなかった時代、イギリスの数学者アラン・チューリングは、「計算する」という人間の行為を極限までシンプルに抽象化した仮想の機械モデル<b>「チューリングマシン」</b>を考案しました。
+    </p>
+    <p>
+      その構造は、驚くほど単純です。
+    </p>
+    <ul>
+      <li><b>テープ（メモリ）：</b> 1マスごとに記号（<code>0</code> や <code>1</code>）が書かれた、左右に無限に長いテープ。</li>
+      <li><b>ヘッド（CPU）：</b> テープの1マスを指し示し、記号を読み書きし、テープを左右に1マス動かすヘッド。</li>
+      <li><b>状態遷移表（プログラム）：</b> 「現在のマシンの状態がAで、テープの記号が1なら、記号を0に書き換えて、右に移動し、状態をBにせよ」といった簡単な行動ルール表。</li>
+    </ul>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="110" viewBox="0 0 450 110" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Turing Machine Ribbon (Tape) -->
+          <rect x="30" y="20" width="390" height="30" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="70" y1="20" x2="70" y2="50" stroke="#1E3A60" />
+          <line x1="110" y1="20" x2="110" y2="50" stroke="#1E3A60" />
+          <line x1="150" y1="20" x2="150" y2="50" stroke="#1E3A60" />
+          <line x1="190" y1="20" x2="190" y2="50" stroke="#1E3A60" />
+          <line x1="230" y1="20" x2="230" y2="50" stroke="#1E3A60" />
+          <line x1="270" y1="20" x2="270" y2="50" stroke="#1E3A60" />
+          <line x1="310" y1="20" x2="310" y2="50" stroke="#1E3A60" />
+          <line x1="350" y1="20" x2="350" y2="50" stroke="#1E3A60" />
+          <line x1="390" y1="20" x2="390" y2="50" stroke="#1E3A60" />
+
+          <!-- Symbols on Tape -->
+          <text x="50" y="40" font-family="var(--font-sans)" font-size="12" fill="#555555" text-anchor="middle">...</text>
+          <text x="90" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">1</text>
+          <text x="130" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">0</text>
+          <text x="170" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">1</text>
+          <text x="210" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">1</text>
+          <text x="250" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">0</text>
+          <text x="290" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">1</text>
+          <text x="330" y="40" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600" text-anchor="middle">0</text>
+          <text x="370" y="40" font-family="var(--font-sans)" font-size="12" fill="#555555" text-anchor="middle">...</text>
+
+          <!-- Head pointing to tape -->
+          <polygon points="210,65 200,80 220,80" fill="#E06C75" stroke="#E06C75" />
+          <rect x="175" y="80" width="70" height="25" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="210" y="95" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">読み書きヘッド</text>
+        </svg>
+      </div>
+      <figcaption>図 8-5：アラン・チューリングが考案した「チューリングマシン」の構造概念図</figcaption>
+    </figure>
+
+    <p>
+      アラン・チューリングは、この極めて単純な機械モデルが、<b>「すべてのコンピュータの処理能力の本質的な限界と同じである」</b>ことを証明しました。
+      現代のスーパーコンピュータや高性能スマホも、超複雑な回路を持っていますが、論理的にはこの「テープとヘッドをパタパタ動かす機械」とできることは全く同じ（限界も同じ）なのです。
+    </p>
+
+    <h2>2. 計算不可能問題：アルゴリズムの敗北</h2>
+    <p>
+      チューリングは、チューリングマシンの限界を追究する中で、<b>「数学的・論理的に正しい問いであるのにもかかわらず、それを解くアルゴリズム（プログラム）を絶対に作ることができない問題」</b>が存在することを発見しました。
+      これを<b>計算不可能問題（Undecidable Problem）</b>と呼びます。
+    </p>
+    <p>
+      その決定的な例が、歴史的に名高い<b>停止性問題（Halting Problem）</b>です。
+    </p>
+
+    <h2>3. 停止性問題のパラドックス</h2>
+    <p>
+      停止性問題とは、以下のような問いです。
+    </p>
+    <div class="note-box" style="border-left-color: var(--accent-color);">
+      <b>「ある任意のプログラムXと、その入力Yを渡されたときに、プログラムXがいつか必ず実行を完了して『停止する』か、それとも永遠に終わらない『無限ループになる』かを、事前に100%確実に正しく判定する万能プログラムHは作れるか？」</b>
+    </div>
+    <p>
+      チューリングは、<b>「そのような万能判定プログラムHは、絶対に存在しない（作れない）」</b>ことを背理法（矛盾を導く証明法）を用いて証明しました。
+    </p>
+    <p>
+      証明のエッセンスは、嘘つきのパラドックス（「私は嘘つきである」という文が真か偽か）と全く同じです。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Paradox box visual -->
+          <rect x="50" y="30" width="350" height="90" rx="4" fill="#FAF9F5" stroke="#E06C75" stroke-width="2" />
+          <text x="225" y="50" font-family="var(--font-sans)" font-size="11" fill="#E06C75" font-weight="600" text-anchor="middle">天邪鬼プログラムの自己矛盾</text>
+          
+          <rect x="70" y="65" width="310" height="40" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="225" y="80" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">「万能判定プログラムHが『停止する』と判定したら ➔ 無限ループする」</text>
+          <text x="225" y="95" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">「万能判定プログラムHが『無限ループする』と判定したら ➔ 即座に停止する」</text>
+        </svg>
+      </div>
+      <figcaption>図 8-6：停止性問題の証明における「天邪鬼プログラム」による自己矛盾モデル</figcaption>
+    </figure>
+
+    <p>
+      もし、万能判定プログラムHが作れると仮定します。
+      このHを利用して、以下のようなあまのじゃくな動作をするプログラム「天邪鬼（あまのじゃく）」を作ります。
+    </p>
+    <p style="text-align: center; font-style: italic;">
+      天邪鬼は、Hが「お前は停止する」と判定したら、わざと「無限ループ」に入ります。<br/>
+      Hが「お前は無限ループする」と判定したら、わざと「即座に停止」します。
+    </p>
+    <p>
+      では、この「天邪鬼」自身を、万能判定プログラムHに入力したら何が起きるでしょうか？
+    </p>
+    <ul>
+      <li>Hが「天邪鬼は停止する」と判定した場合：天邪鬼はルールに従って無限ループするため、Hの判定はハズレです。</li>
+      <li>Hが「天邪鬼は無限ループする」と判定した場合：天邪鬼はルールに従って停止するため、やはりHの判定はハズレです。</li>
+    </ul>
+    <p>
+      どのように判定しても必ずHの判定結果と矛盾（パラドックス）が発生します。
+      この矛盾の原因は、「万能判定プログラムHが存在する」と仮定したこと自体にあります。したがって、そのようなプログラムHは数学的にこの宇宙に存在し得ないことが完全に証明されました。
+    </p>
+    <p>
+      この発見は、「コンピュータは万能ではない。数学的に厳密に定義された問題であっても、アルゴリズムによって解くことが絶対にできない領域がある」という計算の絶対的限界を示した、コンピュータサイエンスの歴史における金字塔です。
+    </p>
+    <p>
+      最後のセクションでは、「解くことはできるが、宇宙が終わるほどの時間がかかるため実質的に解けない問題」の限界を示す、現代数学・CS最大の未解決問題「P ≠ NP予想」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter8/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">8-2. ハッシュ関数とデジタル署名</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter8/section4`}>
+        <span class="label">8-4. P ≠ NP予想と計算量の壁</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

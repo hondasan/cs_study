@@ -1,0 +1,176 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="8-2. ハッシュ関数とデジタル署名" 
+  description="データの完全性（改ざん防止）を証明する『ハッシュ関数』と、インターネット上で本人の署名であること（なりすまし防止）を証明する『デジタル署名』の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter8/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第8章: セキュリティと計算の限界</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第8章 2節</div>
+    <h1 class="section-title">ハッシュ関数とデジタル署名</h1>
+    <p class="section-intro">
+      暗号によって「盗聴」を防ぐことはできますが、セキュリティにはもう2つの重要な課題があります。それは<b>「改ざん（データが途中で書き換えられていないか）」</b>の検知と、<b>「なりすまし（本当に本人が送ったメッセージか）」</b>の防止です。これらを解決し、インターネット上での安全な契約や通信の信頼性を保証する「ハッシュ関数」と「デジタル署名」の仕組みについて学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. データの指紋：ハッシュ関数（Hash Function）</h2>
+    <p>
+      <b>ハッシュ関数（暗号学的ハッシュ関数）</b>は、どんな長さのデータ（1文字のテキストから、数ギガバイトある動画まで）を入力しても、それを元にして<b>「固定の長さのランダムな値（ハッシュ値）」</b>を出力する特別な数式関数です。
+    </p>
+    <p>
+      ハッシュ関数は、以下の極めて強力な性質を持っています。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">ハッシュ関数の性質</div>
+      <ul>
+        <li><b>一方通行性（不可逆性）：</b> 入力データからハッシュ値を計算するのは一瞬ですが、ハッシュ値から「元のデータ」を復元することは数学的に不可能です。</li>
+        <li><b>衝突困難性：</b> 異なる2つのデータから、全く同じハッシュ値が生成されるような組み合わせを見つけ出すのは事実上不可能です。</li>
+        <li><b>鋭敏性（雪崩効果）：</b> 元のデータがわずか1文字（1ビット）でも書き換わると、出力されるハッシュ値は全く別のランダムな値に激変します。</li>
+      </ul>
+    </div>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Hash input -> Hash function -> Hash value -->
+          <g transform="translate(10, 10)">
+            <rect x="10" y="20" width="100" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="60" y="36" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">"Hello World"</text>
+            
+            <path d="M 110 32 L 150 32" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 145 28 L 150 32 L 145 36 Z" fill="#1E3A60" />
+
+            <!-- Hash Engine -->
+            <rect x="150" y="10" width="80" height="45" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="190" y="36" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">ハッシュ関数</text>
+
+            <path d="M 230 32 L 270 32" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 265 28 L 270 32 L 265 36 Z" fill="#1E3A60" />
+
+            <text x="280" y="36" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">a3f9e8...</text>
+          </g>
+
+          <!-- Altered input below -->
+          <g transform="translate(10, 65)">
+            <rect x="10" y="20" width="100" height="25" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="60" y="36" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">"Hello world."</text>
+            
+            <path d="M 110 32 L 150 32" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 145 28 L 150 32 L 145 36 Z" fill="#1E3A60" />
+
+            <!-- Hash Engine -->
+            <rect x="150" y="10" width="80" height="45" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="190" y="36" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">ハッシュ関数</text>
+
+            <path d="M 230 32 L 270 32" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 265 28 L 270 32 L 265 36 Z" fill="#1E3A60" />
+
+            <text x="280" y="36" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600">b81d7f...</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 8-3：ハッシュ関数による「指紋」の生成。大文字小文字やピリオド1つの違いで、全く異なる値が出力される</figcaption>
+    </figure>
+
+    <p>
+      この性質から、ハッシュ値は<b>「データの指紋」</b>と呼ばれます。
+      ダウンロードしたファイルが壊れていないか、あるいは途中で何者かに改ざんされていないかを確認するために、元のハッシュ値とダウンロードしたファイルのハッシュ値を比較する手法が広く使われています。
+    </p>
+
+    <h2>2. デジタル署名（Digital Signature）</h2>
+    <p>
+      ハッシュ関数だけでは、「改ざん」の検知はできますが、「送信者が本当に本人か（なりすましの防止）」は証明できません。
+      そこで、公開鍵暗号の数学的特性を応用した<b>デジタル署名</b>が登場します。
+    </p>
+    <p>
+      デジタル署名では、通常とは<b>「逆」</b>の鍵の使い方をします。
+    </p>
+    <ul>
+      <li>暗号化するとき：送信者自身の<b>秘密鍵</b>で、データのハッシュ値を暗号化します（これが<b>署名</b>になります）。</li>
+      <li>復号するとき：誰でも手に入る送信者の<b>公開鍵</b>で、署名を復号します。</li>
+    </ul>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="200" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Digital Signature process -->
+          <!-- Left: Sender (Alice) -->
+          <g transform="translate(10, 10)">
+            <rect x="0" y="20" width="140" height="130" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="70" y="35" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">送信側: アリス</text>
+            
+            <rect x="10" y="45" width="120" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="70" y="60" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">メッセージ「送金1万円」</text>
+
+            <path d="M 70 70 L 70 95" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+
+            <rect x="10" y="95" width="120" height="45" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="70" y="110" font-family="var(--font-sans)" font-size="7" fill="#E06C75" text-anchor="middle">アリスの【秘密鍵】で</text>
+            <text x="70" y="122" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600" text-anchor="middle">ハッシュ値を暗号化 ➔ 署名</text>
+          </g>
+
+          <path d="M 160 90 L 330 90" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 325 86 L 330 90 L 325 94 Z" fill="#1E3A60" />
+          <text x="245" y="80" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle">メッセージ ＋ 署名 を送信</text>
+
+          <!-- Right: Recipient (Bob) -->
+          <g transform="translate(340, 10)">
+            <rect x="0" y="20" width="140" height="130" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="70" y="35" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">受信側: ボブ</text>
+
+            <rect x="10" y="45" width="120" height="40" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="70" y="60" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アリスの【公開鍵】で</text>
+            <text x="70" y="72" font-family="var(--font-sans)" font-size="7" fill="#98C379" font-weight="600" text-anchor="middle">署名を復号 ➔ 元のハッシュ</text>
+
+            <!-- Compare -->
+            <rect x="10" y="105" width="120" height="35" rx="2" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="70" y="120" font-family="var(--font-sans)" font-size="7" fill="#98C379" font-weight="600" text-anchor="middle">受信メッセージのハッシュ値</text>
+            <text x="70" y="132" font-family="var(--font-sans)" font-size="7" fill="#98C379" text-anchor="middle">と一致するか検証（OK！）</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 8-4：デジタル署名の作成と検証プロセス</figcaption>
+    </figure>
+
+    <p>
+      アリスの秘密鍵はアリス本人しか持っていないため、アリスの公開鍵で正しく復号できる署名は、<b>「絶対にアリス本人が署名を作成した（なりすましではない）」</b>ことが数学的に証明されます。
+    </p>
+    <p>
+      また、もしメッセージが途中で改ざんされていれば、アリスの署名を復号して出てきたハッシュ値と、受け取ったメッセージから計算したハッシュ値が一致しなくなるため、<b>「改ざんされていること」</b>が即座に検知されます。
+    </p>
+    <p>
+      この完璧な証明モデルにより、電子契約や、WebサイトのSSL/TLSサーバー証明書、ソフトウェア配布時の安全確認などが保証されています。
+    </p>
+
+    <p>
+      次のセクションからは、セキュリティ技術を離れ、コンピュータサイエンスの「理論的な終着点」である、コンピュータが解決できる問題と解決できない問題の限界「計算可能性」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter8/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">8-1. 共通鍵暗号と公開鍵暗号</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter8/section3`}>
+        <span class="label">8-3. チューリングマシンと計算可能性</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
