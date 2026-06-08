@@ -1,0 +1,104 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<BookLayout 
+  title="1-2. 数の表現" 
+  currentPath={`${baseUrl}chapter1/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第1章: 情報を数える・伝える</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第1章 2節</div>
+    <h1 class="section-title">数の表現：2進数と16進数</h1>
+  </header>
+
+  <div class="section-body">
+    <div class="note-box">
+      <div class="note-box-title">お知らせ</div>
+      <p>このセクションは現在準備中です。後ほどコンテンツが追加されます。</p>
+    </div>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter1/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">1-1. 電球1個から始める通信</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <span class="muted">次のセクションへ →</span>
+    </div>
+  </div>
+
+  <style>
+    /* Breadcrumbs styling */
+    .section-nav-breadcrumbs {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .section-nav-breadcrumbs a {
+      color: inherit;
+      border-bottom: none;
+    }
+    
+    /* Header layout */
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    
+    .section-number {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-color);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: none;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+    
+    /* Pagination component */
+    .textbook-pagination {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    .textbook-pagination a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: color 0.2s;
+    }
+    
+    .textbook-pagination a:hover {
+      color: var(--accent-color);
+    }
+  </style>
+</BookLayout>

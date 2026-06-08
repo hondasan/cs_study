@@ -1,0 +1,363 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath?: string;
+}
+
+const { 
+  title, 
+  description = "コンピュータサイエンスを体系的に、直感的かつ美しく学ぶ教科書",
+  currentPath = "" 
+} = Astro.props;
+
+// base url (for GitHub Pages deployment)
+const baseUrl = import.meta.env.BASE_URL;
+
+// Curriculum navigation structure
+const chapters = [
+  {
+    number: "1",
+    title: "情報を数える・伝える",
+    sections: [
+      { id: "1-1", title: "電球1個から始める通信", path: "chapter1/section1" },
+      { id: "1-2", title: "数の表現", path: "chapter1/section2" },
+      { id: "1-3", title: "文字の表現", path: "chapter1/section3" },
+      { id: "1-4", title: "メモリの中を覗く", path: "chapter1/section4" },
+    ]
+  },
+  {
+    number: "2",
+    title: "電気で計算する",
+    sections: [
+      { id: "2-1", title: "スイッチとしてのトランジスタ", path: "chapter2/section1" },
+      { id: "2-2", title: "基本論理回路と真理値表", path: "chapter2/section2" },
+      { id: "2-3", title: "計算の実現：加算器", path: "chapter2/section3" },
+      { id: "2-4", title: "クロックと同期：記憶", path: "chapter2/section4" },
+      { id: "2-5", title: "シンプルなCPUの設計図", path: "chapter2/section5" },
+    ]
+  },
+  {
+    number: "3",
+    title: "メモリの迷宮",
+    sections: [
+      { id: "3-1", title: "プログラムの生涯", path: "chapter3/section1" },
+      { id: "3-2", title: "記憶のピラミッド", path: "chapter3/section2" },
+      { id: "3-3", title: "スタックとヒープ", path: "chapter3/section3" },
+      { id: "3-4", title: "ポインタと参照", path: "chapter3/section4" },
+    ]
+  },
+  {
+    number: "4",
+    title: "効率を極める",
+    sections: [
+      { id: "4-1", title: "データ構造とは箱である", path: "chapter4/section1" },
+      { id: "4-2", title: "スタックとキュー", path: "chapter4/section2" },
+      { id: "4-3", title: "効率のハサミ：二分探索", path: "chapter4/section3" },
+      { id: "4-4", title: "木（ツリー）とグラフ", path: "chapter4/section4" },
+      { id: "4-5", title: "ソートと分割統治法", path: "chapter4/section5" },
+    ]
+  },
+  {
+    number: "5",
+    title: "他者と繋がる",
+    sections: [
+      { id: "5-1", title: "プロトコルと階層設計", path: "chapter5/section1" },
+      { id: "5-2", title: "IPルーティングと郵便", path: "chapter5/section2" },
+      { id: "5-3", title: "信頼性の担保：TCP", path: "chapter5/section3" },
+      { id: "5-4", title: "世界の住所録：DNS", path: "chapter5/section4" },
+      { id: "5-5", title: "Webの言語：HTTP", path: "chapter5/section5" },
+    ]
+  },
+  {
+    number: "6",
+    title: "データを預かる",
+    sections: [
+      { id: "6-1", title: "ファイル保存の限界", path: "chapter6/section1" },
+      { id: "6-2", title: "関係モデルの論理美", path: "chapter6/section2" },
+      { id: "6-3", title: "SQL：宣言型言語の思想", path: "chapter6/section3" },
+      { id: "6-4", title: "トランザクションとACID", path: "chapter6/section4" },
+    ]
+  },
+  {
+    number: "7",
+    title: "安全と限界",
+    sections: [
+      { id: "7-1", title: "公開鍵暗号の魔法", path: "chapter7/section1" },
+      { id: "7-2", title: "ハッシュ関数とデジタル署名", path: "chapter7/section2" },
+      { id: "7-3", title: "計算可能限界と停止性", path: "chapter7/section3" },
+      { id: "7-4", title: "P vs NP問題と宇宙寿命", path: "chapter7/section4" },
+    ]
+  }
+];
+
+const normalizedCurrentPath = currentPath.replace(/\/$/, "");
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | コンピュータサイエンスの教科書</title>
+    <meta name="description" content={description} />
+    
+    <!-- Google Fonts: Lora (Serif) & Outfit (Sans) & Noto Serif JP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Noto+Serif+JP:wght@400;600&family=Outfit:wght@400;600&display=swap" rel="stylesheet" />
+    
+    <style>
+      /* Layout specific styles */
+      .layout-container {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+      }
+      
+      /* Sidebar styling */
+      .sidebar {
+        width: var(--sidebar-width);
+        border-right: 1px solid var(--border-color);
+        background-color: var(--bg-color);
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        overflow-y: auto;
+        padding: 2.5rem 1.5rem;
+        font-family: var(--font-sans);
+        z-index: 100;
+        scrollbar-width: thin;
+      }
+      
+      .sidebar-title {
+        font-family: var(--font-serif);
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin-bottom: 2rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+        border-bottom: 2px solid var(--accent-color);
+        padding-bottom: 0.8rem;
+      }
+      
+      .sidebar-title a {
+        border-bottom: none;
+        color: inherit;
+      }
+
+      .chapter-group {
+        margin-bottom: 1.8rem;
+      }
+      
+      .chapter-header {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      
+      .section-list {
+        list-style: none;
+        margin-left: 0;
+        margin-bottom: 0;
+      }
+      
+      .section-item {
+        margin-bottom: 0.4rem;
+        font-size: 0.85rem;
+      }
+      
+      .section-item a {
+        border-bottom: none;
+        color: var(--text-color);
+        display: block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s, color 0.2s;
+      }
+      
+      .section-item a:hover {
+        background-color: var(--accent-light);
+        color: var(--accent-color);
+        opacity: 1;
+      }
+      
+      .section-item.active a {
+        background-color: var(--accent-light);
+        color: var(--accent-color);
+        font-weight: 600;
+      }
+      
+      /* Main content offset */
+      .main-wrapper {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      
+      .content-body {
+        flex-grow: 1;
+      }
+
+      /* Mobile Header */
+      .mobile-header {
+        display: none;
+        height: 60px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-color);
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 150;
+      }
+
+      .mobile-title {
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accent-color);
+      }
+
+      .menu-toggle {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--accent-color);
+        padding: 0.2rem;
+      }
+
+      /* Simple Footer inside main wrapper */
+      .book-footer {
+        border-top: 1px solid var(--border-color);
+        padding: 2.5rem 3rem;
+        font-family: var(--font-sans);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-align: center;
+        background-color: var(--bg-color);
+      }
+
+      /* Responsive styling */
+      @media (max-width: 900px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          width: 280px;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .main-wrapper {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .mobile-header {
+          display: flex;
+        }
+        
+        .main-content {
+          padding: 2.5rem 1.5rem;
+        }
+      }
+      
+      @media print {
+        .sidebar, .mobile-header, .book-footer {
+          display: none !important;
+        }
+        .main-wrapper {
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout-container">
+      <!-- Mobile Header -->
+      <header class="mobile-header no-print">
+        <div class="mobile-title">CSの教科書</div>
+        <button class="menu-toggle" id="menuToggle" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <!-- Sidebar Table of Contents -->
+      <aside class="sidebar no-print no-underline" id="sidebar">
+        <div class="sidebar-title">
+          <a href={baseUrl}>コンピュータサイエンス<br/>の教科書</a>
+        </div>
+        <nav>
+          {chapters.map((ch) => (
+            <div class="chapter-group">
+              <div class="chapter-header">第{ch.number}章: {ch.title}</div>
+              <ul class="section-list">
+                {ch.sections.map((sec) => {
+                  const fullPath = `${baseUrl}${sec.path}`.replace(/\/$/, "");
+                  const isActive = normalizedCurrentPath === fullPath;
+                  return (
+                    <li class={`section-item ${isActive ? 'active' : ''}`}>
+                      <a href={`${baseUrl}${sec.path}`}>
+                        {sec.id}. {sec.title}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="main-wrapper">
+        <main class="content-body">
+          <article class="main-content">
+            <slot />
+          </article>
+        </main>
+
+        <!-- Simple Footer -->
+        <footer class="book-footer">
+          <p>© {new Date().getFullYear()} コンピュータサイエンスの教科書. All Rights Reserved.</p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Script -->
+    <script>
+      const menuToggle = document.getElementById('menuToggle');
+      const sidebar = document.getElementById('sidebar');
+
+      if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+          menuToggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+        });
+
+        // Close sidebar when clicking links inside on mobile
+        const links = sidebar.querySelectorAll('a');
+        links.forEach(link => {
+          link.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+              sidebar.classList.remove('open');
+              menuToggle.textContent = '☰';
+            }
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

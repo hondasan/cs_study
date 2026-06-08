@@ -1,0 +1,290 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<BookLayout 
+  title="1-1. 電球1個から始める通信" 
+  description="コンピュータサイエンスの第一歩。電気のオン・オフという物理現象から、情報の最小単位『ビット』が生まれる瞬間を理解します。"
+  currentPath={`${baseUrl}chapter1/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第1章: 情報を数える・伝える</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第1章 1節</div>
+    <h1 class="section-title">電球1個から始める通信</h1>
+    <p class="section-intro">
+      コンピュータの中身をどこまで分解しても、最終的に残るのは「電気が流れているか、流れていないか」という単純な物理状態だけです。この単純なオン・オフから、どのようにして高度な情報が生まれるのでしょうか。電球1個の回路から、情報の最小単位である「ビット」の誕生までを紐解きます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 遠くの人にメッセージを伝えるには？</h2>
+    <p>
+      あなたが夜、川を挟んで数百メートル離れた向こう岸にいる友人にメッセージを伝えたいと想像してください。大声を出しても届きません。手元にあるのは、電池に繋がった1個の<b>電球</b>と、手元で電流を遮断できる<b>スイッチ</b>、そして向こう岸まで伸びる長い電線だけです。
+    </p>
+    
+    <p>
+      この装置を使って、どうすれば複雑なメッセージを伝えることができるでしょうか？
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <!-- Minimalist hand-drawn style technical SVG diagram -->
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Wire (left to right) -->
+          <path d="M 50 100 L 120 100 M 160 100 L 330 100" stroke="#1E3A60" stroke-width="2" stroke-linecap="round" />
+          <path d="M 50 100 L 50 40 L 400 40 L 400 100 M 370 100 L 350 100" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="4 4" />
+          
+          <!-- Battery (Left) -->
+          <rect x="30" y="85" width="20" height="30" rx="2" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+          <line x1="40" y1="80" x2="40" y2="85" stroke="#1E3A60" stroke-width="2" />
+          <text x="20" y="105" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">＋</text>
+          
+          <!-- Switch (Left) -->
+          <circle cx="120" cy="100" r="3" fill="#1E3A60" />
+          <circle cx="160" cy="100" r="3" fill="#1E3A60" />
+          <!-- Switch Arm (Open) -->
+          <line x1="120" y1="100" x2="155" y2="80" stroke="#1E3A60" stroke-width="2" stroke-linecap="round" />
+          <text x="115" y="125" font-family="var(--font-sans)" font-size="11" fill="#555555">スイッチ</text>
+          
+          <!-- Light Bulb (Right) -->
+          <circle cx="350" cy="100" r="15" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+          <path d="M 345 100 Q 350 90 355 100" stroke="#1E3A60" stroke-width="1.5" fill="none" />
+          <path d="M 345 103 L 355 103" stroke="#1E3A60" stroke-width="2" />
+          <text x="338" y="130" font-family="var(--font-sans)" font-size="11" fill="#555555">電球</text>
+
+          <!-- Labels -->
+          <rect x="60" y="10" width="320" height="20" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="220" y="24" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">長い電線 (数百メートル先)</text>
+        </svg>
+      </div>
+      <figcaption>図 1-1：電球1個とスイッチで構成されるシンプルな通信モデル</figcaption>
+    </figure>
+
+    <h2>2. 約束事（プロトコル）の必要性</h2>
+    <p>
+      スイッチを閉じれば電気を通して電球が光り、開けば消えます。これだけでは、単に「相手に電球の明かりを見せる」ことしかできません。
+    </p>
+    <p>
+      しかし、事前に友人と「このようなルール（約束事）でいこう」と決めておけばどうでしょうか。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">アイデア：単純な約束事の例</div>
+      <ul>
+        <li>電球が<b>点灯している</b> ＝ 「Yes（はい／同意）」</li>
+        <li>電球が<b>消灯している</b> ＝ 「No（いいえ／反対）」</li>
+      </ul>
+    </div>
+
+    <p>
+      これで、イエスかノーかで答えられる質問なら何でも遠隔で瞬時に回答できるようになりました。これが、人類が手に入れた「デジタル通信」の最も原始的な形です。
+    </p>
+
+    <h2>3. 最小の情報単位「ビット (Bit)」の誕生</h2>
+    <p>
+      この「YesかNoか」「オンかオフか」「真（True）か偽（False）か」という、2つの状態のどちらか一方を指し示す情報の最小単位のことを、コンピュータサイエンスでは<b>「ビット（bit）」</b>と呼びます。
+    </p>
+    <p>
+      ビットという言葉は、<b>B</b>inary dig<b>it</b>（2進数の桁）を略したものです。
+    </p>
+    <p>
+      電球が1個あれば、<code>0</code>（消灯）か <code>1</code>（点灯）のどちらか1つの状態を表すことができます。つまり、電球1個は「1ビットの情報」を表現・保持できる装置なのです。
+    </p>
+
+    <h2>4. 電球を増やすと何が起きるか？</h2>
+    <p>
+      電球1個では、2通りのことしか伝えられません。では、もし電球を<b>2個</b>に増やし、スイッチも2個用意したらどうなるでしょうか？
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>左の電球</th>
+          <th>右の電球</th>
+          <th>2進数表現</th>
+          <th>割り当てられるメッセージ（例）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>● 消灯</td>
+          <td>● 消灯</td>
+          <td><code>00</code></td>
+          <td>「異常なし（待機）」</td>
+        </tr>
+        <tr>
+          <td>● 消灯</td>
+          <td>★ 点灯</td>
+          <td><code>01</code></td>
+          <td>「水が足りない」</td>
+        </tr>
+        <tr>
+          <td>★ 点灯</td>
+          <td>● 消灯</td>
+          <td><code>10</code></td>
+          <td>「食料が足りない」</td>
+        </tr>
+        <tr>
+          <td>★ 点灯</td>
+          <td>★ 点灯</td>
+          <td><code>11</code></td>
+          <td>「敵が襲撃してきた！」</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      電球を2個にすることで、表せる状態は「4通り（$2^2$）」に増えました。
+      同様に、電球を3個にすれば「8通り（$2^3$）」、8個にすれば「256通り（$2^8$）」となります。
+    </p>
+    <p>
+      この「電球が8個」並んだ状態のことを、コンピュータの世界では<b>「1バイト（Byte）」</b>と呼びます。1バイトあれば、256通りの状態を表現できるため、アルファベットや数字、簡単な記号をすべて区別して相手に伝えることができるようになります。
+    </p>
+    
+    <blockquote>
+      <b>本質的な視点：</b><br/>
+      私たちのスマートフォンやPCの中には、この「目に見えない極小の電球（トランジスタ）」が何百億個も敷き詰められており、それらが猛烈なスピードで明滅を繰り返すことで、文字、音楽、高画質な動画まであらゆる情報を描き出しています。
+    </blockquote>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={baseUrl}>
+        <span class="arrow">←</span>
+        <span class="label">ホームへ戻る</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter1/section2`}>
+        <span class="label">1-2. 数の表現</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    /* Breadcrumbs styling */
+    .section-nav-breadcrumbs {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .section-nav-breadcrumbs a {
+      color: inherit;
+      border-bottom: none;
+    }
+    
+    .section-nav-breadcrumbs .muted {
+      color: var(--text-muted);
+    }
+    
+    /* Header layout */
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    
+    .section-number {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-color);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: none;
+    }
+    
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-style: italic;
+      border-left: 2px solid var(--border-color);
+      padding-left: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Content body elements */
+    .section-body h2 {
+      margin-top: 2.5rem;
+      font-size: 1.35rem;
+    }
+    
+    /* Tables (Classic academic styling) */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    
+    th {
+      background-color: var(--quote-bg);
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    tr:nth-child(even) {
+      background-color: rgba(246, 242, 233, 0.5);
+    }
+    
+    /* Pagination component */
+    .textbook-pagination {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    .textbook-pagination a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: color 0.2s;
+    }
+    
+    .textbook-pagination a:hover {
+      color: var(--accent-color);
+    }
+    
+    .pagination-prev .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-prev a:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    .pagination-next .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-next a:hover .arrow {
+      transform: translateX(3px);
+    }
+  </style>
+</BookLayout>
