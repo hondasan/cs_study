@@ -1,0 +1,180 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+export function getStaticPaths() {
+  return [
+    // 第1章 (section1, section2 は個別ファイルが存在するため除外)
+    { params: { chapter: 'chapter1', section: 'section3' }, props: { title: '1-3. 文字の表現', prev: 'chapter1/section2', next: 'chapter1/section4' } },
+    { params: { chapter: 'chapter1', section: 'section4' }, props: { title: '1-4. メモリの中を覗く', prev: 'chapter1/section3', next: 'chapter2/section1' } },
+    
+    // 第2章
+    { params: { chapter: 'chapter2', section: 'section1' }, props: { title: '2-1. スイッチとしてのトランジスタ', prev: 'chapter1/section4', next: 'chapter2/section2' } },
+    { params: { chapter: 'chapter2', section: 'section2' }, props: { title: '2-2. 基本論理回路と真理値表', prev: 'chapter2/section1', next: 'chapter2/section3' } },
+    { params: { chapter: 'chapter2', section: 'section3' }, props: { title: '2-3. 計算の実現：加算器', prev: 'chapter2/section2', next: 'chapter2/section4' } },
+    { params: { chapter: 'chapter2', section: 'section4' }, props: { title: '2-4. クロックと同期：記憶', prev: 'chapter2/section3', next: 'chapter2/section5' } },
+    { params: { chapter: 'chapter2', section: 'section5' }, props: { title: '2-5. シンプルなCPUの設計図', prev: 'chapter2/section4', next: 'chapter3/section1' } },
+    
+    // 第3章
+    { params: { chapter: 'chapter3', section: 'section1' }, props: { title: '3-1. プログラムの生涯', prev: 'chapter2/section5', next: 'chapter3/section2' } },
+    { params: { chapter: 'chapter3', section: 'section2' }, props: { title: '3-2. 記憶のピラミッド', prev: 'chapter3/section1', next: 'chapter3/section3' } },
+    { params: { chapter: 'chapter3', section: 'section3' }, props: { title: '3-3. スタックとヒープ', prev: 'chapter3/section2', next: 'chapter3/section4' } },
+    { params: { chapter: 'chapter3', section: 'section4' }, props: { title: '3-4. ポインタと参照', prev: 'chapter3/section3', next: 'chapter4/section1' } },
+    
+    // 第4章
+    { params: { chapter: 'chapter4', section: 'section1' }, props: { title: '4-1. データ構造とは箱である', prev: 'chapter3/section4', next: 'chapter4/section2' } },
+    { params: { chapter: 'chapter4', section: 'section2' }, props: { title: '4-2. スタックとキュー', prev: 'chapter4/section1', next: 'chapter4/section3' } },
+    { params: { chapter: 'chapter4', section: 'section3' }, props: { title: '4-3. 効率のハサミ：二分探索', prev: 'chapter4/section2', next: 'chapter4/section4' } },
+    { params: { chapter: 'chapter4', section: 'section4' }, props: { title: '4-4. 木（ツリー）とグラフ', prev: 'chapter4/section3', next: 'chapter4/section5' } },
+    { params: { chapter: 'chapter4', section: 'section5' }, props: { title: '4-5. ソートと分割統治法', prev: 'chapter4/section4', next: 'chapter5/section1' } },
+    
+    // 第5章
+    { params: { chapter: 'chapter5', section: 'section1' }, props: { title: '5-1. プロトコルと階層設計', prev: 'chapter4/section5', next: 'chapter5/section2' } },
+    { params: { chapter: 'chapter5', section: 'section2' }, props: { title: '5-2. IPルーティングと郵便', prev: 'chapter5/section1', next: 'chapter5/section3' } },
+    { params: { chapter: 'chapter5', section: 'section3' }, props: { title: '5-3. 信頼性の担保：TCP', prev: 'chapter5/section2', next: 'chapter5/section4' } },
+    { params: { chapter: 'chapter5', section: 'section4' }, props: { title: '5-4. 世界の住所録：DNS', prev: 'chapter5/section3', next: 'chapter5/section5' } },
+    { params: { chapter: 'chapter5', section: 'section5' }, props: { title: '5-5. Webの言語：HTTP', prev: 'chapter5/section4', next: 'chapter6/section1' } },
+    
+    // 第6章
+    { params: { chapter: 'chapter6', section: 'section1' }, props: { title: '6-1. ファイル保存の限界', prev: 'chapter5/section5', next: 'chapter6/section2' } },
+    { params: { chapter: 'chapter6', section: 'section2' }, props: { title: '6-2. 関係モデルの論理美', prev: 'chapter6/section1', next: 'chapter6/section3' } },
+    { params: { chapter: 'chapter6', section: 'section3' }, props: { title: '6-3. SQL：宣言型言語の思想', prev: 'chapter6/section2', next: 'chapter6/section4' } },
+    { params: { chapter: 'chapter6', section: 'section4' }, props: { title: '6-4. トランザクションとACID', prev: 'chapter6/section3', next: 'chapter7/section1' } },
+    
+    // 第7章
+    { params: { chapter: 'chapter7', section: 'section1' }, props: { title: '7-1. 公開鍵暗号の魔法', prev: 'chapter6/section4', next: 'chapter7/section2' } },
+    { params: { chapter: 'chapter7', section: 'section2' }, props: { title: '7-2. ハッシュ関数とデジタル署名', prev: 'chapter7/section1', next: 'chapter7/section3' } },
+    { params: { chapter: 'chapter7', section: 'section3' }, props: { title: '7-3. 計算可能限界と停止性', prev: 'chapter7/section2', next: 'chapter7/section4' } },
+    { params: { chapter: 'chapter7', section: 'section4' }, props: { title: '7-4. P vs NP問題と宇宙寿命', prev: 'chapter7/section3', next: null } },
+  ];
+}
+
+const { chapter, section } = Astro.params;
+const { title, prev, next } = Astro.props;
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+
+const chapterNameMap = {
+  chapter1: '第1章: 情報を数える・伝える',
+  chapter2: '第2章: 電気で計算する',
+  chapter3: '第3章: メモリの迷宮',
+  chapter4: '第4章: 効率を極める',
+  chapter5: '第5章: 他者と繋がる',
+  chapter6: '第6章: データを預かる',
+  chapter7: '第7章: 安全と限界',
+};
+const chapterLabel = chapterNameMap[chapter] || '';
+---
+
+<BookLayout title={title} currentPath={`${baseUrl}${chapter}/${section}`}>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">{chapterLabel}</span>
+  </div>
+
+  <header class="section-header">
+    <h1 class="section-title">{title}</h1>
+  </header>
+
+  <div class="section-body">
+    <div class="note-box">
+      <div class="note-box-title">お知らせ</div>
+      <p>このセクションは現在準備中です。後ほどコンテンツが追加されます。</p>
+    </div>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      {prev ? (
+        <a href={`${baseUrl}${prev}`}>
+          <span class="arrow">←</span>
+          <span class="label">前のセクションへ</span>
+        </a>
+      ) : (
+        <a href={baseUrl}>
+          <span class="arrow">←</span>
+          <span class="label">ホームへ戻る</span>
+        </a>
+      )}
+    </div>
+    <div class="pagination-next">
+      {next ? (
+        <a href={`${baseUrl}${next}`}>
+          <span class="label">次のセクションへ</span>
+          <span class="arrow">→</span>
+        </a>
+      ) : (
+        <span class="muted">終章</span>
+      )}
+    </div>
+  </div>
+
+  <style>
+    /* Breadcrumbs styling */
+    .section-nav-breadcrumbs {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .section-nav-breadcrumbs a {
+      color: inherit;
+      border-bottom: none;
+    }
+    
+    /* Header layout */
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: none;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+    
+    /* Pagination component */
+    .textbook-pagination {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    .textbook-pagination a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: color 0.2s;
+    }
+    
+    .textbook-pagination a:hover {
+      color: var(--accent-color);
+    }
+    
+    .pagination-prev .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-prev a:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    .pagination-next .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-next a:hover .arrow {
+      transform: translateX(3px);
+    }
+  </style>
+</BookLayout>
