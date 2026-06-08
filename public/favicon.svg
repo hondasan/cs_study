@@ -1,9 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 128 128">
-    <path d="M50.4 78.5a75.1 75.1 0 0 0-28.5 6.9l24.2-65.7c.7-2 1.9-3.2 3.4-3.2h29c1.5 0 2.7 1.2 3.4 3.2l24.2 65.7s-11.6-7-28.5-7L67 45.5c-.4-1.7-1.6-2.8-2.9-2.8-1.3 0-2.5 1.1-2.9 2.7L50.4 78.5Zm-1.1 28.2Zm-4.2-20.2c-2 6.6-.6 15.8 4.2 20.2a17.5 17.5 0 0 1 .2-.7 5.5 5.5 0 0 1 5.7-4.5c2.8.1 4.3 1.5 4.7 4.7.2 1.1.2 2.3.2 3.5v.4c0 2.7.7 5.2 2.2 7.4a13 13 0 0 0 5.7 4.9v-.3l-.2-.3c-1.8-5.6-.5-9.5 4.4-12.8l1.5-1a73 73 0 0 0 3.2-2.2 16 16 0 0 0 6.8-11.4c.3-2 .1-4-.6-6l-.8.6-1.6 1a37 37 0 0 1-22.4 2.7c-5-.7-9.7-2-13.2-6.2Z" />
-    <style>
-        path { fill: #000; }
-        @media (prefers-color-scheme: dark) {
-            path { fill: #FFF; }
-        }
-    </style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background: Soft rounded square with Ink Blue color -->
+  <rect width="512" height="512" rx="112" fill="#1E3A60"/>
+  
+  <!-- Book pages (back/shadow) -->
+  <path d="M120 360 C 180 360, 220 340, 256 320 C 292 340, 332 360, 392 360 C 400 360, 408 355, 408 345 L 408 175 C 408 165, 400 160, 392 160 C 332 160, 292 140, 256 120 C 220 140, 180 160, 120 160 C 112 160, 104 165, 104 175 L 104 345 C 104 355, 112 360, 120 360 Z" fill="#FAF9F5"/>
+  
+  <!-- Book Binding / Center line -->
+  <path d="M256 120 L256 328" stroke="#1E3A60" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Decorative Lines on Book Pages (Left page) -->
+  <path d="M145 200 H225" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+  <path d="M145 240 H225" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+  <path d="M145 280 H195" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Decorative Lines on Book Pages (Right page) -->
+  <path d="M287 200 H367" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+  <path d="M287 240 H367" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+  <path d="M287 280 H337" stroke="#1E3A60" stroke-width="10" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Circuit nodes emerging from the book (Computer Science symbol) -->
+  <!-- Center/top node -->
+  <circle cx="256" cy="76" r="16" fill="#FAF9F5"/>
+  <path d="M256 92 L256 120" stroke="#FAF9F5" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Left node -->
+  <circle cx="180" cy="96" r="12" fill="#FAF9F5"/>
+  <path d="M180 108 L220 135" stroke="#FAF9F5" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Right node -->
+  <circle cx="332" cy="96" r="12" fill="#FAF9F5"/>
+  <path d="M332 108 L292 135" stroke="#FAF9F5" stroke-width="6" stroke-linecap="round"/>
 </svg>
