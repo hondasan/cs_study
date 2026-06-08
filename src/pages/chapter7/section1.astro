@@ -1,0 +1,154 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="7-1. なぜデータベースが必要か" 
+  description="単なるファイル保存（CSVやテキスト）の限界と課題を整理し、データの整合性や同時実行を守るための専用システム『DBMS』の必要性を学びます。"
+  currentPath={`${baseUrl}chapter7/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第7章: データベース</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第7章 1節</div>
+    <h1 class="section-title">なぜデータベースが必要か</h1>
+    <p class="section-intro">
+      コンピュータが扱うデータの量は、インターネットの普及とともに爆発的に増加しています。私たちはすでに、第4章でデータをディスクに永続化する「ファイルシステム」を学びました。では、なぜわざわざ「データベース」という専用のシステムを導入する必要があるのでしょうか。ファイル保存が抱える限界と、データベース管理システム（DBMS）の真価を明らかにします。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. ファイル保存（CSVなど）の限界</h2>
+    <p>
+      プログラムがデータを永続化する最も簡単な方法は、テキストファイルやCSVファイル（カンマ区切りのテキスト）としてディスクに直接書き出すことです。
+    </p>
+    <p>
+      例えば、小規模な顧客名簿（数十人程度）なら、Excelやテキストエディタで開けるCSVファイルで十分管理できます。しかし、顧客が数万人、数十万人になり、それを複数の部署の異なるシステムから利用するようになると、ファイルによる管理はあっという間に破綻します。
+    </p>
+    <p>
+      ファイル保存には、主に以下の3つの致命的な課題が存在します。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">ファイル保存の3大問題</div>
+      <ol>
+        <li><b>データの重複と不整合（Inconsistency）：</b><br/>例えば「営業管理ファイル」と「請求管理ファイル」に、同じ顧客の住所が別々に保存されているとします。顧客が引っ越した際、営業管理ファイルだけを書き換えて請求ファイルを更新し忘れると、同じ顧客なのにシステムによって住所が異なるという「データの不整合」が発生します。</li>
+        <li><b>同時還元の排他制御の欠如：</b><br/>複数のプログラムが同時に1つのファイルを開いて書き込みを行った場合、後に保存したプログラムの内容でファイルが上書きされ、先に保存したデータが消滅したり、ファイル全体が破損したりします。</li>
+        <li><b>検索や集計の非効率性：</b><br/>100万件あるCSVファイルから「東京都在住の顧客」を探すためには、ファイル全体をメモリ上に読み込んで先頭から1行ずつ順番にチェック（線形探索）していく必要があり、莫大な時間とメモリを消費します。</li>
+      </ol>
+    </div>
+
+    <h2>2. 仲介役としての「DBMS（データベース管理システム）」</h2>
+    <p>
+      これらの課題をすべて解決するために、データとアプリケーションの間に立ち、データの読み書きを一手に集中管理する専用のソフトウェアが開発されました。
+      これが<b>DBMS（Database Management System：データベース管理システム）</b>です。
+    </p>
+    <p>
+      単に「データベース」と呼ぶ場合、多くはこの「DBMS」のことを指しています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Before/After Comparison -->
+          <!-- Left: Before (Chaos, direct file access) -->
+          <g transform="translate(0, 0)">
+            <text x="90" y="20" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">ファイル直接操作 (カオス)</text>
+            
+            <rect x="20" y="40" width="50" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="45" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アプリ A</text>
+            
+            <rect x="110" y="40" width="50" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="135" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アプリ B</text>
+
+            <!-- Crossed access lines to files -->
+            <path d="M 45 65 L 70 120" stroke="#E06C75" stroke-width="1.2" />
+            <path d="M 45 65 L 110 120" stroke="#E06C75" stroke-width="1.2" />
+            <path d="M 135 65 L 70 120" stroke="#E06C75" stroke-width="1.2" />
+            <path d="M 135 65 L 110 120" stroke="#E06C75" stroke-width="1.2" />
+
+            <!-- Files -->
+            <rect x="45" y="120" width="40" height="30" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="65" y="138" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">CSV 1</text>
+            
+            <rect x="95" y="120" width="40" height="30" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="115" y="138" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">CSV 2</text>
+          </g>
+
+          <!-- Divider -->
+          <line x1="185" y1="20" x2="185" y2="160" stroke="#EBE6DC" />
+
+          <!-- Right: After (DBMS structured access) -->
+          <g transform="translate(195, 0)">
+            <text x="120" y="20" font-family="var(--font-sans)" font-size="10" fill="#98C379" font-weight="600" text-anchor="middle">DBMSを導入 (整理・統合)</text>
+
+            <rect x="50" y="40" width="50" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="75" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アプリ A</text>
+            
+            <rect x="140" y="40" width="50" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="165" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アプリ B</text>
+
+            <!-- Lines to DBMS -->
+            <path d="M 75 65 L 120 90" stroke="#1E3A60" stroke-width="1.2" />
+            <path d="M 165 65 L 120 90" stroke="#1E3A60" stroke-width="1.2" />
+
+            <!-- DBMS Box -->
+            <rect x="90" y="90" width="60" height="30" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="2" />
+            <text x="120" y="108" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">DBMS</text>
+
+            <path d="M 120 120 L 120 135" stroke="#1E3A60" stroke-width="1.5" />
+
+            <!-- DB Cylinder -->
+            <path d="M 100 135 C 100 132 140 132 140 135 L 140 155 C 140 158 100 158 100 155 Z" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 100 135 C 100 138 140 138 140 135" fill="none" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="120" y="150" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">データベース</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 7-1：ファイル直接操作とDBMS導入による集中管理モデルの比較</figcaption>
+    </figure>
+
+    <p>
+      DBMSを導入すると、アプリケーションはファイルに直接アクセスするのではなく、すべての要求（データの検索、追加、更新、削除）をDBMSに対してのみ送ります。
+    </p>
+    <p>
+      DBMSは、裏側でデータの重複がないようにデータベースを整理し、同時に来た複数のアクセスを交通整理してデータ破壊を防ぎ、さらにインデックス（索引）を作成してデータの検索を瞬時に実行します。
+    </p>
+
+    <h2>3. データベースの主要な種類</h2>
+    <p>
+      データベース（DBMS）には、データの整理ルール（データモデル）の違いによって、いくつかの種類があります。
+    </p>
+    <ul>
+      <li><b>RDBMS（関係データベース管理システム）：</b> データを「テーブル（表）」という2次元の形式で表現し、複数のテーブル同士を連結して複雑な情報を表す最も主流なシステムです。（例：MySQL, PostgreSQL, Oracle）</li>
+      <li><b>NoSQLデータベース：</b> テーブルの固定枠にとらわれず、大量データや変化の速いデータを扱うのに適した比較的新しいシステムです。Key-Value形式やドキュメント（JSON形式）などがあります。（例：MongoDB, Redis）</li>
+    </ul>
+    <p>
+      現在も企業やシステムの根幹を支えているのは、圧倒的な整合性と信頼性を誇る<b>RDBMS（関係データベース）</b>です。
+    </p>
+    <p>
+      次のセクションでは、このRDBMSにおけるデータの設計方法である「関係モデルとテーブル設計」について詳しく学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter6/section5`}>
+        <span class="arrow">←</span>
+        <span class="label">6-5. HTTPとWebの仕組み</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter7/section2`}>
+        <span class="label">7-2. 関係モデルとテーブル設計</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

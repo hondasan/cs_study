@@ -1,0 +1,138 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="7-4. トランザクションとACID特性" 
+  description="データベースの信頼性を極限まで高めるための実行単位『トランザクション』と、データ整合性を鉄壁の如く守る『ACID特性』の定義を学びます。"
+  currentPath={`${baseUrl}chapter7/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第7章: データベース</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第7章 4節</div>
+    <h1 class="section-title">トランザクションとACID特性</h1>
+    <p class="section-intro">
+      データベースには、常に何百、何千ものプログラムから同時に書き込み要求が殺到します。また、サーバーの電源が突如切れたり、ネットワークが切断されたりする物理的な障害も日常茶飯事です。このような過酷な環境下で、預金残高や商品の在庫といった「絶対に壊れてはいけないデータ」の整合性を完全に守り抜くための仕組みが「トランザクション」と「ACID特性」です。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. トランザクション（Transaction）とは？</h2>
+    <p>
+      データベースにおける<b>トランザクション（Transaction）</b>とは、<b>「これ以上分割することができない、いくつかの処理を1つにまとめた実行単位」</b>のことです。
+    </p>
+    <p>
+      最もわかりやすい例は、銀行の<b>「口座振込（Aさんの口座からBさんの口座へ 1万円を振り込む）」</b>処理です。
+      この処理は、内部的に以下の2つのSQL文（ステップ）で構成されます。
+    </p>
+    <ol>
+      <li>「Aさんの口座から 1万円を差し引く（UPDATE）」</li>
+      <li>「Bさんの口座に 1万円を加算する（UPDATE）」</li>
+    </ol>
+    <p>
+      もし、ステップ1（差し引き）が成功した直後、ステップ2（加算）の処理を行う直前に、サーバーが停電で強制シャットダウンしてしまったらどうなるでしょうか。
+      Aさんの口座からは1万円が消え去ったのに、Bさんの口座には届いていないという、致命的なデータ破壊（消失）が発生します。
+    </p>
+    <p>
+      このような事態を防ぐため、トランザクションは<b>「すべて成功するか（All）、全く実行されなかったことにするか（Nothing）」</b>のどちらかしか認めないというルールで動きます。
+    </p>
+
+    <h2>2. コミット（Commit）とロールバック（Rollback）</h2>
+    <p>
+      トランザクションを実行する際、DBMSは以下の2つの操作で整合性をコントロールします。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="200" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Transaction flowchart: Begin -> Step 1 -> Step 2 -> OK? -> Commit / Rollback -->
+          <rect x="20" y="80" width="100" height="40" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="70" y="105" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">振込処理開始</text>
+          
+          <path d="M 120 100 L 160 100" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 155 96 L 160 100 L 155 104 Z" fill="#1E3A60" />
+
+          <!-- Inside Transaction -->
+          <rect x="160" y="40" width="140" height="120" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" stroke-dasharray="4 4" />
+          <text x="230" y="32" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">トランザクション内部</text>
+
+          <rect x="170" y="55" width="120" height="30" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="230" y="73" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">1. Aから1万円減額</text>
+
+          <rect x="170" y="115" width="120" height="30" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="230" y="133" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">2. Bに1万円増額</text>
+
+          <path d="M 300 100 L 340 100" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 335 96 L 340 100 L 335 104 Z" fill="#1E3A60" />
+
+          <!-- Decision: Success? -->
+          <polygon points="370,100 400,70 430,100 400,130" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <text x="400" y="103" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">成功？</text>
+
+          <!-- Branch 1: Yes -> Commit -->
+          <path d="M 400 70 L 400 35 L 430 35" stroke="#98C379" stroke-width="1.5" />
+          <path d="M 425 31 L 430 35 L 425 39 Z" fill="#98C379" />
+          <text x="415" y="28" font-family="var(--font-sans)" font-size="7" fill="#98C379" font-weight="600">Yes</text>
+          <text x="440" y="38" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600">コミット (確定)</text>
+
+          <!-- Branch 2: No -> Rollback -->
+          <path d="M 400 130 L 400 165 L 430 165" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 425 161 L 430 165 L 425 169 Z" fill="#E06C75" />
+          <text x="415" y="160" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600">No</text>
+          <text x="440" y="168" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600">ロールバック (取消)</text>
+        </svg>
+      </div>
+      <figcaption>図 7-4：トランザクション制御（コミットとロールバック）の流れ</figcaption>
+    </figure>
+
+    <ul>
+      <li><b>コミット（Commit）：</b> すべての処理が正常に完了した際、その変更内容をデータベースに正式かつ「永久に確定」させる指示です。</li>
+      <li><b>ロールバック（Rollback）：</b> 処理の途中でエラーが発生したり、停電などで中断された場合、そこまでに行った処理を「すべてキャンセル」し、トランザクション開始前の状態にデータベースを巻き戻す指示です。</li>
+    </ul>
+
+    <h2>3. 鉄壁の信頼性：ACID特性</h2>
+    <p>
+      RDBMSは、トランザクションの信頼性を100%保証するために、以下の4つの性質（<b>ACID特性</b>）を厳格に維持するように設計されています。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">ACIDの4つの性質</div>
+      <ul>
+        <li><b>Atomicity：原子性（不可分性）</b><br/>トランザクションに含まれる処理は、「すべて実行される（All）」か、「一切実行されない（Nothing）」かのどちらかしかありません。中途半端な状態は許されません。</li>
+        <li><b>Consistency：一貫性（整合性）</b><br/>トランザクションの実行前後で、データベースのルール（例：「残高はマイナスになってはならない」などの一貫性制約）が決して破られない性質です。ルール違反が起きる場合は、トランザクション全体が自動的にロールバックされます。</li>
+        <li><b>Isolation：独立性（隔離性）</b><br/>複数のトランザクションが同時に並行実行されても、互いに邪魔をせず、あたかも1つずつ順番（直列）に実行されたのと同じ結果になる性質です。これにより、同時アクセスによるデータ破壊を防ぎます。</li>
+        <li><b>Durability：永続性（持続性）</b><br/>一度コミットが完了したデータは、たとえその直後にコンピュータが物理的に爆発したり、停電でクラッシュしたりしても、ディスクにログが書き出されているため、絶対に失われることなく復旧できる性質です。</li>
+      </ul>
+    </div>
+
+    <h2>4. まとめ</h2>
+    <p>
+      データベースは、RDBMS（関係データベース）という形式でデータをテーブルに整理し（正規化）、SQLという宣言型言語で効率よく操作し、トランザクションとACID特性によって何があってもデータを壊さない信頼性を構築してきました。
+    </p>
+    <p>
+      次の第8章（最終章）では、ここまでに学んだすべてのシステム（OS、メモリ、データベース、ネットワーク）を安全に防衛するための「セキュリティ（暗号）」と、コンピュータサイエンスの究極の理論的限界である「計算限界」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter7/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">7-3. SQLの基本</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter8/section1`}>
+        <span class="label">8-1. 共通鍵暗号と公開鍵暗号</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

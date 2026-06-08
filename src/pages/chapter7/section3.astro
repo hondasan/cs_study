@@ -1,0 +1,148 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="7-3. SQLの基本" 
+  description="関係データベースから目的のデータを抽出したり追加したりするための標準言語『SQL』の考え方と、テーブル結合（JOIN）の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter7/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第7章: データベース</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第7章 3節</div>
+    <h1 class="section-title">SQLの基本</h1>
+    <p class="section-intro">
+      データベースの構造と設計方法が分かりました。では、プログラムから実際にデータベースに対して「顧客情報を引っ張ってきて」「新しく注文を追加して」という命令を下すにはどうすればよいでしょうか。ここで使われるのが、世界標準のデータベース操作言語である<b>SQL</b>です。SQLの「宣言型」という強力な思想と、テーブルを連結する「JOIN」の仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 宣言型言語としてのSQLの思想</h2>
+    <p>
+      PythonやC言語などのプログラミング言語は、基本的には<b>「手続き型（How：どのように処理するか）」</b>の言語です。「配列をループで回して、もし条件に合えば変数に格納して…」といった手順を順に書きます。
+    </p>
+    <p>
+      一方、SQLは<b>「宣言型（What：何が欲しいか）」</b>の言語です。
+      「どのようなルートを通って、どのアルゴリズムで検索するか（How）」はすべてDBMSが自動で裏で判断してくれます。プログラマは、単に<b>「このテーブルから、この条件に合うデータを抽出して（What）」</b>とだけ記述します。
+    </p>
+    <p>
+      このおかげで、わずか数行のSQL文を書くだけで、数百万件の中から目的のデータを高速に引き出すことができます。
+    </p>
+
+    <h2>2. データの操作：4大基本コマンド（CRUD）</h2>
+    <p>
+      SQLの基本は、データの作成（Create）、読み出し（Read）、更新（Update）、削除（Delete）の頭文字を取った<b>CRUD操作</b>に対応する4つのコマンドです。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">基本コマンド例</div>
+      <ul>
+        <li><b>SELECT（検索・読み出し）：</b><br/>
+          <pre><code>SELECT name, email FROM customers WHERE status = 'active';</code></pre>
+          （「customers」テーブルから、「status」が「active」のレコードの「name」と「email」を抜き出せ）
+        </li>
+        <li><b>INSERT（新規追加）：</b><br/>
+          <pre><code>INSERT INTO customers (id, name) VALUES (101, '山田太郎');</code></pre>
+        </li>
+        <li><b>UPDATE（更新）：</b><br/>
+          <pre><code>UPDATE customers SET email = 'taro@example.com' WHERE id = 101;</code></pre>
+        </li>
+        <li><b>DELETE（削除）：</b><br/>
+          <pre><code>DELETE FROM customers WHERE id = 101;</code></pre>
+        </li>
+      </ul>
+    </div>
+
+    <h2>3. RDBの核心：JOIN（テーブル結合）</h2>
+    <p>
+      前節で学んだ「正規化」によって、データは「注文テーブル」と「顧客テーブル」にバラバラに分割されました。
+      しかし、伝票を印刷するときなどは、「誰（顧客名）が、いつ、何を注文したか」が合体した1つの表が欲しくなります。
+    </p>
+    <p>
+      この、分割されたテーブル同士を、共通するキー（外部キーと主キー）をベースにしてガッチャンコと合体させる操作を<b>JOIN（結合）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- JOIN Operation Visual -->
+          <!-- Left: Order Table -->
+          <g transform="translate(10, 20)">
+            <rect x="0" y="20" width="110" height="60" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="55" y="12" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">注文テーブル</text>
+            <line x1="0" y1="35" x2="110" y2="35" stroke="#1E3A60" />
+            <text x="8" y="48" font-family="var(--font-sans)" font-size="7" fill="#555555">注文ID: #9001</text>
+            <text x="8" y="63" font-family="var(--font-sans)" font-size="7" fill="#1E3A60" font-weight="600">顧客ID: 101</text>
+          </g>
+
+          <!-- Right: Customer Table -->
+          <g transform="translate(170, 20)">
+            <rect x="0" y="20" width="110" height="60" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="55" y="12" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">顧客テーブル</text>
+            <line x1="0" y1="35" x2="110" y2="35" stroke="#1E3A60" />
+            <text x="8" y="48" font-family="var(--font-sans)" font-size="7" fill="#1E3A60" font-weight="600">顧客ID: 101</text>
+            <text x="8" y="63" font-family="var(--font-sans)" font-size="7" fill="#555555">氏名: 山田</text>
+          </g>
+
+          <!-- JOIN symbol -->
+          <path d="M 125 50 L 165 50" stroke="#E06C75" stroke-width="2" />
+          <circle cx="145" cy="50" r="10" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="145" y="53" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600" text-anchor="middle">JOIN</text>
+
+          <path d="M 245 85 Q 245 110 245 130" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 241 125 L 245 130 L 249 125 Z" fill="#1E3A60" />
+
+          <!-- Combined Table (Bottom) -->
+          <g transform="translate(110, 130)">
+            <rect x="0" y="15" width="260" height="40" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="2" />
+            <text x="130" y="8" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">結合結果テーブル</text>
+            <line x1="0" y1="30" x2="260" y2="30" stroke="#98C379" />
+            
+            <text x="10" y="45" font-family="var(--font-sans)" font-size="8" fill="#555555">注文ID: #9001</text>
+            <text x="100" y="45" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">顧客ID: 101</text>
+            <text x="180" y="45" font-family="var(--font-sans)" font-size="8" fill="#555555">氏名: 山田</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 7-3：共通の顧客IDをキーとしたテーブル結合（JOIN）のイメージ</figcaption>
+    </figure>
+
+    <p>
+      SQLでは、以下のように <code>JOIN</code> 句を記述します。
+    </p>
+    <pre><code>SELECT orders.id, customers.name 
+FROM orders 
+JOIN customers ON orders.customer_id = customers.id;</code></pre>
+    <p>
+      この命令を送ると、DBMSは「注文テーブルのcustomer_id」と「顧客テーブルのid」が一致するデータを自動で紐付け、両方のテーブルのデータを組み合わせた新しい仮想的な表（ビュー）を瞬時に作り出します。
+    </p>
+    <p>
+      この「正規化で細かく分ける（安全）」と「SQLのJOINで自由にくっつける（利便性）」の両立こそが、関係データベースが今日まで長く使われ続けている最大の秘訣です。
+    </p>
+    <p>
+      次のセクションでは、複数のSQL操作を実行する際に、データの整合性を鉄壁の如く守るための仕組み「トランザクション」と「ACID特性」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter7/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">7-2. 関係モデルとテーブル設計</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter7/section4`}>
+        <span class="label">7-4. トランザクションとACID特性</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

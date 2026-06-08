@@ -3,12 +3,6 @@ import BookLayout from '../../layouts/BookLayout.astro';
 
 export function getStaticPaths() {
   return [
-    // 第7章 データベース
-    { params: { chapter: 'chapter7', section: 'section1' }, props: { title: '7-1. なぜデータベースが必要か', prev: 'chapter6/section5', next: 'chapter7/section2' } },
-    { params: { chapter: 'chapter7', section: 'section2' }, props: { title: '7-2. 関係モデルとテーブル設計', prev: 'chapter7/section1', next: 'chapter7/section3' } },
-    { params: { chapter: 'chapter7', section: 'section3' }, props: { title: '7-3. SQLの基本', prev: 'chapter7/section2', next: 'chapter7/section4' } },
-    { params: { chapter: 'chapter7', section: 'section4' }, props: { title: '7-4. トランザクションとACID特性', prev: 'chapter7/section3', next: 'chapter8/section1' } },
-    
     // 第8章 セキュリティと計算の限界
     { params: { chapter: 'chapter8', section: 'section1' }, props: { title: '8-1. 共通鍵暗号と公開鍵暗号', prev: 'chapter7/section4', next: 'chapter8/section2' } },
     { params: { chapter: 'chapter8', section: 'section2' }, props: { title: '8-2. ハッシュ関数とデジタル署名', prev: 'chapter8/section1', next: 'chapter8/section3' } },

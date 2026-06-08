@@ -1,0 +1,144 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="7-2. 関係モデルとテーブル設計" 
+  description="関係データベースにおける表（テーブル）、主キー、外部キーの役割と、データの重複を排除して整合性を保つための設計手法『正規化』を学びます。"
+  currentPath={`${baseUrl}chapter7/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第7章: データベース</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第7章 2節</div>
+    <h1 class="section-title">関係モデルとテーブル設計</h1>
+    <p class="section-intro">
+      現代のシステムで主流の「関係データベース（RDB）」は、データをすべて2次元の「表（テーブル）」の形式で整理します。しかし、データの並べ方を間違えると、データの重複が発生して不整合の原因になります。RDBの設計図となる主キー・外部キーの仕組みと、重複をなくして美しいテーブルを作る手法である「正規化」を学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. テーブル（Table）の構成要素</h2>
+    <p>
+      RDBでは、データを縦と横の2次元の表として整理します。この表のことを<b>テーブル（Table）</b>と呼びます。
+    </p>
+    <ul>
+      <li><b>行（Row / レコード：Record）：</b> 横の一行です。これで「顧客1人分」「注文1回分」などの「データ1件」を表現します。</li>
+      <li><b>列（Column / フィールド：Field）：</b> 縦の一列です。「名前」「電話番号」「登録日」など、データの「属性（項目）」を表現します。</li>
+    </ul>
+
+    <h2>2. 主キー（Primary Key）と外部キー（Foreign Key）</h2>
+    <p>
+      複数のテーブルを繋ぎ合わせて複雑な情報を表すために、RDBでは以下の2種類の「キー（Key：手がかり）」を利用します。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">キーの役割</div>
+      <ul>
+        <li><b>主キー（Primary Key：PK）：</b><br/>そのテーブル内で、<b>「レコードを絶対に1件に特定できる、重複のない代表の列」</b>です。例えば、「顧客ID」や「社員番号」などです。主キーには、重複した値（同じIDが2つあるなど）や、空の値（NULL）を入れることはできません。</li>
+        <li><b>外部キー（Foreign Key：FK）：</b><br/>別のテーブルの主キーを参照し、テーブル同士を関連付ける（リンクする）ための列です。</li>
+      </ul>
+    </div>
+
+    <h2>3. テーブルの重複をなくす「正規化（Normalization）」</h2>
+    <p>
+      データを設計するとき、1つの大きな表にすべての情報を詰め込んでしまうと問題が発生します。
+      例えば、以下のような「注文履歴」の表を考えます。
+    </p>
+    <p style="text-align: center; font-style: italic;">
+      注文ID、注文日、顧客ID、<b>顧客名</b>、<b>顧客の住所</b>、商品名、金額
+    </p>
+    <p>
+      この表では、同じ顧客が何度も買い物をすると、そのたびに「顧客名」や「顧客の住所」という同じデータがデータベース内に何度も重複して保存されてしまいます。
+      もしその顧客が引っ越した場合、過去のすべての注文レコードを探し出して住所を書き換える必要があり、更新漏れによる「不整合」の原因になります。
+    </p>
+    <p>
+      この重複を排除し、テーブルを論理的に分割していく設計プロセスのことを<b>正規化（Normalization）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="200" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Normalization process: One big table splits into two -->
+          <!-- Big Table (Left) -->
+          <g transform="translate(10, 30)">
+            <rect x="0" y="20" width="160" height="110" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="80" y="12" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">非正規化テーブル (重複あり)</text>
+            <line x1="0" y1="40" x2="160" y2="40" stroke="#E06C75" />
+            
+            <text x="10" y="58" font-family="var(--font-sans)" font-size="8" fill="#555555">・注文ID (PK)</text>
+            <text x="10" y="73" font-family="var(--font-sans)" font-size="8" fill="#555555">・注文日</text>
+            <text x="10" y="88" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600">・顧客名 (重複発生！)</text>
+            <text x="10" y="103" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600">・顧客住所 (重複発生！)</text>
+            <text x="10" y="118" font-family="var(--font-sans)" font-size="8" fill="#555555">・商品名、金額</text>
+          </g>
+
+          <!-- Split Arrow -->
+          <path d="M 185 85 L 235 85" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 230 81 L 235 85 L 230 89 Z" fill="#1E3A60" />
+          <text x="210" y="75" font-family="var(--font-sans)" font-size="7" fill="#1E3A60" font-weight="600" text-anchor="middle">正規化</text>
+
+          <!-- Split Tables (Right) -->
+          <!-- Orders Table -->
+          <g transform="translate(250, 10)">
+            <rect x="0" y="15" width="130" height="75" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="65" y="8" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">注文テーブル</text>
+            <line x1="0" y1="30" x2="130" y2="30" stroke="#98C379" />
+            
+            <text x="10" y="45" font-family="var(--font-sans)" font-size="8" fill="#555555">・注文ID (PK)</text>
+            <text x="10" y="60" font-family="var(--font-sans)" font-size="8" fill="#555555">・注文日</text>
+            <text x="10" y="75" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">・顧客ID (FK) ➔</text>
+          </g>
+
+          <!-- Customers Table -->
+          <g transform="translate(350, 105)">
+            <rect x="0" y="15" width="130" height="75" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="65" y="8" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">顧客テーブル</text>
+            <line x1="0" y1="30" x2="130" y2="30" stroke="#98C379" />
+            
+            <text x="10" y="45" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">・顧客ID (PK)</text>
+            <text x="10" y="60" font-family="var(--font-sans)" font-size="8" fill="#555555">・顧客名</text>
+            <text x="10" y="75" font-family="var(--font-sans)" font-size="8" fill="#555555">・顧客住所</text>
+          </g>
+
+          <!-- Link Arrow (FK -> PK) -->
+          <path d="M 360 85 C 390 85 390 100 390 115" stroke="#1E3A60" stroke-width="1.2" fill="none" />
+          <path d="M 386 110 L 390 115 L 394 110 Z" fill="#1E3A60" />
+        </svg>
+      </div>
+      <figcaption>図 7-2：正規化によるテーブル分割と主キー・外部キーのリンク関係</figcaption>
+    </figure>
+
+    <p>
+      正規化を行うと、注文テーブルからは顧客名や住所が排除され、代わりに<b>顧客ID（外部キー）</b>だけが書き込まれます。
+      顧客情報は「顧客テーブル」の中にただ1件だけ保存されます。
+    </p>
+    <p>
+      これで、顧客が引っ越しても「顧客テーブル」のその顧客の住所を1箇所書き換えるだけで、すべての注文履歴の住所データが完璧に最新のものとして参照されるようになり、不整合が100%防止されます。
+    </p>
+    <p>
+      次のセクションでは、このように美しく設計されたテーブル群に対して、プログラムから「データを取得してこい」「新しい注文を書き込め」といった指示を送るための標準データベース言語「SQL」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter7/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">7-1. なぜデータベースが必要か</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter7/section3`}>
+        <span class="label">7-3. SQLの基本</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
