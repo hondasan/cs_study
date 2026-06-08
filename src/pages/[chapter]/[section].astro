@@ -3,12 +3,6 @@ import BookLayout from '../../layouts/BookLayout.astro';
 
 export function getStaticPaths() {
   return [
-    // 第3章 プログラムとメモリ
-    { params: { chapter: 'chapter3', section: 'section1' }, props: { title: '3-1. ソースコードから機械語へ', prev: 'chapter2/section5', next: 'chapter3/section2' } },
-    { params: { chapter: 'chapter3', section: 'section2' }, props: { title: '3-2. メモリ階層：レジスタからストレージまで', prev: 'chapter3/section1', next: 'chapter3/section3' } },
-    { params: { chapter: 'chapter3', section: 'section3' }, props: { title: '3-3. スタック領域とヒープ領域', prev: 'chapter3/section2', next: 'chapter3/section4' } },
-    { params: { chapter: 'chapter3', section: 'section4' }, props: { title: '3-4. アドレスとポインタ', prev: 'chapter3/section3', next: 'chapter4/section1' } },
-    
     // 第4章 オペレーティングシステム（★新設）
     { params: { chapter: 'chapter4', section: 'section1' }, props: { title: '4-1. OSとは何か：カーネルとユーザー空間', prev: 'chapter3/section4', next: 'chapter4/section2' } },
     { params: { chapter: 'chapter4', section: 'section2' }, props: { title: '4-2. プロセスとスレッド', prev: 'chapter4/section1', next: 'chapter4/section3' } },

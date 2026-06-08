@@ -1,0 +1,168 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="3-3. スタック領域とヒープ領域" 
+  description="実行中のプログラムがメインメモリ（RAM）を切り分けて使用する2大エリア、「スタック領域」と「ヒープ領域」の仕組みと違いを学びます。"
+  currentPath={`${baseUrl}chapter3/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第3章: プログラムとメモリ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第3章 3節</div>
+    <h1 class="section-title">スタック領域とヒープ領域</h1>
+    <p class="section-intro">
+      プログラムを実行するとき、OSはそのプログラム専用のメインメモリ（RAM）の一部を割り当てます。この割り当てられたメモリ空間は、目的や動作特性に応じていくつかの領域に切り分けられます。その中でも、データの管理方法が本質的に異なる「スタック領域」と「ヒープ領域」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. メモリ空間の全体像</h2>
+    <p>
+      プログラムに割り当てられるメモリ空間には、静的なデータ（機械語コードそのものや、グローバル変数）を置く領域のほかに、プログラムの実行中に動的に変化するデータを保管するための2つの代表的な領域があります。それが<b>スタック（Stack）領域</b>と<b>ヒープ（Heap）領域</b>です。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="400" height="240" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Memory layout box -->
+          <rect x="100" y="20" width="200" height="200" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          
+          <!-- Static areas at bottom -->
+          <rect x="105" y="180" width="190" height="35" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="195" y="200" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">テキスト領域（コード）/ 静的データ</text>
+          
+          <!-- Stack area (top down) -->
+          <rect x="105" y="25" width="190" height="40" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="195" y="45" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">スタック領域</text>
+          
+          <!-- Heap area (bottom up) -->
+          <rect x="105" y="130" width="190" height="40" rx="2" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+          <text x="195" y="150" font-family="var(--font-sans)" font-size="10" fill="#98C379" font-weight="600" text-anchor="middle">ヒープ領域</text>
+          
+          <!-- Growth arrows -->
+          <path d="M 195 70 L 195 90" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 191 85 L 195 90 L 199 85 Z" fill="#E06C75" />
+          <text x="215" y="83" font-family="var(--font-sans)" font-size="8" fill="#E06C75">高アドレス ➔ 低へ成長</text>
+
+          <path d="M 195 125 L 195 105" stroke="#98C379" stroke-width="1.5" />
+          <path d="M 191 110 L 195 105 L 199 110 Z" fill="#98C379" />
+          <text x="215" y="117" font-family="var(--font-sans)" font-size="8" fill="#98C379">低アドレス ➔ 高へ成長</text>
+
+          <!-- Free Space label -->
+          <text x="195" y="102" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">空き領域（共有）</text>
+        </svg>
+      </div>
+      <figcaption>図 3-4：仮想メモリ内におけるスタック領域とヒープ領域の対向配置図</figcaption>
+    </figure>
+
+    <p>
+      多くのシステムでは、限られたメモリ空間を無駄にしないために、スタック領域をメモリ空間の「上側（高アドレス）」に配置して下方向へ伸ばし、ヒープ領域を「下側（低アドレス）」に配置して上方向へ伸ばすという対向配置をとります。
+    </p>
+
+    <h2>2. スタック領域：整理整頓された高速領域</h2>
+    <p>
+      スタック領域は、名前の通り「お皿を積み重ねる（Stack）」ようなデータ管理を行う領域です。
+      主に、<b>「関数が呼び出されたときに必要となる一時的な情報（ローカル変数、引数、戻りアドレス）」</b>を格納するために使われます。
+    </p>
+    <p>
+      関数が呼び出されると、その関数で使う変数などをまとめた<b>「スタックフレーム」</b>と呼ばれるお皿が一番上に積まれます。関数が終了すると、そのお皿は自動的に取り除かれ（ポップされ）、使っていたメモリ領域も瞬時に解放されます。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">スタック領域の特徴</div>
+      <ul>
+        <li><b>超高速：</b> メモリの確保と解放が「一番上にお皿を置く／取る」だけなので、極めて高速に行われます。</li>
+        <li><b>自動管理：</b> 関数の開始と終了に同期して、コンパイラが自動的に確保・解放の命令を組み込むため、プログラマが解放し忘れる心配はありません。</li>
+        <li><b>容量が小さい：</b> 通常、プログラムあたり数MB程度しか割り当てられておらず、大きな配列や極端に深い再帰呼び出しを行うと、領域を使い果たして<b>スタックオーバーフロー（Stack Overflow）</b>というエラーを引き起こします。</li>
+      </ul>
+    </div>
+
+    <h2>3. ヒープ領域：自由で広大だが管理が必要な領域</h2>
+    <p>
+      ヒープ領域の「ヒープ（Heap）」とは、「ごちゃ混ぜの山」という意味です。
+      プログラムの実行中に、<b>「必要なサイズが事前にわかっておらず、動的に確保・解放したいデータ（オブジェクト、大規模な配列、ユーザー入力データなど）」</b>を保存するために使われます。
+    </p>
+    <p>
+      ヒープ領域では、スタックのように順番通りに積み重ねるルールはありません。広大なメモリの空いている場所を探してデータを配置し、不要になったらそこを解放します。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">ヒープ領域の特徴</div>
+      <ul>
+        <li><b>自由度が高い：</b> メモリサイズをプログラム実行中に自由に決められ、確保したデータは関数が終了しても（明示的に解放するまで）メモリ上に残り続けます。</li>
+        <li><b>速度が遅い：</b> 空きメモリ領域を探して割り当てるため、スタックに比べて確保や解放の処理（オーバーヘッド）に時間がかかります。</li>
+        <li><b>手動管理（またはGC）：</b> 確保したデータは、明示的に解放する必要があります。C言語などでは手動で解放します。PythonやGo、JavaScriptなどでは<b>ガベージコレクタ（GC：Garbage Collector）</b>と呼ばれるシステムプログラムが、自動で不要になったメモリを回収しますが、これによって一時的な実行遅延が発生します。</li>
+        <li><b>メモリリーク（Memory Leak）の危険：</b> 不要になったメモリの解放を忘れると、プログラムが稼働し続けるうちにヒープ領域を食いつぶし、最終的にOS全体のメモリが不足して強制終了する原因になります。</li>
+      </ul>
+    </div>
+
+    <h2>4. 2つの領域の比較まとめ</h2>
+    <p>
+      スタックとヒープは、適材適所で組み合わせて使われています。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>比較項目</th>
+          <th>スタック領域</th>
+          <th>ヒープ領域</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>主な用途</b></td>
+          <td>関数の実行情報、ローカル変数、引数</td>
+          <td>動的なオブジェクト、配列、大容量データ</td>
+        </tr>
+        <tr>
+          <td><b>データ構造</b></td>
+          <td>LIFO (Last-In First-Out)</td>
+          <td>順不同 (自由配置)</td>
+        </tr>
+        <tr>
+          <td><b>サイズ制限</b></td>
+          <td>小さい (通常 数MB程度)</td>
+          <td>非常に大きい (物理メモリの許す限り)</td>
+        </tr>
+        <tr>
+          <td><b>アクセス速度</b></td>
+          <td>極めて高速</td>
+          <td>比較的遅い</td>
+        </tr>
+        <tr>
+          <td><b>寿命の管理</b></td>
+          <td>自動（関数終了時に消失）</td>
+          <td>手動またはGC（明示的に解放されるまで存在）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      次のセクションでは、これらのメモリ領域にアクセスするために欠かせない、メモリの「番地」を直接取り扱う低レベルな概念である「ポインタ」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter3/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">3-2. メモリ階層：レジスタからストレージまで</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter3/section4`}>
+        <span class="label">3-4. アドレスとポインタ</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

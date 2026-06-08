@@ -1,0 +1,162 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="3-2. メモリ階層：レジスタからストレージまで" 
+  description="コンピュータが「高速かつ大容量」にデータを処理するための設計思想である「メモリの階層構造（レジスタ・キャッシュ・RAM・ストレージ）」を学びます。"
+  currentPath={`${baseUrl}chapter3/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第3章: プログラムとメモリ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第3章 2節</div>
+    <h1 class="section-title">メモリ階層：レジスタからストレージまで</h1>
+    <p class="section-intro">
+      コンピュータに搭載されているメモリには、いくつかの種類があります。高速にデータを処理するためには「速いメモリ」が必要ですが、速いメモリは非常に高価で容量を増やせません。この「速度・容量・価格」の矛盾を解決し、コンピュータ全体を効率よく動かすための魔法が「メモリ階層」という設計思想です。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 速度・容量・価格のトレードオフ</h2>
+    <p>
+      理想のメモリとは、「アクセス速度が光のように速く、容量が無限にあり、かつ価格が極めて安い」ものです。しかし、現代の半導体物理学において、このすべてを同時に満たすメモリを作ることは不可能です。
+    </p>
+    <p>
+      どうしても以下の<b>トレードオフ（あちらを立てればこちらが立たずの関係）</b>が発生します。
+    </p>
+    <ul>
+      <li><b>速いメモリ</b>は、回路が複雑で物理スペースをとるため、<b>高価で容量が小さい</b>。</li>
+      <li><b>大容量のメモリ</b>は、構造をシンプルにして安く作れるが、<b>アクセス速度が遅い</b>。</li>
+    </ul>
+    <p>
+      もしコンピュータのメモリを「速いものだけ」にすれば、高価すぎて一般人は買えません。逆に「遅いものだけ」にすれば、動作が重すぎて使い物になりません。
+    </p>
+
+    <h2>2. ピラミッド型「メモリ階層構造」</h2>
+    <p>
+      この問題を解決するため、コンピュータの設計者たちは、特徴の異なるメモリをピラミッド状に重ね合わせる<b>メモリ階層構造（Memory Hierarchy）</b>を考案しました。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="220" viewBox="0 0 450 220" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Triangle (Memory Pyramid) -->
+          <polygon points="225,20 100,180 350,180" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+          
+          <!-- Levels in pyramid -->
+          <line x1="187" y1="70" x2="263" y2="70" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="156" y1="110" x2="294" y2="110" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="125" y1="150" x2="325" y2="150" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <!-- Text inside pyramid -->
+          <text x="225" y="55" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">レジスタ</text>
+          <text x="225" y="95" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">キャッシュ (SRAM)</text>
+          <text x="225" y="135" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">メインメモリ (DRAM)</text>
+          <text x="225" y="170" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">ストレージ (SSD / HDD)</text>
+
+          <!-- Left arrow (Speed) -->
+          <path d="M 50 180 L 50 40" stroke="#E06C75" stroke-width="2" />
+          <path d="M 46 50 L 50 40 L 54 50 Z" fill="#E06C75" />
+          <text x="40" y="110" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle" transform="rotate(-90 40 110)">◀ 速い (ナノ秒)</text>
+
+          <!-- Right arrow (Capacity) -->
+          <path d="M 400 40 L 400 180" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 396 170 L 400 180 L 404 170 Z" fill="#1E3A60" />
+          <text x="410" y="110" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle" transform="rotate(90 410 110)">大容量 (テラバイト) ▶</text>
+        </svg>
+      </div>
+      <figcaption>図 3-3：メモリの階層構造（ピラミッド）と、速度・容量の対比</figcaption>
+    </figure>
+
+    <p>
+      ピラミッドの上に行くほどCPUの頭脳に近く、<b>超高速ですが高価で小容量</b>です。
+      下に行くほどCPUから遠くなり、<b>低速ですが安価で大容量</b>になります。
+    </p>
+
+    <h2>3. 各階層の役割と特徴</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>階層</th>
+          <th>典型的な容量</th>
+          <th>アクセス速度（目安）</th>
+          <th>特徴と役割</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>レジスタ</b></td>
+          <td>数百バイト</td>
+          <td>0.5 ナノ秒以下</td>
+          <td>CPU内部の超高速フリップフロップ回路。今まさに処理中のデータを1命令分だけ記憶。電源を切ると消える（揮発性）。</td>
+        </tr>
+        <tr>
+          <td><b>キャッシュ</b><br/>(L1〜L3)</td>
+          <td>数メガ〜数十MB</td>
+          <td>1〜10 ナノ秒</td>
+          <td>CPU内部/すぐ横にある<b>SRAM</b>という高速メモリ。よく使うメインメモリのデータを一時コピーしておく。揮発性。</td>
+        </tr>
+        <tr>
+          <td><b>メインメモリ</b><br/>(RAM)</td>
+          <td>8GB〜64GB</td>
+          <td>50〜100 ナノ秒</td>
+          <td>PCのボード上にある<b>DRAM</b>というメモリ。実行中のOSやアプリがデータを保持。揮発性。</td>
+        </tr>
+        <tr>
+          <td><b>ストレージ</b><br/>(SSD/HDD)</td>
+          <td>256GB〜数TB</td>
+          <td>数マイクロ〜数ミリ秒</td>
+          <td>フラッシュメモリや磁気ディスク。アプリやファイルを長期間保存。電源を切っても消えない（不揮発性）。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. なぜこの構造で「速く」動くのか？（局所性の原理）</h2>
+    <p>
+      CPUが直接データをやり取りするのは、極めて遅いストレージではなく、手元にある高速なレジスタやキャッシュメモリです。
+      しかし、なぜこれほど小さなキャッシュメモリ（数MB）があるだけで、コンピュータ全体があたかも「超大容量で超高速なメモリ」を積んでいるかのようにサクサク動くのでしょうか。
+    </p>
+    <p>
+      その理由は、プログラムが持つ<b>「局所性の原理（Principle of Locality）」</b>という性質にあります。
+    </p>
+    <div class="note-box">
+      <div class="note-box-title">局所性の2つの側面</div>
+      <ul>
+        <li><b>時間的局所性（Temporal Locality）</b>：一度アクセスされたデータは、近い将来に何度も繰り返し使われやすい性質。（例：ループ処理で使うループ変数など）</li>
+        <li><b>空間的局所性 (Spatial Locality)</b>：アクセスされたデータの「近く」にあるデータも、続けて使われやすい性質。（例：配列の要素を先頭から順に処理していくなど）</li>
+      </ul>
+    </div>
+    <p>
+      この局所性があるため、CPUがメインメモリからデータを読み出す際、その周囲のデータも含めてまとめて「キャッシュメモリ」にコピー（フェッチ）しておくと、次に必要なデータがほとんどの確率（90%以上）でキャッシュ内から見つかります（これを<b>キャッシュヒット</b>と呼びます）。
+    </p>
+    <p>
+      このおかげで、CPUは遅いメインメモリを直接待つことなく、高速なキャッシュとのやり取りだけで快適に処理を進めることができるのです。
+    </p>
+    <p>
+      次のセクションでは、メインメモリ（RAM）の中にスポットを当て、プログラムが動作する際にメモリがどのように用途別に切り分けられているのか（スタックとヒープ）を学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter3/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">3-1. ソースコードから機械語へ</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter3/section3`}>
+        <span class="label">3-3. スタック領域とヒープ領域</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

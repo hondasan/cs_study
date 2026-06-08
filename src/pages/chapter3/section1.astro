@@ -1,0 +1,164 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="3-1. ソースコードから機械語へ" 
+  description="人間が読み書きするプログラミング言語が、どのようにしてCPUの理解できる「0と1の機械語」へと翻訳されるのか、そのプロセス（コンパイルとインタプリタ）を学びます。"
+  currentPath={`${baseUrl}chapter3/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第3章: プログラムとメモリ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第3章 1節</div>
+    <h1 class="section-title">ソースコードから機械語へ</h1>
+    <p class="section-intro">
+      第2章では、CPUがメモリから命令を1つずつ取り出し、解読して実行するサイクルを学びました。しかし、私たちが普段書くプログラム（PythonやJavaScript、C言語など）は、0と1の数字の羅列ではありません。人間向けの言葉が、どのようにしてCPUの直接理解できる「機械語」へと姿を変えるのか、その翻訳のメカニズムを解説します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 祖先としての「機械語」と「アセンブリ言語」</h2>
+    <p>
+      CPUが直接理解できる唯一の言語は、0と1のビットパターンだけで構成された<b>機械語（Machine Code）</b>です。
+      例えば、CPUに対して「レジスタ1の値とレジスタ2の値を足す」という命令を送る場合、初期のコンピュータでは以下のような数字を入力していました。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.1rem; letter-spacing: 0.1em; color: var(--accent-color);">
+      0000 0001 0010 0011
+    </p>
+    <p>
+      このような入力を人間が間違えずに行うのは不可能に近く、すぐに限界を迎えました。そこで、0と1のパターンの代わりに、人間が読める簡単な英単語（ニーモニック）を割り当てた<b>アセンブリ言語（Assembly Language）</b>が生まれました。
+    </p>
+    <p>
+      例えば、上記の機械語に対して、アセンブリ言語では以下のように記述します。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.1rem; color: var(--accent-color);">
+      ADD R1, R2, R3
+    </p>
+    <p>
+      このアセンブリ言語で書かれたコードを機械語に一対一で翻訳するツールのことを<b>アセンブラ（Assembler）</b>と呼びます。
+    </p>
+
+    <h2>2. 高水準プログラミング言語の登場</h2>
+    <p>
+      アセンブリ言語は機械語よりはマシですが、依然としてCPUの低レベルな命令（データの移動や加算）を1つずつ細かく記述する必要がありました。また、CPUの種類（アーキテクチャ）ごとに命令の体系が異なるため、別のコンピュータで動かすにはプログラムを書き直さなければなりませんでした。
+    </p>
+    <p>
+      そこで、特定のCPUの構造に依存せず、人間にとって理解しやすい数式や論理でプログラムを書くことができる<b>高水準言語（High-Level Language）</b>が登場しました。C言語、Java、Python、JavaScriptなどはすべて高水準言語です。
+    </p>
+    <p>
+      高水準言語で書かれたプログラム（<b>ソースコード</b>）をCPUで実行するためには、何らかの方法で0と1の機械語に「翻訳」する必要があります。この翻訳には、主に<b>コンパイル方式</b>と<b>インタプリタ方式</b>の2大アプローチが存在します。
+    </p>
+
+    <h2>3. コンパイル方式：事前の丸ごと一括翻訳</h2>
+    <p>
+      C言語、C++、Go、Rustなどの言語で採用されているのが<b>コンパイル方式</b>です。
+    </p>
+    <p>
+      プログラムを実行する「前」に、<b>コンパイラ（Compiler）</b>と呼ばれる翻訳ソフトが、ソースコード全体をあらかじめターゲットのCPU向けに翻訳した実行可能ファイル（機械語ファイル）を作り出します。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="90" viewBox="0 0 450 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Flow: Source -> Compiler -> Executable -->
+          <rect x="20" y="20" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="70" y="42" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">ソースコード</text>
+          <text x="70" y="56" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(人間が書いたコード)</text>
+          
+          <path d="M 120 45 L 160 45" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 155 41 L 160 45 L 155 49 Z" fill="#1E3A60" />
+
+          <rect x="170" y="20" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="220" y="42" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">コンパイラ</text>
+          <text x="220" y="56" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(一括翻訳エンジン)</text>
+
+          <path d="M 270 45 L 310 45" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 305 41 L 310 45 L 305 49 Z" fill="#1E3A60" />
+
+          <rect x="320" y="20" width="110" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="375" y="42" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">実行可能ファイル</text>
+          <text x="375" y="56" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(純粋な機械語: 0101)</text>
+        </svg>
+      </div>
+      <figcaption>図 3-1：コンパイル方式の基本的な流れ</figcaption>
+    </figure>
+
+    <p>
+      この方式のメリットは、実行時に翻訳する必要がないため、<b>プログラムの実行速度が圧倒的に速い</b>点です。また、配布するファイルには機械語しか含まれないため、ソースコードを他人に隠したまま配布することができます。
+      一方、デメリットとして、コードを少し変更するだけでも再コンパイルという翻訳作業が必要になり、開発の手軽さに欠ける点があります。
+    </p>
+
+    <h2>4. インタプリタ方式：同時進行の逐次通訳</h2>
+    <p>
+      Python、Ruby、JavaScriptなどの言語で採用されているのが<b>インタプリタ方式</b>です。
+    </p>
+    <p>
+      こちらは、事前の機械語ファイル作成は行いません。プログラムを実行する際、<b>インタプリタ（Interpreter）</b>と呼ばれるプログラム自身が、ソースコードを上から1行ずつ読み込み、その場で解読してCPUに指示を出しながら即時実行していきます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="130" viewBox="0 0 450 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Flow: Source -> Interpreter (loops to CPU) -->
+          <rect x="20" y="40" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="70" y="65" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">ソースコード</text>
+          
+          <path d="M 120 65 L 170 65" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 165 61 L 170 65 L 165 69 Z" fill="#1E3A60" />
+
+          <!-- Interpreter Box -->
+          <rect x="170" y="20" width="120" height="90" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="230" y="45" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">インタプリタ</text>
+          
+          <rect x="185" y="60" width="90" height="35" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="230" y="75" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">1行読み込み ➔ 解読</text>
+          <text x="230" y="87" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">➔ 即座に実行</text>
+
+          <path d="M 290 65 L 340 65" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 335 61 L 340 65 L 335 69 Z" fill="#1E3A60" />
+
+          <rect x="340" y="40" width="90" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="385" y="69" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">CPUでの処理</text>
+        </svg>
+      </div>
+      <figcaption>図 3-2：インタプリタ方式の逐次解読フロー</figcaption>
+    </figure>
+
+    <p>
+      この方式のメリットは、<b>書いたプログラムをすぐにその場で動かせる</b>開発の軽快さです。エラーが発生した箇所がわかりやすく、デバッグが容易です。
+      しかし、実行するたびに1行ずつ「翻訳」を挟むため、<b>実行速度はコンパイルされたプログラムに比べて遥かに遅くなります。</b>また、実行するためにはプログラムを動かす側のコンピュータにも「インタプリタ」がインストールされている必要があります。
+    </p>
+
+    <h2>5. まとめと現代の中間アプローチ</h2>
+    <p>
+      現代のプログラミング言語では、これらの方式がより複雑に融合しています。
+      例えば Java や C# では、一旦「中間コード（バイトコード）」と呼ばれる、仮想のCPU向けの機械語にコンパイルします。そして、実行時に「仮想マシン」がそれを解読して実行します。さらに、実行中に頻繁に通るコードを自動検出してその場で機械語にコンパイルする <b>JIT（Just-In-Time）コンパイラ</b> などの技術も使われ、インタプリタの扱いやすさとコンパイルの高速性を両立させています。
+    </p>
+    <p>
+      いずれの方式であっても、最終的にプログラムはCPUの機械語命令になり、第2章で学んだ「メモリ」からフェッチされて実行されます。
+      次のセクションでは、プログラムを実行する際、CPUに寄り添ってデータを渡し続ける「メモリ」の物理的・階層的な仕組みについて詳しく学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter2/section5`}>
+        <span class="arrow">←</span>
+        <span class="label">2-5. CPUの設計図</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter3/section2`}>
+        <span class="label">3-2. メモリ階層：レジスタからストレージまで</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
