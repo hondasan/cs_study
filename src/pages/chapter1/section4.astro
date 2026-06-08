@@ -1,0 +1,261 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="1-4. メモリの中を覗く" 
+  description="メモリ（RAM）内のデータ配置と番地（アドレス）の仕組み、そしてデータを並べる順序「エンディアン」の宗派論争の本質を理解します。"
+  currentPath={`${baseUrl}chapter1/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第1章: 情報を数える・伝える</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第1章 4節</div>
+    <h1 class="section-title">メモリの中を覗く：バイトとエンディアン</h1>
+    <p class="section-intro">
+      ここまでに学んだ2進数や16進数のデータは、コンピュータの一時記憶装置である「メインメモリ（RAM）」の中にどのように収められているのでしょうか。メモリのアドレス（番地）の仕組みと、複数バイトのデータを並べる順序を巡る「エンディアン論争」の本質に迫ります。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. メモリは「住所付きのロッカー」</h2>
+    <p>
+      コンピュータの<b>メインメモリ（RAM）</b>は、論理的には<b>「1バイト（8ビット）のデータが入るロッカーが、一列に果てしなく並んだもの」</b>と考えることができます。
+    </p>
+    <p>
+      それぞれのロッカーには、データを区別・指定するための「住所（アドレス／番地）」が <code>0</code> 番地から順に割り当てられています。
+      CPUは、この「番地」を指定することで、特定のロッカーにデータを書き込んだり、中身を読み出したりします。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="100" viewBox="0 0 450 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Memory cells -->
+          <rect x="50" y="35" width="60" height="35" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="110" y="35" width="60" height="35" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="170" y="35" width="60" height="35" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="230" y="35" width="60" height="35" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="290" y="35" width="60" height="35" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <text x="370" y="55" font-family="var(--font-sans)" font-size="16" fill="#1E3A60">...</text>
+
+          <!-- Address labels -->
+          <text x="80" y="25" font-family="var(--font-mono)" font-size="10" fill="#555555" text-anchor="middle">0x0000</text>
+          <text x="140" y="25" font-family="var(--font-mono)" font-size="10" fill="#555555" text-anchor="middle">0x0001</text>
+          <text x="200" y="25" font-family="var(--font-mono)" font-size="10" fill="#555555" text-anchor="middle">0x0002</text>
+          <text x="260" y="25" font-family="var(--font-mono)" font-size="10" fill="#555555" text-anchor="middle">0x0003</text>
+          <text x="320" y="25" font-family="var(--font-mono)" font-size="10" fill="#555555" text-anchor="middle">0x0004</text>
+
+          <!-- Content labels (1 Byte each) -->
+          <text x="80" y="57" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle">1バイト</text>
+          <text x="140" y="57" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle">1バイト</text>
+          <text x="200" y="57" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle">1バイト</text>
+          <text x="260" y="57" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle">1バイト</text>
+          <text x="320" y="57" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle">1バイト</text>
+
+          <text x="80" y="85" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">番地（アドレス）</text>
+        </svg>
+      </div>
+      <figcaption>図 1-5：アドレス（番地）が割り当てられたメモリロッカーの概念モデル</figcaption>
+    </figure>
+
+    <h2>2. 「ワード（Word）」という単位</h2>
+    <p>
+      メモリの物理的な最小アクセス単位は1バイトですが、現代のCPUは、もっと大きな単位で一度にデータを処理します。このCPUが一度に処理するデータ単位のことを<b>「ワード（Word）」</b>と呼びます。
+    </p>
+    <p>
+      よく「64ビットPC」と言われるのは、この1ワードの大きさが64ビット（＝8バイト）であることを意味します。64ビットCPUは、メモリから一度に8バイト分のデータを束ねて高速に読み書きすることができます。
+    </p>
+
+    <h2>3. 複数バイトの並び順「エンディアン（Endian）」</h2>
+    <p>
+      ここで1つの問題が発生します。
+      例えば、1ワードが4バイト（32ビット）のコンピュータにおいて、16進数の <code>0x12345678</code> という数値をメモリに保存したいとします。
+    </p>
+    <p>
+      この数値は、1バイト（2桁）ずつに分解すると、<code>12</code>, <code>34</code>, <code>56</code>, <code>78</code> の4つに分かれます。
+      これをメモリのアドレス <code>0x0000</code> 番地から順に配置するとき、次の2通りの並べ方が考えられます。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">2つの並べ方（宗派）</div>
+      <ul>
+        <li><b>ビッグエンディアン（Big Endian）</b>: 桁の大きい（上位）バイトから順に並べる方式。</li>
+        <li><b>リトルエンディアン（Little Endian）</b>: 桁の小さい（下位）バイトから順に並べる方式。</li>
+      </ul>
+    </div>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Big Endian -->
+          <text x="40" y="25" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">ビッグエンディアン (上位から配置)</text>
+          
+          <rect x="40" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="85" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="130" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="175" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          
+          <text x="62" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">12</text>
+          <text x="107" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">34</text>
+          <text x="152" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">56</text>
+          <text x="197" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">78</text>
+
+          <text x="62" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x00</text>
+          <text x="107" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x01</text>
+          <text x="152" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x02</text>
+          <text x="197" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x03</text>
+
+          <!-- Divider -->
+          <line x1="235" y1="15" x2="235" y2="135" stroke="#EBE6DC" stroke-width="1" />
+
+          <!-- Little Endian -->
+          <text x="250" y="25" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">リトルエンディアン (下位から配置)</text>
+          
+          <rect x="250" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="295" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="340" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          <rect x="385" y="35" width="45" height="30" stroke="#1E3A60" stroke-width="1.5" fill="#FAF9F5" />
+          
+          <text x="272" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">78</text>
+          <text x="317" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">56</text>
+          <text x="362" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">34</text>
+          <text x="407" y="55" font-family="var(--font-mono)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">12</text>
+
+          <text x="272" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x00</text>
+          <text x="317" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x01</text>
+          <text x="362" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x02</text>
+          <text x="407" y="80" font-family="var(--font-mono)" font-size="9" fill="#555555" text-anchor="middle">0x03</text>
+          
+          <text x="235" y="110" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">番地（アドレス）の順向</text>
+          <path d="M 197 90 L 225 90 L 225 118 L 247 118" stroke="#555555" stroke-width="1" fill="none" stroke-dasharray="2 2" />
+        </svg>
+      </div>
+      <figcaption>図 1-6：数値 0x12345678 がそれぞれのエンディアンで配置される様子</figcaption>
+    </figure>
+
+    <p>
+      <b>ビッグエンディアン</b>は、人間が数値を書く順序（左から右）と同じなので、メモリの中身をダンプ（表示）したときに非常に直感的に読めるというメリットがあります。主にネットワークプロトコル（IP/TCPなど）のデータ送信順として採用されています。
+    </p>
+    <p>
+      一方、<b>リトルエンディアン</b>は、メモリの中では逆順に並んでいるように見えます。しかし、コンピュータ（CPU）にとっては、数値の計算（足し算など）を下位の桁（右側）から順に行うため、メモリの若い番地（<code>0x00</code>）から読み進めると、都合よく下の桁からデータを取り出せるという計算上のメリットがあります。
+      現代の多くのPC（Intel x86/x64プロセッサや、Apple Silicon等のARMプロセッサの通常動作モード）では、このリトルエンディアンが主流となっています。
+    </p>
+
+    <blockquote>
+      <b>ガリバー旅行記に由来する名前：</b><br/>
+      「エンディアン（Endian）」という奇妙な言葉は、風刺小説『ガリバー旅行記』に出てくる「ゆで卵を丸い端（Big-end）から割るべきか、尖った端（Little-end）から割るべきか」で国を二分する大論争を起こした話に由来しています。コンピュータサイエンスの世界でも、どちらの並びが正しいかで激しい議論が行われた歴史があり、このユーモアある名前が付けられました。
+    </blockquote>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter1/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">1-3. 文字の表現</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter2/section1`}>
+        <span class="label">2-1. スイッチとしてのトランジスタ</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    /* Breadcrumbs styling */
+    .section-nav-breadcrumbs {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .section-nav-breadcrumbs a {
+      color: inherit;
+      border-bottom: none;
+    }
+    
+    /* Header layout */
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    
+    .section-number {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-color);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: none;
+    }
+    
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-style: italic;
+      border-left: 2px solid var(--border-color);
+      padding-left: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Content body elements */
+    .section-body h2 {
+      margin-top: 2.5rem;
+      font-size: 1.35rem;
+    }
+    
+    /* Pagination component */
+    .textbook-pagination {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    .textbook-pagination a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: color 0.2s;
+    }
+    
+    .textbook-pagination a:hover {
+      color: var(--accent-color);
+    }
+    
+    .pagination-prev .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-prev a:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    .pagination-next .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-next a:hover .arrow {
+      transform: translateX(3px);
+    }
+  </style>
+</BookLayout>

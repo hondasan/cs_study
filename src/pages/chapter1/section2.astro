@@ -7,6 +7,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
 <BookLayout 
   title="1-2. 数の表現" 
+  description="コンピュータが使う2進数と、人間がそれを取り扱いやすくする16進数について、その仕組みと美しさを学びます。"
   currentPath={`${baseUrl}chapter1/section2`}
 >
   <div class="section-nav-breadcrumbs">
@@ -16,13 +17,179 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
   <header class="section-header">
     <div class="section-number">第1章 2節</div>
     <h1 class="section-title">数の表現：2進数と16進数</h1>
+    <p class="section-intro">
+      人間は両手の指が10本あることから、自然と「10進数」を数え方の標準としてきました。しかし、電球（トランジスタ）の明滅で情報を表すコンピュータにとっては「2進数」が最も自然な言語です。この2つの世界を繋ぐ、数の表現について学びます。
+    </p>
   </header>
 
   <div class="section-body">
+    <h2>1. 10進数と2進数の本質</h2>
+    <p>
+      私たちが日常使う<b>10進数（Decimal）</b>は、<code>0</code> から <code>9</code> までの10個の記号を使い、<code>9</code> の次に値が増えると「桁上がり」が発生する仕組みです。
+    </p>
+    <p>
+      一方、コンピュータが使う<b>2進数（Binary）</b>は、<code>0</code> と <code>1</code> の2つの記号しか使いません。そのため、<code>1</code> の次に値が増えると、すぐに上の桁へ桁上がりします。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="130" viewBox="0 0 450 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Decimal representation -->
+          <text x="50" y="40" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">10進数: 125</text>
+          
+          <!-- Decimal grid -->
+          <rect x="50" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          <rect x="95" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          <rect x="140" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          
+          <text x="70" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="115" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">2</text>
+          <text x="160" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">5</text>
+
+          <text x="70" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">10²の位</text>
+          <text x="115" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">10¹の位</text>
+          <text x="160" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">10⁰の位</text>
+
+          <!-- Divider -->
+          <line x1="225" y1="30" x2="225" y2="110" stroke="#EBE6DC" stroke-width="1" />
+
+          <!-- Binary representation -->
+          <text x="250" y="40" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">2進数: 101 (10進数の 5)</text>
+          
+          <!-- Binary grid -->
+          <rect x="250" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          <rect x="295" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          <rect x="340" y="55" width="40" height="30" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1.5" />
+          
+          <text x="270" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="315" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">0</text>
+          <text x="360" y="75" font-family="var(--font-sans)" font-size="14" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+
+          <text x="270" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">2²の位</text>
+          <text x="315" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">2¹の位</text>
+          <text x="360" y="100" font-family="var(--font-serif)" font-size="9" fill="#555555" text-anchor="middle">2⁰の位</text>
+        </svg>
+      </div>
+      <figcaption>図 1-2：10進数と2進数の桁ごとの「重み（位）」の対比</figcaption>
+    </figure>
+
+    <p>
+      例えば、2進数の <code>101</code> は、次のような意味を持っています：
+      <span style="display: block; text-align: center; margin: 1.5rem 0; font-family: var(--font-serif); font-size: 1.1rem;">
+        2進数の 101 ＝ (1 × 2²) ＋ (0 × 2¹) ＋ (1 × 2⁰) ＝ 4 ＋ 0 ＋ 1 ＝ 5
+      </span>
+    </p>
+
+    <h2>2. なぜ2進数を使うのか？（物理的安定性）</h2>
+    <p>
+      「なぜ10進数で動くコンピュータを作らないのか」という疑問が湧くかもしれません。
+      技術的には、電流の強さを10段階（0V, 1V, 2V ... 9V）に分けて10進数回路を作ることも可能です。しかし、これは現実には極めて不安定になります。
+    </p>
+    <p>
+      電気ノイズによって電圧が「4.9V」に揺れたとき、それが <code>4</code> なのか <code>5</code> なのかを正確に判別するのは困難です。
+      一方、2進数のように「電圧がほぼゼロ（<code>0</code>）か、それとも高い（<code>1</code>）か」という2つの状態だけであれば、多少のノイズがあっても間違いなく判別できます。
+      この<b>物理的なシンプルさと圧倒的な安定性</b>こそが、コンピュータが2進数を用いる唯一にして最大の理由です。
+    </p>
+
+    <h2>3. 人間のための「16進数 (Hexadecimal)」</h2>
+    <p>
+      2進数は機械にとって完璧ですが、人間にとっては非常に読みづらいという欠点があります。
+      例えば、10進数の <code>202</code> は、2進数にすると <code>11001010</code> となり、桁数が多くて一目で理解できません。
+    </p>
+    <p>
+      そこで登場するのが<b>「16進数」</b>です。16進数は、<code>0</code> 〜 <code>9</code> の数字のあとに <code>A, B, C, D, E, F</code>（10〜15を表す）を補った、16で桁上がりする数え方です。
+    </p>
+
     <div class="note-box">
-      <div class="note-box-title">お知らせ</div>
-      <p>このセクションは現在準備中です。後ほどコンテンツが追加されます。</p>
+      <div class="note-box-title">美しき対応関係：4ビット ＝ 16進数1桁</div>
+      <p>
+        16進数を使う最大の理由は、<b>「2進数の4桁（4ビット）が、16進数のちょうど1桁」</b>に美しく収まるためです。
+      </p>
+      <ul>
+        <li>2進数の最小の4桁 <code>0000</code> ＝ 16進数の <code>0</code></li>
+        <li>2進数の最大の4桁 <code>1111</code> ＝ 16進数の <code>F</code></li>
+      </ul>
     </div>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="400" height="100" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- 8-bit Binary representation -->
+          <text x="50" y="30" font-family="var(--font-sans)" font-size="12" fill="#555555">2進数 (8ビット):</text>
+          
+          <rect x="150" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="175" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="200" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="225" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          
+          <text x="160" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="185" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="210" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">0</text>
+          <text x="235" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">0</text>
+
+          <rect x="260" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="285" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="310" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <rect x="335" y="15" width="20" height="25" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+
+          <text x="270" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="295" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">0</text>
+          <text x="320" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">1</text>
+          <text x="345" y="32" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" text-anchor="middle" font-weight="600">0</text>
+
+          <!-- Grouping indicators -->
+          <path d="M 155 48 L 197 60 L 240 48" stroke="#1E3A60" stroke-width="1.5" fill="none" />
+          <path d="M 265 48 L 307 60 L 350 48" stroke="#1E3A60" stroke-width="1.5" fill="none" />
+
+          <!-- Hex translation -->
+          <text x="50" y="85" font-family="var(--font-sans)" font-size="12" fill="#555555">16進数表現:</text>
+          <text x="197" y="85" font-family="var(--font-sans)" font-size="16" fill="#1E3A60" text-anchor="middle" font-weight="600">C</text>
+          <text x="307" y="85" font-family="var(--font-sans)" font-size="16" fill="#1E3A60" text-anchor="middle" font-weight="600">A</text>
+        </svg>
+      </div>
+      <figcaption>図 1-3：2進数（8ビット）を4ビットずつ区切り、16進数（CA）に置き換える対応モデル</figcaption>
+    </figure>
+
+    <p>
+      2進数の <code>11001010</code> は、4ビットずつに区切ると <code>1100</code> と <code>1010</code> になります。
+      これを16進数に翻訳すると、<code>1100</code> ＝ <code>C</code> (12)、<code>1010</code> ＝ <code>A</code> (10) となり、あわせて <b><code>CA</code></b> と短く簡潔に表記できます。
+    </p>
+    <p>
+      プログラミングで、16進数の値には先頭に <code>0x</code> をつけて <code>0xCA</code> のように書く習慣があります。これは、単なる「CA」という文字列ではなく、「16進数の数である」ことを表す約束事です。
+    </p>
+
+    <h2>4. 3つの表現の対応表</h2>
+    <p>
+      コンピュータサイエンスで非常によく使われる「0から15まで」の対応表です。この関係性を頭に入れておくことは、コンピュータの動きを推測する上でとても強力な武器になります。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>10進数</th>
+          <th>2進数（4ビット）</th>
+          <th>16進数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td><code>0000</code></td><td><code>0</code></td></tr>
+        <tr><td>1</td><td><code>0001</code></td><td><code>1</code></td></tr>
+        <tr><td>2</td><td><code>0010</code></td><td><code>2</code></td></tr>
+        <tr><td>3</td><td><code>0011</code></td><td><code>3</code></td></tr>
+        <tr><td>4</td><td><code>0100</code></td><td><code>4</code></td></tr>
+        <tr><td>5</td><td><code>0101</code></td><td><code>5</code></td></tr>
+        <tr><td>6</td><td><code>0110</code></td><td><code>6</code></td></tr>
+        <tr><td>7</td><td><code>0111</code></td><td><code>7</code></td></tr>
+        <tr><td>8</td><td><code>1000</code></td><td><code>8</code></td></tr>
+        <tr><td>9</td><td><code>1001</code></td><td><code>9</code></td></tr>
+        <tr><td>10</td><td><code>1010</code></td><td><code>A</code></td></tr>
+        <tr><td>11</td><td><code>1011</code></td><td><code>B</code></td></tr>
+        <tr><td>12</td><td><code>1100</code></td><td><code>C</code></td></tr>
+        <tr><td>13</td><td><code>1101</code></td><td><code>D</code></td></tr>
+        <tr><td>14</td><td><code>1110</code></td><td><code>E</code></td></tr>
+        <tr><td>15</td><td><code>1111</code></td><td><code>F</code></td></tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->
@@ -34,7 +201,10 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       </a>
     </div>
     <div class="pagination-next">
-      <span class="muted">次のセクションへ →</span>
+      <a href={`${baseUrl}chapter1/section3`}>
+        <span class="label">1-3. 文字の表現</span>
+        <span class="arrow">→</span>
+      </a>
     </div>
   </div>
 
@@ -73,9 +243,47 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       margin-bottom: 1rem;
       border-bottom: none;
     }
-
-    .muted {
+    
+    .section-intro {
+      font-size: 1.05rem;
       color: var(--text-muted);
+      line-height: 1.8;
+      font-style: italic;
+      border-left: 2px solid var(--border-color);
+      padding-left: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Content body elements */
+    .section-body h2 {
+      margin-top: 2.5rem;
+      font-size: 1.35rem;
+    }
+    
+    /* Tables (Classic academic styling) */
+    table {
+      max-width: 400px;
+      margin: 2rem auto;
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      text-align: center;
+    }
+    
+    th {
+      background-color: var(--quote-bg);
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    tr:nth-child(even) {
+      background-color: rgba(246, 242, 233, 0.5);
     }
     
     /* Pagination component */
@@ -100,6 +308,20 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     
     .textbook-pagination a:hover {
       color: var(--accent-color);
+    }
+    
+    .pagination-prev .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-prev a:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    .pagination-next .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-next a:hover .arrow {
+      transform: translateX(3px);
     }
   </style>
 </BookLayout>

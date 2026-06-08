@@ -1,0 +1,230 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="1-3. 文字の表現" 
+  description="コンピュータが文字を表現する仕組み。文字コード（ASCII）から、現代の世界規格であるUnicode、そしてUTF-8の賢い可変長設計までを学びます。"
+  currentPath={`${baseUrl}chapter1/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第1章: 情報を数える・伝える</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第1章 3節</div>
+    <h1 class="section-title">文字の表現：ASCIIからUnicodeへ</h1>
+    <p class="section-intro">
+      数値しか扱えないコンピュータが、どうやって「あ」や「A」といった文字を表示したり記録したりしているのでしょうか。文字に「背番号」を割り当てる文字コードの誕生から、世界共通の規格であるUnicode、そしてそれを最も賢く転送する「UTF-8」の仕組みまでを解き明かします。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 文字コード ＝ 文字の背番号</h2>
+    <p>
+      コンピュータで文字を扱うアプローチは非常に単純です。あらかじめ「どの数値（2進数）が、どの文字に対応するか」という<b>対応表（文字コード）</b>を人間同士で決めておくのです。
+    </p>
+    <p>
+      例えば、コンピュータの中に <code>65</code> という数値（2進数なら <code>01000001</code>）が入っていたら、画面に文字を表示するプログラムが対応表を参照し、<code>65</code> ＝ <code>A</code> として画面に描画します。
+    </p>
+
+    <h2>2. 初期の標準規格「ASCII（アスキー）」</h2>
+    <p>
+      1963年、アメリカで制定された文字コード規格が<b>ASCII（American Standard Code for Information Interchange）</b>です。
+    </p>
+    <p>
+      ASCIIは、アルファベットの大文字・小文字、数字、基本的な記号、および改行などの制御信号を<b>「7ビット（128通り）」</b>で割り当てました。
+    </p>
+    <ul>
+      <li><code>65</code> (16進数 <code>0x41</code>) ＝ <code>A</code></li>
+      <li><code>97</code> (16進数 <code>0x61</code>) ＝ <code>a</code></li>
+      <li><code>48</code> (16進数 <code>0x30</code>) ＝ <code>0</code></li>
+    </ul>
+    <p>
+      当時は1バイト（8ビット）のうち、エラー検知用の「パリティビット」に1ビットを割いたため、実質7ビットで通信が行われていました。アルファベットと言語記号だけを扱うアメリカにとっては、128通りで十分に事足りたのです。
+    </p>
+
+    <h2>3. 多言語化と「文字化け」のカオス</h2>
+    <p>
+      コンピュータが世界に普及するにつれ、英語以外の言語（日本語、中国語、アラビア語など）を表現する必要が出てきました。
+      しかし、英語と違って日本語の漢字や平仮名は数千〜数万種類あります。到底7ビット（128通り）や、8ビット（256通り）では収まりません。
+    </p>
+    <p>
+      そこで各国が「2バイト（16ビット ＝ 65,536通り）」を使って、独自に文字コード（日本なら Shift-JIS や EUC-JP）を作りました。
+    </p>
+    <p>
+      これが悲劇を生みます。同じ <code>16進数の 0x82A0</code> というデータであっても、Shift-JISというルールで解釈すると「あ」になりますが、別の国の文字コードで解釈すると、全く異なるロシア語の文字や、あるいは意味不明な記号（俗に言う<b>文字化け</b>）になってしまいます。
+    </p>
+
+    <h2>4. 救世主「Unicode（ユニコード）」と「UTF-8」</h2>
+    <p>
+      このカオスを解決するため、「世界中のすべての文字に、重複しない唯一無二の背番号を割り当てよう」という壮大なプロジェクトが立ち上がりました。これが現代の標準規格である<b>Unicode</b>です。
+    </p>
+    <p>
+      Unicodeにより、「あ」は世界共通で <code>U+3042</code>（16進数）という背番号（コードポイント）を割り当てられました。これで文字化けの根本的な原因は排除されました。
+    </p>
+
+    <h3>データをどう表現するか：UTF-8の賢い可変長設計</h3>
+    <p>
+      Unicodeで番号を決めた後、それを「コンピュータのデータ（バイト列）」としてどう記録するかが問題になります。
+      すべての文字を常に3バイトや4バイトで記録すると、英語のテキスト（元々1バイトで済んでいたもの）が3〜4倍のデータ量に膨れ上がり、通信帯域やストレージを無駄に圧迫してしまいます。
+    </p>
+    <p>
+      そこで発明されたのが<b>「UTF-8」</b>という符号化方式です。UTF-8は、文字によってデータの長さを「1バイトから4バイトまで変化させる（可変長）」という素晴らしい特徴を持っています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- UTF-8 English character (1 byte) -->
+          <text x="30" y="30" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">英字 'A' (1バイトで表現)</text>
+          <rect x="30" y="45" width="100" height="25" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="38" y="62" font-family="var(--font-mono)" font-size="11" fill="#A03A3A">0</text>
+          <text x="50" y="62" font-family="var(--font-mono)" font-size="11" fill="#555555">1000001</text>
+          
+          <text x="140" y="62" font-family="var(--font-serif)" font-size="10" fill="#555555">← 先頭が「0」なら1バイト文字</text>
+
+          <!-- UTF-8 Japanese character (3 bytes) -->
+          <text x="30" y="100" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">日本語 'あ' (3バイトで表現)</text>
+          
+          <rect x="30" y="115" width="80" height="25" rx="3" fill="#DDE4EE" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="36" y="132" font-family="var(--font-mono)" font-size="11" fill="#1E3A60" font-weight="600">1110</text>
+          <text x="68" y="132" font-family="var(--font-mono)" font-size="11" fill="#555555">0011</text>
+          
+          <rect x="115" y="115" width="80" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1" />
+          <text x="121" y="132" font-family="var(--font-mono)" font-size="11" fill="#1E3A60" font-weight="600">10</text>
+          <text x="138" y="132" font-family="var(--font-mono)" font-size="11" fill="#555555">000001</text>
+          
+          <rect x="200" y="115" width="80" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" stroke-width="1" />
+          <text x="206" y="132" font-family="var(--font-mono)" font-size="11" fill="#1E3A60" font-weight="600">10</text>
+          <text x="223" y="132" font-family="var(--font-mono)" font-size="11" fill="#555555">000010</text>
+
+          <text x="290" y="132" font-family="var(--font-serif)" font-size="10" fill="#555555">← 先頭のビットパターンでバイト数を自己申告</text>
+        </svg>
+      </div>
+      <figcaption>図 1-4：UTF-8における英字と日本語（ひらがな）のデータ構造の違い</figcaption>
+    </figure>
+
+    <p>
+      UTF-8は、各バイトの先頭にあるビットを見るだけで「この文字が何バイトで構成されているか」を瞬時に判別できる設計になっています：
+    </p>
+    <ul>
+      <li>先頭が <code>0</code> ＝ 1バイトのデータ（ASCII互換）</li>
+      <li>先頭が <code>1110</code> ＝ 3バイト文字の第1バイト（日本語の多くはこれに該当）</li>
+      <li>先頭が <code>10</code> ＝ 複数バイト文字の第2バイト以降</li>
+    </ul>
+    <p>
+      この賢い可変長方式のおかげで、英語圏のデータ量は従来のまま維持されつつ、世界中の多種多様な文字や絵文字（4バイト）までを、一切文字化けさせることなく1つのシステムで共存・伝送することが可能になりました。現代のWebサイトの9割以上がこのUTF-8で記述されています。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter1/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">1-2. 数の表現</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter1/section4`}>
+        <span class="label">1-4. メモリの中を覗く</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <style>
+    /* Breadcrumbs styling */
+    .section-nav-breadcrumbs {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    .section-nav-breadcrumbs a {
+      color: inherit;
+      border-bottom: none;
+    }
+    
+    /* Header layout */
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    
+    .section-number {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-color);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: none;
+    }
+    
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-style: italic;
+      border-left: 2px solid var(--border-color);
+      padding-left: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    /* Content body elements */
+    .section-body h2 {
+      margin-top: 2.5rem;
+      font-size: 1.35rem;
+    }
+    
+    /* Pagination component */
+    .textbook-pagination {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+    }
+    
+    .textbook-pagination a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: color 0.2s;
+    }
+    
+    .textbook-pagination a:hover {
+      color: var(--accent-color);
+    }
+    
+    .pagination-prev .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-prev a:hover .arrow {
+      transform: translateX(-3px);
+    }
+
+    .pagination-next .arrow {
+      transition: transform 0.2s;
+    }
+    .pagination-next a:hover .arrow {
+      transform: translateX(3px);
+    }
+  </style>
+</BookLayout>

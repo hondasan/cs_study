@@ -96,6 +96,8 @@ server.listen(PORT, async () => {
     { name: 'cover', path: '/' },
     { name: 'chapter1-section1', path: '/chapter1/section1' },
     { name: 'chapter1-section2', path: '/chapter1/section2' },
+    { name: 'chapter1-section3', path: '/chapter1/section3' },
+    { name: 'chapter1-section4', path: '/chapter1/section4' },
   ];
 
   try {
