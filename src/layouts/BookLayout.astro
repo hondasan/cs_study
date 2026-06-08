@@ -14,7 +14,8 @@ const {
 } = Astro.props;
 
 // base url (for GitHub Pages deployment)
-const baseUrl = import.meta.env.BASE_URL;
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
 // Curriculum navigation structure
 const chapters = [
