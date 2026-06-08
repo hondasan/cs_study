@@ -507,17 +507,15 @@ tr:nth-child(even) {
   }
 
   table.responsive-card-table td {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
+    display: block !important;
     border: none !important;
     border-bottom: 1px dashed rgba(229, 224, 216, 0.6) !important;
-    padding: 0.5rem 0 !important;
+    padding: 0.6rem 0 !important;
     font-size: 0.82rem !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: break-word !important;
-    text-align: right !important;
+    text-align: left !important;
   }
 
   table.responsive-card-table td:last-child {
@@ -526,11 +524,12 @@ tr:nth-child(even) {
 
   table.responsive-card-table td::before {
     content: attr(data-label) !important;
+    display: block !important;
     font-weight: 600 !important;
     color: var(--accent-color) !important;
     text-align: left !important;
-    padding-right: 1.5rem !important;
-    white-space: nowrap !important;
+    margin-bottom: 0.25rem !important;
+    white-space: normal !important;
     flex-shrink: 0 !important;
   }
 
