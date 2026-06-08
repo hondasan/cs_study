@@ -1,0 +1,174 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="4-4. ファイルシステム" 
+  description="物理的なストレージ内の『セクター』を、人間が扱いやすい『ファイル』や『ディレクトリ』へと抽象化して永続化する『ファイルシステム』の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter4/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第4章: オペレーティングシステム</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第4章 4節</div>
+    <h1 class="section-title">ファイルシステム</h1>
+    <p class="section-intro">
+      第3章で学んだメインメモリ（RAM）は、電源を切るとデータが完全に消えてしまう「揮発性」のメモリです。そのため、作成したドキュメントや写真などのデータを保存しておくためには、電源を切っても消えないSSDやHDDなどのストレージ（不揮発性）に書き込む必要があります。ストレージの物理的な記録領域を、人間が扱いやすい「ファイル」として管理するOSの仕組み「ファイルシステム」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 物理的な記憶域から「論理的なファイル」へ</h2>
+    <p>
+      SSDやHDDといったストレージの内部は、<b>セクター（またはブロック）</b>と呼ばれる「数百バイト〜数キロバイトの小さな領域」が、数億個、数兆個とただ一列に並んでいるだけの非常に単純で生々しい物理世界です。
+    </p>
+    <p>
+      この物理的な世界に対して、人間が直接「1億2345万番目のセクターから3つのセクター分にデータを書く」といった命令を送るのは不可能です。
+    </p>
+    <p>
+      そこでOSは、この生々しいセクターの並びを覆い隠し、人間が直感的に理解できる<b>「ファイル（データの塊）」</b>や<b>「ディレクトリ（フォルダ）」</b>という論理的なフォルダツリーの概念（抽象化）を提供します。この橋渡しをするOSの機能を<b>ファイルシステム（File System）</b>と呼びます。
+    </p>
+
+    <h2>2. ファイルシステムの階層木（ツリー）構造</h2>
+    <p>
+      現代のほぼすべてのOSは、ルートディレクトリ（UNIX系なら <code>/</code>、Windowsなら <code>C:\</code>）を頂点として、枝分かれしていく<b>階層木（ツリー）構造</b>でファイルとフォルダを管理しています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Directory Tree (Root -> home -> user -> file) -->
+          <!-- Root / -->
+          <rect x="200" y="10" width="50" height="24" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="225" y="25" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">/ (ルート)</text>
+          
+          <path d="M 225 34 L 225 55 M 225 55 L 125 55 L 125 70 M 225 55 L 325 55 L 325 70" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- /bin -->
+          <rect x="75" y="70" width="100" height="24" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="125" y="85" font-family="var(--font-sans)" font-size="9" fill="#2A2A2A" text-anchor="middle">📁 bin (実行コマンド)</text>
+
+          <!-- /home -->
+          <rect x="275" y="70" width="100" height="24" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="325" y="85" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">📁 home (ユーザー)</text>
+
+          <path d="M 325 94 L 325 110 M 325 110 L 265 110 L 265 120 M 325 110 L 385 110 L 385 120" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- /home/user1 -->
+          <rect x="215" y="120" width="100" height="24" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="265" y="135" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">📁 user1</text>
+          
+          <!-- /home/user1/text.txt -->
+          <rect x="335" y="120" width="100" height="24" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="385" y="135" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">📄 document.txt</text>
+        </svg>
+      </div>
+      <figcaption>図 4-5：ルートディレクトリを頂点とする階層型ファイルシステムのツリー構造</figcaption>
+    </figure>
+
+    <h2>3. ファイル管理の実体：iノード（inode）モデル</h2>
+    <p>
+      ファイルシステム（特にLinuxなどのUNIX系）の内部では、ファイルはどのように管理されているのでしょうか。
+      実は、<b>「ファイル名」と「データ本体の情報」は全く別の場所で管理されています。</b>
+    </p>
+    <p>
+      ファイルシステム内には、個々のファイルに対して1枚ずつ割り当てられる<b>iノード（inode：Index Node）</b>と呼ばれる管理カードのような構造が存在します。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="150" viewBox="0 0 500 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Directory Table (Name -> inode #) -->
+          <rect x="20" y="20" width="140" height="100" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="90" y="38" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">ディレクトリテーブル</text>
+          <line x1="20" y1="45" x2="160" y2="45" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="30" y="65" font-family="var(--font-sans)" font-size="8" fill="#555555">"memo.txt" ➔</text>
+          <text x="115" y="65" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">inode #102</text>
+          <text x="30" y="90" font-family="var(--font-sans)" font-size="8" fill="#555555">"photo.jpg" ➔</text>
+          <text x="115" y="90" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">inode #244</text>
+
+          <path d="M 160 60 L 210 60" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 205 56 L 210 60 L 205 64 Z" fill="#1E3A60" />
+
+          <!-- inode Table Card -->
+          <rect x="210" y="20" width="130" height="100" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="2" />
+          <text x="275" y="38" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">iノード (inode 102)</text>
+          <line x1="210" y1="45" x2="340" y2="45" stroke="#E06C75" stroke-width="1.5" />
+          <text x="220" y="62" font-family="var(--font-sans)" font-size="7" fill="#555555">ファイルサイズ: 1,024 Byte</text>
+          <text x="220" y="77" font-family="var(--font-sans)" font-size="7" fill="#555555">作成日時: 2026/06/08</text>
+          <text x="220" y="92" font-family="var(--font-sans)" font-size="7" fill="#555555">権限: 読み書き可 (r/w)</text>
+          <text x="220" y="107" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600">データ位置 ➔ ブロック#500</text>
+
+          <path d="M 340 105 L 390 105" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 385 101 L 390 105 L 385 109 Z" fill="#1E3A60" />
+
+          <!-- Physical Block -->
+          <rect x="390" y="20" width="90" height="100" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="435" y="38" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ディスク本体</text>
+          <line x1="390" y1="45" x2="480" y2="45" stroke="#1E3A60" stroke-width="1.5" />
+          <rect x="400" y="65" width="70" height="40" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="435" y="82" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">ブロック 500</text>
+          <text x="435" y="95" font-family="var(--font-serif)" font-size="7" fill="#888888" text-anchor="middle">(実際の0と1のデータ)</text>
+        </svg>
+      </div>
+      <figcaption>図 4-6：ディレクトリテーブルからiノードを経由し、物理データへアクセスする流れ</figcaption>
+    </figure>
+
+    <p>
+      ディレクトリ（フォルダ）とは、中身が特別な構造をしたファイルに過ぎず、その実態は<b>「ファイル名と、それに対応するiノード番号の対応表」</b>です。
+    </p>
+    <p>
+      CPUがファイルにアクセスする際、以下のステップを踏みます。
+    </p>
+    <ol>
+      <li>ディレクトリテーブルからファイル名（例：<code>"memo.txt"</code>）を検索し、対応するiノード番号（<code>102</code>）を特定します。</li>
+      <li>iノードテーブルから 102番の管理カード（メタデータ）を読み出します。ここには、ファイルのサイズ、作成日時、アクセス権限、および<b>「データ本体がディスク上のどの物理ブロックに記録されているか」</b>が書かれています。</li>
+      <li>その場所の情報を元に、ストレージの物理セクター（ブロック#500）からデータ本体を取り出します。</li>
+    </ol>
+    <p>
+      この仕組みのおかげで、ファイル名を変更しても、巨大なデータ本体を移動・コピーする必要はなく、単にディレクトリテーブル上の「ファイル名」の文字列だけを書き換えるだけで瞬時にリネームが完了します。
+    </p>
+
+    <h2>4. アクセス権限（パーミッション）による保護</h2>
+    <p>
+      ファイルシステムは、各iノードに<b>アクセス権限（Permission）</b>を設定することで、セキュアなシステムを構築しています。
+      主に以下の3つの権限が、ファイルの「所有者（ユーザー）」「グループ」「その他全員」に対して個別に設定されます。
+    </p>
+    <ul>
+      <li><b>読み取り（Read - r）</b>：ファイルの内容を表示する、コピーする権限。</li>
+      <li><b>書き込み（Write - w）</b>：ファイルの内容を編集する、削除する権限。</li>
+      <li><b>実行（Execute - x）</b>：ファイルをプログラムとして起動する権限。</li>
+    </ul>
+    <p>
+      OSのカーネルは、アプリがシステムコールを通じてファイルアクセスを求めてくるたびに、この権限設定をチェックします。これにより、一般ユーザーの権限で動いているウェブアプリなどのバグやウイルスが、OSの起動に必要なシステム重要ファイルを勝手に削除したり書き換えたりするのを防いでいます。
+    </p>
+
+    <p>
+      第4章では、オペレーティングシステム（OS）がカーネルとユーザー空間の分離によって安全を担保し、プロセスとスレッドによって並行処理を可能にし、排他制御でデータ競合を防ぎ、ファイルシステムによってデータを直感的かつ永続的に管理する仕組みを学びました。
+    </p>
+    <p>
+      次の第5章からは、再びソフトウェアの領域に戻り、プログラムで効率的な処理を行うための「アルゴリズムとデータ構造」の世界へと進んでいきましょう。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter4/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">4-3. 並行処理と排他制御</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter5/section1`}>
+        <span class="label">5-1. 配列と連結リスト</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

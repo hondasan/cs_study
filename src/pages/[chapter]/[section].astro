@@ -3,12 +3,6 @@ import BookLayout from '../../layouts/BookLayout.astro';
 
 export function getStaticPaths() {
   return [
-    // 第4章 オペレーティングシステム（★新設）
-    { params: { chapter: 'chapter4', section: 'section1' }, props: { title: '4-1. OSとは何か：カーネルとユーザー空間', prev: 'chapter3/section4', next: 'chapter4/section2' } },
-    { params: { chapter: 'chapter4', section: 'section2' }, props: { title: '4-2. プロセスとスレッド', prev: 'chapter4/section1', next: 'chapter4/section3' } },
-    { params: { chapter: 'chapter4', section: 'section3' }, props: { title: '4-3. 並行処理と排他制御', prev: 'chapter4/section2', next: 'chapter4/section4' } },
-    { params: { chapter: 'chapter4', section: 'section4' }, props: { title: '4-4. ファイルシステム', prev: 'chapter4/section3', next: 'chapter5/section1' } },
-    
     // 第5章 アルゴリズムとデータ構造
     { params: { chapter: 'chapter5', section: 'section1' }, props: { title: '5-1. 配列と連結リスト', prev: 'chapter4/section4', next: 'chapter5/section2' } },
     { params: { chapter: 'chapter5', section: 'section2' }, props: { title: '5-2. スタックとキュー：LIFOとFIFO', prev: 'chapter5/section1', next: 'chapter5/section3' } },

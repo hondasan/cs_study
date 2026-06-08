@@ -1,0 +1,172 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="4-3. 並行処理と排他制御" 
+  description="複数のスレッドが同じメモリを同時に書き換えることで発生する「競合状態」のバグと、それを防ぐ「ロック（排他制御）」、および副作用である「デッドロック」を学びます。"
+  currentPath={`${baseUrl}chapter4/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第4章: オペレーティングシステム</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第4章 3節</div>
+    <h1 class="section-title">並行処理と排他制御</h1>
+    <p class="section-intro">
+      スレッドを使うと、同じメモリを共有しながら高速に並行処理を行うことができます。しかし、この「同じメモリを共有する」という特徴は、プログラムに極めて深刻で追跡困難なバグをもたらす温床でもあります。複数のスレッドが衝突する「競合状態」の問題と、それを正しく統制する「排他制御（ロック）」の仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 共有データの破壊：競合状態（Race Condition）</h2>
+    <p>
+      複数のスレッドが、同じメモリ上のデータに対して同時に読み込みや書き込み（更新）を行おうとするとき、実行のタイミング（スレッドの切り替え順序）によって結果がめちゃくちゃになってしまう現象を<b>競合状態（Race Condition：レースコンディション）</b>と呼びます。
+    </p>
+    <p>
+      具体的な例として、<b>「銀行口座の残高（初期値 1,000円）から、同時に1,000円を引き出す」</b>という処理を考えてみましょう。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="480" height="260" viewBox="0 0 480 260" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Timeline / Time flow arrow -->
+          <path d="M 40 30 L 40 220" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 36 210 L 40 220 L 44 210 Z" fill="#1E3A60" />
+          <text x="30" y="25" font-family="var(--font-sans)" font-size="8" fill="#1E3A60">時間</text>
+
+          <!-- Middle: Shared Bank Account Balance -->
+          <rect x="190" y="20" width="100" height="40" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="240" y="35" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">銀行口座残高</text>
+          <text x="240" y="52" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">1,000 円</text>
+
+          <!-- Thread A (Left) -->
+          <g transform="translate(60, 50)">
+            <rect x="0" y="20" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="38" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">A: 残高1,000円を読取</text>
+            
+            <rect x="0" y="80" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="98" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">A: 引出可能と判定</text>
+
+            <rect x="0" y="140" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="158" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">A: 残高を 0円に更新</text>
+          </g>
+
+          <!-- Thread B (Right) -->
+          <g transform="translate(310, 50)">
+            <rect x="0" y="40" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="58" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">B: 残高1,000円を読取</text>
+            
+            <rect x="0" y="100" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="118" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">B: 引出可能と判定</text>
+
+            <rect x="0" y="160" width="110" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="55" y="178" font-family="var(--font-sans)" font-size="8" fill="#2A2A2A" text-anchor="middle">B: 残高を 0円に更新</text>
+          </g>
+
+          <!-- Warning Label at Bottom -->
+          <rect x="130" y="220" width="220" height="30" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="240" y="238" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">結果: 2,000円引き出せてしまった！</text>
+        </svg>
+      </div>
+      <figcaption>図 4-3：排他制御がない場合の競合状態（ダブル引き出し問題）の推移</figcaption>
+    </figure>
+
+    <p>
+      スレッドAとスレッドBがほぼ同時に処理を開始した場合、スレッドAが残高を読み取って「引出可能（1,000円 ≧ 1,000円）」と判定した直後、まだAが書き込みを行う前にスレッドBが割り込んできます。スレッドBもまた古い残高「1,000円」を読み取るため、「引出可能」と誤って判定してしまいます。
+    </p>
+    <p>
+      結果として、AもBも1,000円ずつの引き出しに成功し、銀行口座からは合計2,000円が引き出されたのにもかかわらず、最終残高は「0円」と記録されます。銀行にとっては大赤字の恐ろしいバグです。
+    </p>
+
+    <h2>2. 解決策：排他制御（Mutual Exclusion）とロック</h2>
+    <p>
+      この問題を避けるためには、<b>「あるスレッドがデータを操作している間は、他のスレッドは手出しできないようにする」</b>というルールが必要です。この仕組みを<b>排他制御（Mutual Exclusion）</b>と呼びます。
+    </p>
+    <p>
+      排他制御を行うため、同時に1つのスレッドしか実行してはいけないコードの領域（<b>クリティカルセクション</b>）に対して、<b>「ロック（Lock：またはミューテックス/Mutex）」</b>と呼ばれる電子的な「鍵」をかけます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="110" viewBox="0 0 450 110" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Lock status visual -->
+          <rect x="30" y="35" width="100" height="40" rx="3" fill="#FAF9F5" stroke="#98C379" stroke-width="2" />
+          <text x="80" y="58" font-family="var(--font-sans)" font-size="10" fill="#98C379" font-weight="600" text-anchor="middle">スレッド A</text>
+          <text x="80" y="70" font-family="var(--font-serif)" font-size="7" fill="#555555" text-anchor="middle">(鍵を所有・実行中)</text>
+          
+          <path d="M 130 55 L 180 55" stroke="#98C379" stroke-width="1.5" />
+
+          <!-- Locked Shared Balance -->
+          <rect x="180" y="25" width="100" height="60" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="230" y="45" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">口座データ (ロック中)</text>
+          <!-- Small Key Icon -->
+          <circle cx="215" cy="65" r="4" stroke="#E06C75" stroke-width="1.5" fill="none" />
+          <line x1="219" y1="65" x2="227" y2="65" stroke="#E06C75" stroke-width="1.5" />
+          <line x1="227" y1="65" x2="227" y2="70" stroke="#E06C75" stroke-width="1.5" />
+          <text x="248" y="69" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600">Locked</text>
+
+          <path d="M 320 55 L 280 55" stroke="#E06C75" stroke-width="1.5" stroke-dasharray="2 2" />
+
+          <rect x="320" y="35" width="100" height="40" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="370" y="58" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">スレッド B</text>
+          <text x="370" y="70" font-family="var(--font-serif)" font-size="7" fill="#555555" text-anchor="middle">(鍵が空くまで待機)</text>
+        </svg>
+      </div>
+      <figcaption>図 4-4：ロック（排他制御）によって順番待ちを強制されるスレッドの挙動</figcaption>
+    </figure>
+
+    <ol>
+      <li>スレッドAが口座データの操作を開始する前に、その口座の「鍵」を獲得します（ロック状態にする）。</li>
+      <li>スレッドBが割り込んできて口座を操作しようとしますが、すでにロックされている（鍵がない）ため、Bは処理を一時停止し、Aが鍵を返すのを待ちます（ブロック状態）。</li>
+      <li>Aが「読み取り ➔ 判定 ➔ 書き込み」の処理をすべて終えたら、鍵を返却します（アンロック）。</li>
+      <li>待機していたBがようやく鍵を獲得し、安全に更新された新しい残高「0円」に対して処理を開始します。このとき、Bは「引出不可（0円 ＜ 1,000円）」と正しく判定でき、2重引き出しは防がれます。</li>
+    </ol>
+
+    <h2>3. 排他制御の副作用：デッドロック（Deadlock）</h2>
+    <p>
+      ロックを使えば安全になりますが、ロックの掛け方を間違えると、プログラムが完全にフリーズして動かなくなるバグを引き起こします。その代表例が<b>デッドロック（Deadlock）</b>です。
+    </p>
+    <p>
+      デッドロックは、2つのスレッドが互いに相手が持っている鍵を永久に待ち続けることで発生します。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">デッドロックの発生シナリオ</div>
+      <ul>
+        <li><b>スレッド 1：</b> 鍵A を獲得 ➔ 次に 鍵B を獲得しようとして、スレッド2が解放するのを待つ。</li>
+        <li><b>スレッド 2：</b> 鍵B を獲得 ➔ 次に 鍵A を獲得しようとして、スレッド1が解放するのを待つ。</li>
+      </ul>
+    </div>
+
+    <p>
+      スレッド1はスレッド2が鍵Bを返すのを待ち、スレッド2はスレッド1が鍵Aを返すのを待っています。お互いに相手の解放を待ち続けるため、どちらの処理も1ミリも前に進まなくなります。これがデッドロックです。
+    </p>
+    <p>
+      デッドロックを防ぐためには、「常に決められた順序でしか鍵を獲得しない（例：必ずAを獲ってからBを獲る）」といった厳格な設計設計ルールが必要になります。
+    </p>
+    <p>
+      次のセクションでは、OSのもう1つの重要な機能である、データを消えない形でディスク上に格納し管理する「ファイルシステム」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter4/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">4-2. プロセスとスレッド</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter4/section4`}>
+        <span class="label">4-4. ファイルシステム</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

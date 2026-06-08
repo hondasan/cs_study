@@ -1,0 +1,154 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="4-2. プロセスとスレッド" 
+  description="プログラムがメモリ上で「実行」された状態である「プロセス」と、その内部で並行して動作する実行の流れ「スレッド」の仕組みと違いを学びます。"
+  currentPath={`${baseUrl}chapter4/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第4章: オペレーティングシステム</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第4章 2節</div>
+    <h1 class="section-title">プロセスとスレッド</h1>
+    <p class="section-intro">
+      私たちがコンピュータを使うとき、ブラウザを開きながら音楽を聴き、同時にテキストを入力するといったことを当たり前に行っています。このマルチタスクを実現するために、OSは実行中のプログラムを「プロセス」や「スレッド」という単位で細かく管理しています。プログラミングやシステム設計において極めて重要なこの2つの概念の違いを整理します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. プログラムとプロセスの違い</h2>
+    <p>
+      日常会話では混同されがちですが、コンピュータサイエンスにおいて「プログラム」と「プロセス」は明確に区別されます。
+    </p>
+    <ul>
+      <li><b>プログラム（Program）：静的な存在</b><br/>SSDやHDDなどのストレージ上に保存されている「ソースコードをコンパイルした実行ファイル（単なるデータ）」のことです。まだ実行されていません。</li>
+      <li><b>プロセス（Process）：動的な存在</b><br/>プログラムがメモリ上にロードされ、CPUが命令の実行を開始した<b>「実行中のプログラムの実体」</b>のことです。</li>
+    </ul>
+    <p>
+      同じブラウザの実行ファイルを複数起動した場合、プログラムは1つですが、実行中の実体であるプロセスは「起動した数だけ」メモリ上に個別に作られます。
+    </p>
+
+    <h2>2. プロセス（Process）の特徴：メモリの独立壁</h2>
+    <p>
+      OSがプロセスを起動する際、それぞれのプロセスに対して<b>「完全に隔離された独立したメモリ空間」</b>を割り当てます。
+    </p>
+    <p>
+      あるプロセスは、他のプロセスのメモリ空間をのぞき見することも、書き換えることもできません。このメモリの壁があるため、例えばブラウザアプリがバグでクラッシュしても、同時に動いているエディタアプリに影響が及ぶことはなく、安全性が守られます。
+    </p>
+    <p>
+      ただし、プロセスを新しく立ち上げるためには、メモリ空間を一から確保して割り当てる必要があるため、<b>起動のコスト（オーバーヘッド）が比較的大きい</b>という特徴があります。
+    </p>
+
+    <h2>3. スレッド（Thread）：プロセスの中の「実行の流れ」</h2>
+    <p>
+      では、1つのアプリの中で「通信しながら、画面の描画を更新し、ユーザーのボタン入力を待ち受ける」といった複数の処理を同時に行いたい場合はどうすればよいでしょうか。
+    </p>
+    <p>
+      プロセスを複数立ち上げることもできますが、もっと軽量に並行処理を行うための仕組みが<b>スレッド（Thread：糸・実行の細い流れ）</b>です。
+    </p>
+    <p>
+      スレッドは、<b>「プロセスの中に作られる、実行の流れの最小単位」</b>です。1つのプロセスは、起動時に必ず1つのスレッド（メインスレッド）を持っていますが、必要に応じて内部に複数のスレッド（マルチスレッド）を作り出すことができます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Process Container -->
+          <rect x="50" y="20" width="350" height="140" rx="6" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="65" y="40" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">プロセス (独立したメモリ空間 / ヒープなどを共有)</text>
+
+          <!-- Shared Memory Area -->
+          <rect x="65" y="55" width="320" height="40" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="225" y="78" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">共有メモリ領域 (コード、グローバル変数、ヒープ領域)</text>
+
+          <!-- Thread 1 -->
+          <rect x="75" y="110" width="135" height="40" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="142" y="127" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">スレッド 1</text>
+          <text x="142" y="140" font-family="var(--font-serif)" font-size="7" fill="#555555" text-anchor="middle">(独自のスタック・PC)</text>
+
+          <!-- Thread 2 -->
+          <rect x="240" y="110" width="135" height="40" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="307" y="127" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">スレッド 2</text>
+          <text x="307" y="140" font-family="var(--font-serif)" font-size="7" fill="#555555" text-anchor="middle">(独自のスタック・PC)</text>
+        </svg>
+      </div>
+      <figcaption>図 4-2：プロセス内部における複数スレッドのメモリ共有モデル</figcaption>
+    </figure>
+
+    <p>
+      スレッドの最大の特徴は、<b>「同じプロセスに属するスレッド同士は、コードやグローバル変数、ヒープ領域などのメモリ空間を共有する」</b>という点です。
+    </p>
+    <p>
+      スレッドは自分専用の「スタック領域」と「プログラムカウンタ」だけを持ち、それ以外のメモリはすべて仲間スレッドと共有します。そのため、新しいスレッドの起動や切り替え（コンテキストスイッチ）は<b>プロセスに比べて圧倒的に高速で軽量</b>です。また、メモリを共有しているため、スレッド間でのデータの受け渡しが非常に容易です。
+    </p>
+    <p>
+      ただし、大きなデメリットとして、メモリ空間を共有しているために、<b>1つのスレッドのバグ（メモリの不正な書き換えなど）が、プロセス内の他のすべてのスレッドを巻き込んでアプリ全体をクラッシュさせてしまう</b>リスクがあります。
+    </p>
+
+    <h2>4. プロセスとスレッドの比較まとめ</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>比較項目</th>
+          <th>プロセス（Process）</th>
+          <th>スレッド（Thread）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>定義</b></td>
+          <td>実行中のプログラムの単位</td>
+          <td>プロセス内の実行の流れの単位</td>
+        </tr>
+        <tr>
+          <td><b>メモリ空間</b></td>
+          <td>プロセスごとに完全に独立・隔離</td>
+          <td>同じプロセス内のスレッド間で共有</td>
+        </tr>
+        <tr>
+          <td><b>起動・切り替えコスト</b></td>
+          <td>重い（オーバーヘッドが大きい）</td>
+          <td>軽い（高速に実行可能）</td>
+        </tr>
+        <tr>
+          <td><b>安定性</b></td>
+          <td>高い（1つの暴走が他に影響しない）</td>
+          <td>低い（1つのエラーが全体に波及）</td>
+        </tr>
+        <tr>
+          <td><b>データ共有</b></td>
+          <td>プロセス間通信（IPC）が必要で複雑</td>
+          <td>共有メモリを直接読み書きでき容易</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      次のセクションでは、複数のスレッドが同じメモリ空間を同時に書き換えようとしたときに発生する深刻な問題（競合状態）と、それを解決するための「排他制御」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter4/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">4-1. OSとは何か：カーネルとユーザー空間</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter4/section3`}>
+        <span class="label">4-3. 並行処理と排他制御</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

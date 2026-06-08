@@ -1,0 +1,132 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="4-1. OSとは何か：カーネルとユーザー空間" 
+  description="コンピュータの頭脳であるハードウェアとアプリケーションを仲介し、安全にシステムを動かす「OS（オペレーティングシステム）」の基本と、特権分離（カーネルとユーザー空間）を学びます。"
+  currentPath={`${baseUrl}chapter4/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第4章: オペレーティングシステム</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第4章 1節</div>
+    <h1 class="section-title">OSとは何か：カーネルとユーザー空間</h1>
+    <p class="section-intro">
+      コンピュータが起動すると、最初に動き出す最も重要なソフトウェアが<b>オペレーティングシステム（OS）</b>です。Windows、macOS、Linux、iOS、AndroidなどはすべてOSです。OSは、ハードウェアの生々しい制御を隠蔽し、複数のアプリが互いを壊し合うことなく安全に動くための「舞台」を提供しています。OSが持つ本質的な役割と、安全性の防壁である「特権分離」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. もしもOSが存在しなかったら？</h2>
+    <p>
+      OSの役割を理解するために、もしOSが存在しない世界（ベアメタル）でゲームアプリを作ると想像してください。
+    </p>
+    <p>
+      OSがないと、ゲームアプリの開発者は以下のような低レベルなハードウェア制御コードを自前で書かなければなりません。
+    </p>
+    <ul>
+      <li>「キーボードの特定のピンの電圧変化を検知して入力を判断する」</li>
+      <li>「ディスプレイの特定のアドレスに直接ピクセルデータを送り込む」</li>
+      <li>「SSDの特定のセクター（物理的な位置）を指定してセーブデータを保存する」</li>
+    </ul>
+    <p>
+      これだけでも悪夢ですが、さらに深刻なのは<b>「他のアプリと同時に実行することができない」</b>という問題です。
+      もし、あるバグを含んだゲームアプリがメモリの変な場所にデータを書き込んでしまったら、同時に動いていた別の音楽再生アプリのデータを上書きしてしまい、システム全体が即座にクラッシュするでしょう。
+    </p>
+    <p>
+      このように、ハードウェアを直接制御させるのは非効率的で極めて危険です。そこで、ハードウェアの複雑な制御を一手に引き受け、アプリに対して安全で使いやすい「窓口」を提供する共通の管理プログラムが必要になりました。これがOSです。
+    </p>
+
+    <h2>2. カーネルとユーザー空間の分離</h2>
+    <p>
+      OSは、システムの安全を守るために、CPUが持つ「権限レベル」の機能を利用して、実行環境を厳格に2つに分離しています。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">2つの実行空間</div>
+      <ul>
+        <li><b>カーネル空間（Kernel Space）：特権モード</b><br/>OSのコアである「カーネル」が動作する領域です。ハードウェア（CPU、メモリ、周辺機器など）への全権限を持っており、どんな命令でも直接実行できます。</li>
+        <li><b>ユーザー空間（User Space）：非特権モード</b><br/>ブラウザ、ゲーム、テキストエディタなどの一般的なアプリケーションが動作する領域です。ハードウェアへの直接アクセスは完全に禁止されており、許可されていないメモリ領域を読み書きしようとすると、即座にCPUによって強制遮断されます。</li>
+      </ul>
+    </div>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="200" viewBox="0 0 450 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- User Space (Top) -->
+          <rect x="30" y="20" width="390" height="60" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="45" y="38" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600">ユーザー空間 (非特権モード / 一般アプリ)</text>
+          
+          <rect x="50" y="45" width="80" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="90" y="61" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">ウェブブラウザ</text>
+          
+          <rect x="145" y="45" width="80" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="185" y="61" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">テキストエディタ</text>
+
+          <!-- System Call Gate (Boundary) -->
+          <line x1="30" y1="100" x2="420" y2="100" stroke="#E06C75" stroke-width="2" stroke-dasharray="4 4" />
+          <rect x="160" y="88" width="130" height="24" rx="3" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="225" y="103" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">システムコール (関門)</text>
+
+          <!-- Kernel Space (Bottom) -->
+          <rect x="30" y="120" width="390" height="60" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="45" y="138" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600">カーネル空間 (特権モード / OSのコア)</text>
+          
+          <rect x="50" y="145" width="100" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="100" y="161" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">デバイスドライバ</text>
+          
+          <rect x="160" y="145" width="100" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="210" y="161" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">メモリ管理システム</text>
+
+          <rect x="270" y="145" width="130" height="25" rx="3" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="335" y="161" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">プロセススケジューラ</text>
+        </svg>
+      </div>
+      <figcaption>図 4-1：ユーザー空間とカーネル空間の分離モデル</figcaption>
+    </figure>
+
+    <h2>3. 唯一の公式窓口：システムコール（System Call）</h2>
+    <p>
+      ユーザー空間のアプリが「ファイルをディスクに保存したい」「ネットワークで通信したい」「画面に文字を出したい」といったハードウェア操作を行いたい場合、自分で直接操作することはできません。
+    </p>
+    <p>
+      その代わりに、カーネルに対して安全に作業を依頼する公式の依頼窓口を利用します。この窓口のことを<b>システムコール（System Call）</b>と呼びます。
+    </p>
+    <p>
+      システムコールが呼ばれると、CPUの権限レベルが一時的に「特権モード（カーネル空間）」に切り替わり、カーネルがリクエストを受け取ります。カーネルは、そのアプリに権限があるか（例：そのファイルを書き換えてもよいか）を厳格にチェックした上で、代わりにハードウェアを操作し、結果をアプリに返します。
+    </p>
+    <p>
+      このチェック機構があるおかげで、1つのアプリが暴走してもシステム全体が巻き添えでクラッシュするのを防ぐことができます。
+    </p>
+
+    <h2>4. まとめ</h2>
+    <p>
+      OSは、ハードウェアの生々しい操作を裏側でまとめて代行し、安全なセキュリティの壁（ユーザー空間とカーネル空間の分離）を作ることで、現代の安全なマルチタスク環境を支えています。
+    </p>
+    <p>
+      次のセクションでは、このOSの上でプログラムが「実行中」の状態になった最小単位である「プロセス」と「スレッド」の仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter3/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">3-4. アドレスとポインタ</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter4/section2`}>
+        <span class="label">4-2. プロセスとスレッド</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
