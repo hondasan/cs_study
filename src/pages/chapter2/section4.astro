@@ -1,0 +1,168 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="2-4. クロックと同期：記憶の回路" 
+  description="出力を入力に戻すフィードバック回路（フリップフロップ）によって状態を「記憶」する仕組みと、回路全体の動作タイミングを統制する「クロック」の役割を学びます。"
+  currentPath={`${baseUrl}chapter2/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第2章: 論理回路からCPUへ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第2章 4節</div>
+    <h1 class="section-title">クロックと同期：記憶の回路</h1>
+    <p class="section-intro">
+      加算器によって、コンピュータは電気の力で計算できるようになりました。しかし、計算結果を一時的に保存しておいたり、次の計算の準備が整うまで待機したりするには、情報を「記憶」する機能が必要です。また、無数のゲートがバラバラの速度で動いては、データが壊れてしまいます。情報を覚え、タイミングを合わせるための仕組み「記憶の回路」と「クロック」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 組み合わせ回路と順序回路の違い</h2>
+    <p>
+      これまで学んできた論理ゲートや加算器は、<b>「現在の入力の値だけで、出力が一意に決まる」</b>回路でした。これらを<b>組み合わせ回路</b>と呼びます。入力が変わると、出力も即座に（少しの物理的な遅延のあと）変化します。
+    </p>
+    <p>
+      しかし、コンピュータには「前の計算結果が 5 だった」という<b>過去の状態を記憶する</b>仕組みが必要です。このように、現在の入力だけでなく、過去の状態（記憶）も含めて出力が決定される回路を<b>順序回路</b>と呼びます。
+    </p>
+
+    <h2>2. 出力を入力に戻す「フィードバック」の魔法</h2>
+    <p>
+      論理ゲートだけでどうやって情報を記憶するのでしょうか。その秘密は、<b>「出力された信号を、もう一度自分の入力に戻す（フィードバックする）」</b>という構造にあります。
+    </p>
+    <p>
+      最も基本的な記憶回路である<b>SRラッチ（SR Latch）</b>の動作を見てみましょう。SRラッチは、2つのNOR（またはNAND）ゲートの入出力を互い違いに交差させて繋ぎ合わせた構造をしています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="160" viewBox="0 0 450 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Inputs S and R -->
+          <text x="30" y="45" font-family="var(--font-sans)" font-size="11" fill="#555555">セット S</text>
+          <line x1="80" y1="40" x2="140" y2="40" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <text x="30" y="125" font-family="var(--font-sans)" font-size="11" fill="#555555">リセット R</text>
+          <line x1="90" y1="120" x2="140" y2="120" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- NOR Gate 1 (Top) -->
+          <g transform="translate(140, 20)">
+            <path d="M 10 10 C 18 10 25 10 30 10 C 45 10 55 30 55 30 C 55 30 45 50 50 50 C 45 50 38 50 10 50 C 15 38 15 22 10 10 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <circle cx="58" cy="30" r="3" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <text x="30" y="34" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">NOR</text>
+          </g>
+
+          <!-- NOR Gate 2 (Bottom) -->
+          <g transform="translate(140, 100)">
+            <path d="M 10 10 C 18 10 25 10 30 10 C 45 10 55 30 55 30 C 55 30 45 50 50 50 C 45 50 38 50 10 50 C 15 38 15 22 10 10 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <circle cx="58" cy="30" r="3" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <text x="30" y="34" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600" text-anchor="middle">NOR</text>
+          </g>
+
+          <!-- Output lines -->
+          <line x1="201" y1="50" x2="280" y2="50" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="201" y1="130" x2="280" y2="130" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="290" y="54" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">出力 Q</text>
+          <text x="290" y="134" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">出力 Q'</text>
+
+          <!-- Feedback Wires (Crossed) -->
+          <circle cx="230" cy="50" r="3" fill="#1E3A60" />
+          <path d="M 230 50 L 230 80 L 110 80 L 110 110 L 140 110" stroke="#1E3A60" stroke-width="1.2" />
+
+          <circle cx="250" cy="130" r="3" fill="#1E3A60" />
+          <path d="M 250 130 L 250 90 L 120 90 L 120 50 L 140 50" stroke="#1E3A60" stroke-width="1.2" />
+        </svg>
+      </div>
+      <figcaption>図 2-6：互いの出力をフィードバックし合うSRラッチ回路の基本構造</figcaption>
+    </figure>
+
+    <p>
+      この交差したフィードバック構造のおかげで、一度 <code>S（セット）</code> に 1 を入力して出力 <code>Q</code> を 1 にすると、その後 <code>S</code> を 0 に戻しても、回路自身のループによって 1 の状態が永久に保持され続けます。状態を消去（リセット）したいときは、<code>R（リセット）</code> に 1 を入力します。
+    </p>
+    <p>
+      このように、回路自身が現在の状態をぐるぐると循環させることで、外部からの電気信号が消えた後も「情報を覚え続ける」ことができます。
+    </p>
+
+    <h2>3. クロック（Clock）：回路全体のメトロノーム</h2>
+    <p>
+      記憶回路ができたことで、コンピュータは一時的なデータを保存できるようになりました。しかし、ここで新たな問題が発生します。
+    </p>
+    <p>
+      半導体回路の動作速度は、周囲の温度や配線の長さ、不純物の量などによって、ほんの少しずつ異なります。
+      クロックがないと、あるゲートの計算が完了していないうちに、別の高速なゲートが次のデータを取り込んでしまい、計算結果がグチャグチャになってしまいます。
+    </p>
+    <p>
+      そこで、回路全体の動作のタイミングを合わせるために、<b>「クロック信号（Clock）」</b>と呼ばれる一定周期の電気的メトロノーム信号を導入します。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="100" viewBox="0 0 450 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Clock Waveform (Square wave) -->
+          <path d="M 30 70 L 80 70 L 80 30 L 130 30 L 130 70 L 180 70 L 180 30 L 230 30 L 230 70 L 280 70 L 280 30 L 330 30 L 330 70 L 380 70" stroke="#1E3A60" stroke-width="2" stroke-linejoin="miter" />
+          
+          <!-- Edge indicators (Upward arrows) -->
+          <path d="M 80 85 L 80 75 M 80 75 L 77 78 M 80 75 L 83 78" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 180 85 L 180 75 M 180 75 L 177 78 M 180 75 L 183 78" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 280 85 L 280 75 M 280 75 L 277 78 M 280 75 L 283 78" stroke="#E06C75" stroke-width="1.5" />
+          
+          <text x="80" y="98" font-family="var(--font-sans)" font-size="9" fill="#E06C75" text-anchor="middle" font-weight="600">立ち上がりエッジ</text>
+          <text x="180" y="98" font-family="var(--font-sans)" font-size="9" fill="#E06C75" text-anchor="middle" font-weight="600">立ち上がりエッジ</text>
+          <text x="280" y="98" font-family="var(--font-sans)" font-size="9" fill="#E06C75" text-anchor="middle" font-weight="600">立ち上がりエッジ</text>
+
+          <text x="30" y="20" font-family="var(--font-sans)" font-size="10" fill="#555555">クロック信号（電圧の強弱）</text>
+        </svg>
+      </div>
+      <figcaption>図 2-7：0と1を繰り返すクロック信号と、同期の基準となる「立ち上がりエッジ」</figcaption>
+    </figure>
+
+    <p>
+      すべての記憶回路は、<b>「クロックが 0 から 1 に立ち上がった瞬間（立ち上がりエッジ）にのみ、新しい入力データを取り込んで記憶を更新する」</b>というルールで動きます。この動作をする記憶回路を<b>フリップフロップ（Flip-Flop）</b>と呼びます。
+    </p>
+    <p>
+      クロック信号が立ち上がると、一斉にデータが次の記憶素子へと送り出されます。次の立ち上がりが来るまでの間（クロックの1周期の間）は、たとえ入力がどれだけ激しく揺れても、記憶素子の内容は変化しません。この待機時間の間に、各論理ゲートが落ち着いて計算を行い、安定した出力を準備することができるのです。
+    </p>
+
+    <h2>4. 「GHz（ギガヘルツ）」の正体</h2>
+    <p>
+      スマートフォンのカタログなどに「CPU動作周波数 3.2 GHz」といったスペックが書かれているのを見たことがあるでしょう。
+    </p>
+    <p>
+      この「ヘルツ（Hz）」という単位は、<b>「1秒間にクロック信号が何回立ち上がるか」</b>を示しています。
+    </p>
+    <ul>
+      <li><code>1 Hz</code> ＝ 1秒間に1回立ち上がる</li>
+      <li><code>1 MHz（メガヘルツ）</code> ＝ 1秒間に100万回立ち上がる</li>
+      <li><code>1 GHz（ギガヘルツ）</code> ＝ 1秒間に10億回立ち上がる</li>
+    </ul>
+    <p>
+      つまり、3.2 GHzのCPUは、<b>1秒間に32億回</b>もクロックのメトロノームを刻み、回路全体で一斉にデータを次のステップへ進める計算を行っています。この周波数が高ければ高いほど、CPUは1秒間に多くの計算ステップを実行できるため、処理が高速になります。
+    </p>
+    <p>
+      しかし、クロックを早くしすぎると、今度は「論理ゲートの計算が完了する前に、次のクロックが来てしまいデータが壊れる（タイミングエラー）」が発生したり、電力が激しく消費されて発熱が限界に達したりします。これが、現代のCPUの周波数が4GHz〜5GHz付近で頭打ちになっている物理的な理由です。
+    </p>
+    <p>
+      次のセクションでは、ここまでに学んだ「計算回路（加算器）」と「記憶回路（フリップフロップ）」を組み合わせ、ついに自律してプログラムを実行する「CPUの全体像」を設計します。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter2/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">2-3. 計算の実現：加算器</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter2/section5`}>
+        <span class="label">2-5. CPUの設計図</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

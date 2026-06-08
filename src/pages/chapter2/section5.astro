@@ -1,0 +1,178 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="2-5. CPUの設計図" 
+  description="加算器などの演算装置と、フリップフロップによる記憶装置を統合し、命令を自動的に解読して実行する「CPU（中央処理装置）」の全体設計図を学びます。"
+  currentPath={`${baseUrl}chapter2/section5`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第2章: 論理回路からCPUへ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第2章 5節</div>
+    <h1 class="section-title">CPUの設計図</h1>
+    <p class="section-intro">
+      トランジスタから論理ゲートを作り、論理ゲートから計算回路（加算器）と記憶回路（フリップフロップ）を作りました。ついに、これらすべての部品を統合して、コンピュータの頭脳である「CPU（中央処理装置）」を設計する準備が整いました。無数の単純なスイッチが、どのようにして有機的に結合し、自律的にプログラムを実行する巨大なシステムへと姿を変えるのか、その設計図を明らかにします。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. CPUを構成する三大要素</h2>
+    <p>
+      <b>CPU（Central Processing Unit：中央処理装置）</b>は、コンピュータの「脳」に該当するLSI（大規模集積回路）です。その内部は、役割ごとに大きく次の3つのユニットに分類できます。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">CPUの内部構造</div>
+      <ol>
+        <li><b>ALU（算術論理演算装置：Arithmetic Logic Unit）</b>：加算器などを内蔵し、実際の足し算や引き算、論理積（AND）や論理和（OR）などの「計算」を担当する実動部隊です。</li>
+        <li><b>レジスタ（Register）</b>：フリップフロップを並べて作られた、極めて高速ですが容量の小さな「一時記憶場所」です。CPUが今まさに計算している最中のデータを保管します。</li>
+        <li><b>制御装置（Control Unit）</b>：メモリからプログラム（命令）を読み込み、それを解読して、ALUやレジスタに「計算せよ」「データを移動せよ」といった指示（電気信号）を出す司令塔です。</li>
+      </ol>
+    </div>
+
+    <h2>2. CPUとメモリの全体設計図</h2>
+    <p>
+      CPUは単体では動作しません。命令やデータが保存されている<b>メモリ（主記憶装置）</b>と、<b>バス（Bus）</b>と呼ばれる信号の高速道路で繋がっています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="240" viewBox="0 0 500 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- CPU Box -->
+          <rect x="20" y="20" width="300" height="200" rx="6" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="35" y="40" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">CPU (中央処理装置)</text>
+
+          <!-- Control Unit -->
+          <rect x="40" y="60" width="110" height="60" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="95" y="95" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">制御装置</text>
+          
+          <!-- ALU -->
+          <rect x="180" y="60" width="120" height="60" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="240" y="95" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">ALU (演算装置)</text>
+
+          <!-- Registers -->
+          <rect x="40" y="140" width="260" height="60" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="170" y="165" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">レジスタ群 (PC, IR, 汎用レジスタ)</text>
+
+          <!-- System Memory Box -->
+          <rect x="380" y="20" width="100" height="200" rx="6" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="430" y="40" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">メモリ (RAM)</text>
+          
+          <!-- Memory cells -->
+          <rect x="395" y="60" width="70" height="20" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="430" y="73" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">命令 1</text>
+          <rect x="395" y="90" width="70" height="20" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="430" y="103" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">命令 2</text>
+          <rect x="395" y="120" width="70" height="20" rx="2" fill="#FAF9F5" stroke="#EBE6DC" />
+          <text x="430" y="133" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">データ A</text>
+
+          <!-- Internal Wires inside CPU -->
+          <path d="M 95 120 L 95 140" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="2 2" />
+          <path d="M 240 120 L 240 140" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 150 90 L 180 90" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="2 2" />
+
+          <!-- System Bus (CPU <-> Memory) -->
+          <path d="M 320 110 L 380 110" stroke="#1E3A60" stroke-width="3" />
+          <path d="M 370 105 L 380 110 L 370 115 Z" fill="#1E3A60" />
+          <path d="M 330 105 L 320 110 L 330 115 Z" fill="#1E3A60" />
+          <text x="350" y="130" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">システムバス</text>
+        </svg>
+      </div>
+      <figcaption>図 2-8：CPUとメモリを繋ぐ簡略化システム構成図</figcaption>
+    </figure>
+
+    <h2>3. 重要な特殊レジスタたち</h2>
+    <p>
+      CPU内のレジスタにはいくつかの種類がありますが、特に重要なのが以下の2つです。
+    </p>
+    <ul>
+      <li><b>プログラムカウンタ（PC：Program Counter）</b>：次にメモリのどのアドレスから命令を読み出すべきか、その「番地」を指し示し続けるレジスタです。1つ命令が実行されると、自動的に値が 1 増えて次の命令を指します。</li>
+      <li><b>命令レジスタ（IR：Instruction Register）</b>：メモリから読み出した「現在実行中の命令」を一時的にコピーして保管しておくレジスタです。</li>
+    </ul>
+
+    <h2>4. 命令実行の3ステップ・ライフサイクル</h2>
+    <p>
+      CPUは、クロック信号が刻むメトロノームのリズムに合わせて、以下の3つの手順をただひたすらに、無限に繰り返しています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="90" viewBox="0 0 450 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- 3 Steps flow -->
+          <rect x="20" y="20" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="70" y="42" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">1. フェッチ</text>
+          <text x="70" y="58" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(命令の読み出し)</text>
+          
+          <path d="M 120 45 L 160 45" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 155 41 L 160 45 L 155 49 Z" fill="#1E3A60" />
+
+          <rect x="170" y="20" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="220" y="42" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">2. デコード</text>
+          <text x="220" y="58" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(命令の解読)</text>
+
+          <path d="M 270 45 L 310 45" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 305 41 L 310 45 L 305 49 Z" fill="#1E3A60" />
+
+          <rect x="320" y="20" width="100" height="50" rx="4" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="370" y="42" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">3. 実行</text>
+          <text x="370" y="58" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">(演算・データ転送)</text>
+
+          <!-- Loop back line -->
+          <path d="M 370 70 L 370 85 L 70 85 L 70 70" stroke="#1E3A60" stroke-width="1" stroke-dasharray="3 3" />
+        </svg>
+      </div>
+      <figcaption>図 2-9：CPUの命令実行サイクル</figcaption>
+    </figure>
+
+    <h3>① 命令フェッチ（Fetch：取り出し）</h3>
+    <p>
+      プログラムカウンタ（PC）が指し示しているメモリの番地から、次の「命令」を読み出します。読み出された命令は、CPUの「命令レジスタ（IR）」に格納されます。取り込みが終わると、PCの値は自動的に次のアドレスに進みます。
+    </p>
+
+    <h3>② 命令デコード（Decode：解読）</h3>
+    <p>
+      制御装置が、命令レジスタ（IR）に格納された命令（単なる0と1の数字パターン）を読み解きます。例えば「<code>0010</code> は足し算命令、それに続く <code>01</code> と <code>10</code> はレジスタの番号である」といったルールに従い、ALUに対して「足し算せよ」という電気的な制御信号を送ります。
+    </p>
+
+    <h3>③ 実行（Execute）</h3>
+    <p>
+      ALUが制御信号を受け取り、指定されたレジスタから値を読み出して実際の加算を行い、その結果を別のレジスタへ書き戻します。これで1つの命令の実行が完了し、CPUは再び最初の「フェッチ」に戻り、次の命令を取り込みます。
+    </p>
+
+    <h2>5. コンピュータの自律性の本質</h2>
+    <p>
+      このフェッチ・デコード・実行のサイクルに、人間の介入は一切ありません。
+      メモリにプログラム（命令の羅列）をロードし、クロックの電気振動をONにした瞬間から、<b>CPUはプログラムカウンタの指すままに、一秒間に数十億回というサイクルを自律的に高速で回り続けます。</b>
+    </p>
+    <p>
+      これが、現代のあらゆるコンピュータシステムを支える「自動計算」の正体です。
+    </p>
+    <p>
+      第2章を通じて、物理的なトランジスタの単純なオン・オフから、命令を実行するCPUへとシステムが抽象化されていく過程を見てきました。
+      次の第3章では、このCPUに指示を出すための「プログラム（ソフトウェア）」が、メモリ上にどのように配置され、どのように翻訳されて動いているのかを深く掘り下げていきます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter2/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">2-4. クロックと同期：記憶の回路</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter3/section1`}>
+        <span class="label">3-1. ソースコードから機械語へ</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

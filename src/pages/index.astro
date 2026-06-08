@@ -5,13 +5,14 @@ const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
 const chapters = [
-  { number: "1", title: "情報を数える・伝える", description: "電球1個の通信から、2進数・文字コード・メモリの仕組みまで" },
-  { number: "2", title: "電気で計算する", description: "トランジスタ、論理ゲート、加算器、そしてCPUの誕生" },
-  { number: "3", title: "メモリの迷宮", description: "プログラムの翻訳、記憶の階層、スタックとヒープ" },
-  { number: "4", title: "効率を極める", description: "配列・木・グラフ、探索とソートのアルゴリズム" },
-  { number: "5", title: "他者と繋がる", description: "TCP/IP、ルーティング、DNS、HTTPの設計思想" },
-  { number: "6", title: "データを預かる", description: "関係データベース、SQL、トランザクションの信頼性" },
-  { number: "7", title: "安全と限界", description: "公開鍵暗号、ハッシュ関数、計算可能性の境界線" },
+  { number: "1", title: "情報の表現", description: "電球1個の通信から、2進数・文字コード・メモリの仕組みまで" },
+  { number: "2", title: "論理回路からCPUへ", description: "トランジスタ、論理ゲート、加算器、そしてCPUの設計" },
+  { number: "3", title: "プログラムとメモリ", description: "ソースコードの翻訳、メモリ階層、スタックとヒープ" },
+  { number: "4", title: "オペレーティングシステム", description: "カーネル、プロセス管理、並行処理、ファイルシステム" },
+  { number: "5", title: "アルゴリズムとデータ構造", description: "配列・木・グラフ、計算量、探索とソート" },
+  { number: "6", title: "ネットワーク", description: "TCP/IP、ルーティング、DNS、HTTPの設計思想" },
+  { number: "7", title: "データベース", description: "関係モデル、SQL、トランザクションの信頼性" },
+  { number: "8", title: "セキュリティと計算の限界", description: "暗号技術、ハッシュ関数、計算可能性の境界線" },
 ];
 ---
 

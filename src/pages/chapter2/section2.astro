@@ -1,0 +1,276 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="2-2. 基本論理回路と真理値表" 
+  description="スイッチ（トランジスタ）を組み合わせることで作られる「AND」「OR」「NOT」の基本論理回路と、その入出力を整理する「真理値表」の仕組みを学びます。"
+  currentPath={`${baseUrl}chapter2/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第2章: 論理回路からCPUへ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第2章 2節</div>
+    <h1 class="section-title">基本論理回路と真理値表</h1>
+    <p class="section-intro">
+      トランジスタが「電気のスイッチ」であることは分かりました。では、このスイッチをどう組み合わせれば、コンピュータに「考える（論理判断をする）」力を持たせることができるのでしょうか。ここでは、演算の基礎となる「AND」「OR」「NOT」の基本回路（論理ゲート）と、その動作を定義する「真理値表」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 論理回路（ゲート）とは何か？</h2>
+    <p>
+      電気的にオン（1）とオフ（0）を制御できるスイッチ（トランジスタ）を複数組み合わせることで、特定の入力条件に応じて正しい出力結果を導き出す回路を作ることができます。この回路のことを<b>論理回路（Logic Circuit）</b>、あるいはその最小要素を<b>論理ゲート（Logic Gate）</b>と呼びます。
+    </p>
+    <p>
+      「ゲート（門）」と呼ばれるのは、特定の条件を満たした信号だけを通過させたり、せき止めたりする役割を持っているからです。
+    </p>
+    <p>
+      基本となる論理ゲートは、<b>AND（論理積）</b>、<b>OR（論理和）</b>、<b>NOT（論理否定）</b>の3つです。
+    </p>
+
+    <h2>2. AND（論理積）：直列のスイッチ</h2>
+    <p>
+      ANDゲートは、<b>「入力A と 入力B の両方が 1 であるときだけ、出力が 1 になる」</b>回路です。どちらか一方でも 0 であれば、出力は 0 になります。
+    </p>
+    <p>
+      これを最も直感的に理解するには、2つのスイッチを<b>「直列」</b>に繋いだ回路を想像することです。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Wire from Battery to bulb through 2 switches -->
+          <path d="M 50 80 L 100 80 M 140 80 L 200 80 M 240 80 L 330 80" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 50 80 L 50 30 L 390 30 L 390 80 M 370 80 L 350 80" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="3 3" />
+          
+          <!-- Battery -->
+          <rect x="30" y="65" width="20" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="20" y="85" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600">＋</text>
+          
+          <!-- Switch A -->
+          <circle cx="100" cy="80" r="3" fill="#1E3A60" />
+          <circle cx="140" cy="80" r="3" fill="#1E3A60" />
+          <line x1="100" y1="80" x2="135" y2="60" stroke="#E06C75" stroke-width="2" />
+          <text x="120" y="105" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">スイッチA</text>
+          
+          <!-- Switch B -->
+          <circle cx="200" cy="80" r="3" fill="#1E3A60" />
+          <circle cx="240" cy="80" r="3" fill="#1E3A60" />
+          <line x1="200" y1="80" x2="235" y2="60" stroke="#E06C75" stroke-width="2" />
+          <text x="220" y="105" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">スイッチB</text>
+
+          <!-- Bulb -->
+          <circle cx="350" cy="80" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 345 80 Q 350 70 355 80" stroke="#1E3A60" stroke-width="1.5" fill="none" />
+          <text x="350" y="110" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">電球</text>
+        </svg>
+      </div>
+      <figcaption>図 2-2：ANDゲートのスイッチモデル。AとB両方が閉じないと電球は光らない</figcaption>
+    </figure>
+
+    <p>
+      この回路で電球が光るためには、スイッチAとスイッチBの<b>「両方」</b>を閉じる必要があります。どちらか一方でも開いていれば、電流の道が途切れてしまうため電球は消えたままです。
+    </p>
+
+    <h2>3. OR（論理和）：並列のスイッチ</h2>
+    <p>
+      ORゲートは、<b>「入力A と 入力B のどちらか一方、あるいは両方が 1 であるときに、出力が 1 になる」</b>回路です。両方の入力が 0 のときだけ、出力が 0 になります。
+    </p>
+    <p>
+      これは、2つのスイッチを<b>「並列」</b>に繋いだ回路に対応します。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Battery and basic loop -->
+          <path d="M 50 90 L 100 90" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 240 90 L 330 90" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 50 90 L 50 20 L 390 20 L 390 90 M 370 90 L 350 90" stroke="#1E3A60" stroke-width="1.5" stroke-dasharray="3 3" />
+          
+          <!-- Parallel branches -->
+          <path d="M 100 90 L 100 60 L 120 60" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 100 90 L 100 120 L 120 120" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 220 60 L 240 60 L 240 90" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 220 120 L 240 120 L 240 90" stroke="#1E3A60" stroke-width="2" />
+          
+          <!-- Battery -->
+          <rect x="30" y="75" width="20" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          
+          <!-- Switch A (Top branch) -->
+          <circle cx="120" cy="60" r="3" fill="#1E3A60" />
+          <circle cx="220" cy="60" r="3" fill="#1E3A60" />
+          <line x1="120" y1="60" x2="160" y2="45" stroke="#E06C75" stroke-width="2" />
+          <text x="170" y="80" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">スイッチA</text>
+          
+          <!-- Switch B (Bottom branch) -->
+          <circle cx="120" cy="120" r="3" fill="#1E3A60" />
+          <circle cx="220" cy="120" r="3" fill="#1E3A60" />
+          <line x1="120" y1="120" x2="160" y2="105" stroke="#E06C75" stroke-width="2" />
+          <text x="170" y="140" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">スイッチB</text>
+
+          <!-- Bulb -->
+          <circle cx="350" cy="90" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <path d="M 345 90 Q 350 80 355 90" stroke="#1E3A60" stroke-width="1.5" fill="none" />
+          <text x="350" y="120" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">電球</text>
+        </svg>
+      </div>
+      <figcaption>図 2-3：ORゲートのスイッチモデル。AとBのどちらか一方でも閉じれば電流のルートが繋がり、電球が光る</figcaption>
+    </figure>
+
+    <p>
+      この回路では、スイッチAとスイッチBの「どちらか片方」を閉じるだけで、電流はもう片方の道を通って電球までたどり着き、光を灯します。
+    </p>
+
+    <h2>4. NOT（論理否定）：反転の仕組み</h2>
+    <p>
+      NOTゲートは、入力を「反転」させる回路です。<b>「入力が 1 なら出力は 0、入力が 0 なら出力は 1」</b>になります。
+    </p>
+    <p>
+      トランジスタでこれを作る場合、ゲート端子に電圧がかかった際、電気がアース（グラウンド）に逃げていき、出力側の電圧が下がってしまう「バイパス」構造を利用します。
+    </p>
+
+    <h2>5. 真理値表と論理記号のまとめ</h2>
+    <p>
+      これらの論理動作を数式的に記述し、視覚的に表現するために、コンピュータサイエンスでは特有の<b>「論理記号（MIL記号）」</b>と、すべての入力パターンの入出力をまとめた<b>「真理値表（Truth Table）」</b>を使用します。
+    </p>
+
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>ゲート名</th>
+            <th>論理記号</th>
+            <th>真理値表</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>AND</b><br/>（論理積）</td>
+            <td style="text-align: center; vertical-align: middle;">
+              <svg width="100" height="60" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Input lines -->
+                <line x1="10" y1="20" x2="35" y2="20" stroke="#1E3A60" stroke-width="2"/>
+                <line x1="10" y1="40" x2="35" y2="40" stroke="#1E3A60" stroke-width="2"/>
+                <text x="5" y="24" font-family="var(--font-sans)" font-size="10" fill="#555555">A</text>
+                <text x="5" y="44" font-family="var(--font-sans)" font-size="10" fill="#555555">B</text>
+                <!-- Gate -->
+                <path d="M 35 10 L 55 10 A 20 20 0 0 1 55 50 L 35 50 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+                <!-- Output line -->
+                <line x1="75" y1="30" x2="95" y2="30" stroke="#1E3A60" stroke-width="2"/>
+                <text x="90" y="25" font-family="var(--font-sans)" font-size="10" fill="#555555">Y</text>
+              </svg>
+            </td>
+            <td>
+              <table>
+                <tr><th>A</th><th>B</th><th>Y</th></tr>
+                <tr><td>0</td><td>0</td><td><b>0</b></td></tr>
+                <tr><td>0</td><td>1</td><td><b>0</b></td></tr>
+                <tr><td>1</td><td>0</td><td><b>0</b></td></tr>
+                <tr><td>1</td><td>1</td><td><b>1</b></td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td><b>OR</b><br/>（論理和）</td>
+            <td style="text-align: center; vertical-align: middle;">
+              <svg width="100" height="60" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Input lines -->
+                <line x1="10" y1="20" x2="33" y2="20" stroke="#1E3A60" stroke-width="2"/>
+                <line x1="10" y1="40" x2="33" y2="40" stroke="#1E3A60" stroke-width="2"/>
+                <text x="5" y="24" font-family="var(--font-sans)" font-size="10" fill="#555555">A</text>
+                <text x="5" y="44" font-family="var(--font-sans)" font-size="10" fill="#555555">B</text>
+                <!-- Gate -->
+                <path d="M 30 10 C 38 10 45 10 50 10 C 65 10 75 30 75 30 C 75 30 65 50 50 50 C 45 50 38 50 30 50 C 35 38 35 22 30 10 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+                <!-- Output line -->
+                <line x1="75" y1="30" x2="95" y2="30" stroke="#1E3A60" stroke-width="2"/>
+                <text x="90" y="25" font-family="var(--font-sans)" font-size="10" fill="#555555">Y</text>
+              </svg>
+            </td>
+            <td>
+              <table>
+                <tr><th>A</th><th>B</th><th>Y</th></tr>
+                <tr><td>0</td><td>0</td><td><b>0</b></td></tr>
+                <tr><td>0</td><td>1</td><td><b>1</b></td></tr>
+                <tr><td>1</td><td>0</td><td><b>1</b></td></tr>
+                <tr><td>1</td><td>1</td><td><b>1</b></td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td><b>NOT</b><br/>（論理否定）</td>
+            <td style="text-align: center; vertical-align: middle;">
+              <svg width="100" height="60" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Input line -->
+                <line x1="10" y1="30" x2="40" y2="30" stroke="#1E3A60" stroke-width="2"/>
+                <text x="5" y="34" font-family="var(--font-sans)" font-size="10" fill="#555555">A</text>
+                <!-- Gate (Triangle + Bubble) -->
+                <polygon points="40,15 65,30 40,45" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+                <circle cx="68" cy="30" r="3" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+                <!-- Output line -->
+                <line x1="71" y1="30" x2="95" y2="30" stroke="#1E3A60" stroke-width="2"/>
+                <text x="90" y="25" font-family="var(--font-sans)" font-size="10" fill="#555555">Y</text>
+              </svg>
+            </td>
+            <td>
+              <table>
+                <tr><th>A</th><th>Y</th></tr>
+                <tr><td>0</td><td><b>1</b></td></tr>
+                <tr><td>1</td><td><b>0</b></td></tr>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>6. 応用：XOR（排他的論理和）ゲート</h2>
+    <p>
+      基本の3つ以外にも、コンピュータの「足し算（加算）」を実現するために非常に重要なゲートがあります。それが<b>XOR（Exclusive OR：排他的論理和）</b>ゲートです。
+    </p>
+    <p>
+      XORは、<b>「2つの入力が異なるときだけ出力が 1 になり、同じときは 0 になる」</b>という動作をします。
+    </p>
+
+    <div class="note-box">
+      <div class="note-box-title">XORの真理値表</div>
+      <table>
+        <tr><th>A</th><th>B</th><th>Y（出力）</th></tr>
+        <tr><td>0</td><td>0</td><td><b>0</b></td></tr>
+        <tr><td>0</td><td>1</td><td><b>1</b></td></tr>
+        <tr><td>1</td><td>0</td><td><b>1</b></td></tr>
+        <tr><td>1</td><td>1</td><td><b>0</b></td></tr>
+      </table>
+    </div>
+
+    <p>
+      XORの動作を詳しく見てみると、1桁の2進数の足し算そのものになっていることに気づくはずです（<code>0 + 0 = 0</code>、<code>0 + 1 = 1</code>、<code>1 + 0 = 1</code>、そして <code>1 + 1 = 0</code>（繰り上がりを無視））。
+    </p>
+    <p>
+      このXOR回路は、AND, OR, NOTゲートを組み合わせることで合成して作られます。
+      次のセクションでは、これらの論理ゲートを用いて、実際にコンピュータが「算術計算（足し算）」を行う回路を設計してみましょう。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter2/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">2-1. スイッチとしてのトランジスタ</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter2/section3`}>
+        <span class="label">2-3. 計算の実現：加算器</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

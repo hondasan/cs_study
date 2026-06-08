@@ -1,0 +1,188 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="2-1. スイッチとしてのトランジスタ" 
+  description="コンピュータが電気で計算を行うための最小単位である「トランジスタ」。物理的な可動部のない、超高速な電気のスイッチとしての仕組みを学びます。"
+  currentPath={`${baseUrl}chapter2/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第2章: 論理回路からCPUへ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第2章 1節</div>
+    <h1 class="section-title">スイッチとしてのトランジスタ</h1>
+    <p class="section-intro">
+      第1章では、情報の最小単位が「0と1（ビット）」であることを学びました。では、コンピュータはどのようにしてこの0と1を操作し、計算を行っているのでしょうか。その鍵を握るのが、現代のあらゆるプロセッサの基礎となっている電子部品「トランジスタ」です。トランジスタが持つ「電気的なスイッチ」としての本質に迫ります。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 機械的なスイッチから「電気的なスイッチ」へ</h2>
+    <p>
+      第1章1節で考えた、電球と電池を繋ぐ通信モデルを思い出してください。そこでは、人間が指でパチパチと物理的に「スイッチ」を押し下げることで電流を制御していました。
+    </p>
+    <p>
+      しかし、もし複雑な計算を行うために、数百万回、数億回ものスイッチ操作が必要だとしたらどうでしょうか。人間の指で操作していては、どれだけ時間があっても足りません。また、金属のバネや接点を使った機械的なスイッチは、高速で動かすとすぐに摩耗して壊れてしまいます。
+    </p>
+    <p>
+      コンピュータが計算を行うには、<b>「物理的な可動部がなく、電気の力で別の電気の流れをコントロールできる、超高速なスイッチ」</b>が必要でした。その役割を果たすのが<b>トランジスタ（Transistor）</b>です。
+    </p>
+
+    <h2>2. 半導体という不思議な物質</h2>
+    <p>
+      トランジスタは、<b>半導体（Semiconductor）</b>と呼ばれる物質で作られています。
+    </p>
+    <p>
+      鉄や銅のように電気をよく通す「導体」と、ゴムやガラスのように電気を全く通さない「絶縁体」の、ちょうど中間の性質を持つのが半導体です。半導体は、熱を加えたり、特定の不純物を混ぜたり、あるいは<b>外部から電圧をかけたりすることによって、電気を通す状態（導体）と通さない状態（絶縁体）を自由に行き来させることができます。</b>
+    </p>
+    <p>
+      トランジスタはこの性質を応用し、「電圧をかけることで、電気の通り道を繋いだり切ったりする」スイッチの役割を実現しています。
+    </p>
+
+    <h2>3. MOSトランジスタのスイッチモデル</h2>
+    <p>
+      現代のCPUで主に使われているのは、<b>MOSFET（金属酸化膜半導体電界効果トランジスタ）</b>と呼ばれるタイプのトランジスタです。非常に複雑な物理構造をしていますが、スイッチとして動作する仕組みは驚くほどシンプルです。
+    </p>
+    <p>
+      トランジスタには、主に3つの端子があります。
+    </p>
+    <ul>
+      <li><b>ソース（Source）</b>：電流が流れ込んでくる入り口</li>
+      <li><b>ドレイン（Drain）</b>：電流が流れ出ていく出口</li>
+      <li><b>ゲート（Gate）</b>：スイッチをオン・オフするための「制御ピン」</li>
+    </ul>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="200" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Left Side: OFF State -->
+          <g transform="translate(0, 0)">
+            <text x="120" y="30" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">OFF 状態（電圧なし）</text>
+            
+            <!-- Terminals -->
+            <rect x="30" y="100" width="40" height="20" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="50" y="113" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ソース</text>
+            
+            <rect x="170" y="100" width="40" height="20" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="190" y="113" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ドレイン</text>
+            
+            <!-- Gate -->
+            <rect x="100" y="50" width="40" height="15" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-dasharray="2 2" stroke-width="1.5" />
+            <text x="120" y="61" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ゲート (0)</text>
+            
+            <!-- Wires -->
+            <path d="M 70 110 L 95 110" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 145 110 L 170 110" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 120 65 L 120 80" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+            
+            <!-- Open Switch Arm -->
+            <line x1="95" y1="110" x2="140" y2="90" stroke="#E06C75" stroke-width="2.5" stroke-linecap="round" />
+            
+            <!-- Flow Label -->
+            <text x="120" y="150" font-family="var(--font-serif)" font-size="10" fill="#E06C75" text-anchor="middle" font-weight="600">電流は流れない (0)</text>
+          </g>
+
+          <!-- Divider -->
+          <line x1="250" y1="20" x2="250" y2="170" stroke="#EBE6DC" stroke-width="1" />
+
+          <!-- Right Side: ON State -->
+          <g transform="translate(260, 0)">
+            <text x="120" y="30" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">ON 状態（電圧あり）</text>
+            
+            <!-- Terminals -->
+            <rect x="30" y="100" width="40" height="20" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="50" y="113" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ソース</text>
+            
+            <rect x="170" y="100" width="40" height="20" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="190" y="113" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">ドレイン</text>
+            
+            <!-- Gate -->
+            <rect x="100" y="50" width="40" height="15" rx="2" fill="#1E3A60" stroke="#1E3A60" stroke-width="1.5" />
+            <text x="120" y="61" font-family="var(--font-sans)" font-size="9" fill="#FAF9F5" text-anchor="middle">ゲート (1)</text>
+            
+            <!-- Wires -->
+            <path d="M 70 110 L 95 110" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 145 110 L 170 110" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 120 65 L 120 100" stroke="#1E3A60" stroke-width="1.5" />
+            
+            <!-- Closed Switch Arm -->
+            <line x1="95" y1="110" x2="145" y2="110" stroke="#98C379" stroke-width="2.5" stroke-linecap="round" />
+            
+            <!-- Flow Label -->
+            <text x="120" y="150" font-family="var(--font-serif)" font-size="10" fill="#98C379" text-anchor="middle" font-weight="600">電流が流れる (1)</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 2-1：ゲート電圧によって制御されるトランジスタの簡易スイッチモデル</figcaption>
+    </figure>
+
+    <p>
+      ゲート端子に電圧がかかっていないとき（<code>0</code>）、ソースとドレインの間は電気的に分断されています。これが<b>OFF状態</b>です。
+    </p>
+    <p>
+      しかし、ゲート端子に特定の電圧をかけると（<code>1</code>）、ソースとドレインの間に電気を通す「チャネル（通り道）」が形成され、電流がスムーズに流れるようになります。これが<b>ON状態</b>です。
+    </p>
+    <p>
+      このように、ゲートに小さな電気信号（電圧）を送るだけで、より大きな電流の通り道をON/OFF制御できるのがトランジスタの基本原理です。
+    </p>
+
+    <h2>4. トランジスタがもたらした革命</h2>
+    <p>
+      トランジスタがこれほどまでにコンピュータを進化させた理由は、その圧倒的な物理的特性にあります。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>特徴</th>
+          <th>詳細と効果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>超高速な切り替え</b></td>
+          <td>可動部がないため、1秒間に数十億回（GHzオーダー）という想像を絶する速度でオン・オフを切り替えることができます。</td>
+        </tr>
+        <tr>
+          <td><b>圧倒的な極小化</b></td>
+          <td>現代の最先端半導体プロセスでは、トランジスタ1個の大きさがわずか数ナノメートル（ウイルスよりも小さいサイズ）に達しており、爪の先ほどのシリコンチップの上に数百億個ものトランジスタを詰め込むことができます。</td>
+        </tr>
+        <tr>
+          <td><b>長寿命と信頼性</b></td>
+          <td>接点の摩耗やバネの金属疲労がないため、基本的には半永久的に動き続ける高い安定性を持っています。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <blockquote>
+      <b>歴史のトリビア：真空管からトランジスタへ</b><br/>
+      世界初の汎用電子コンピュータ「ENIAC（エニアック）」は、トランジスタの代わりに「真空管」という電球のような部品を約1万8000本も使用していました。真空管は巨大で、熱を大量に放出し、電球のように頻繁にフィラメントが焼き切れるため、保守作業は悪夢のようでした。トランジスタの発明によって、コンピュータは劇的に小さく、壊れにくく、そして高速になったのです。
+    </blockquote>
+
+    <p>
+      次のセクションでは、この「電気的スイッチ（トランジスタ）」を複数組み合わせることで、どのようにして「論理的思考（ANDやORなどの判断）」を行える回路を作るのかを学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter1/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">1-4. メモリの中を覗く</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter2/section2`}>
+        <span class="label">2-2. 基本論理回路と真理値表</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

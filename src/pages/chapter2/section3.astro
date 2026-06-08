@@ -1,0 +1,217 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="2-3. 計算の実現：加算器" 
+  description="ANDやXORといった論理ゲートを組み合わせることで、2進数の「足し算」を行う計算回路（半加算器・全加算器）を設計する仕組みを学びます。"
+  currentPath={`${baseUrl}chapter2/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第2章: 論理回路からCPUへ</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第2章 3節</div>
+    <h1 class="section-title">計算の実現：加算器</h1>
+    <p class="section-intro">
+      AND、OR、NOTといった論理回路は、単なる「条件の判定」を行う回路でした。しかし、これらを適切に繋ぎ合わせることで、驚くべきことにコンピュータに「算術計算」を行わせることができます。ここでは、2進数の足し算を実現する「半加算器」と「全加算器」の設計を通じて、論理から計算が生まれるメカニズムを紐解きます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 2進数1桁の足し算ルール</h2>
+    <p>
+      もっともシンプルな足し算として、2進数1桁の計算（1ビット ＋ 1ビット）を考えてみましょう。
+      パターンは以下の4通りしかありません。
+    </p>
+    <ul>
+      <li><code>0 ＋ 0 ＝ 00</code> （和は0、繰り上がりは0）</li>
+      <li><code>0 ＋ 1 ＝ 01</code> （和は1、繰り上がりは0）</li>
+      <li><code>1 ＋ 0 ＝ 01</code> （和は1、繰り上がりは0）</li>
+      <li><code>1 ＋ 1 ＝ 10</code> （和は0、繰り上がりは1）</li>
+    </ul>
+    <p>
+      この結果を、<b>「和（S：Sum）」</b>の桁と、上の桁への<b>「繰り上がり（C：Carry）」</b>の桁に分けて真理値表に整理してみます。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>入力A</th>
+          <th>入力B</th>
+          <th>繰り上がり（C）</th>
+          <th>和（S）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>0</td><td><b>0</b></td><td><b>0</b></td></tr>
+        <tr><td>0</td><td>1</td><td><b>0</b></td><td><b>1</b></td></tr>
+        <tr><td>1</td><td>0</td><td><b>0</b></td><td><b>1</b></td></tr>
+        <tr><td>1</td><td>1</td><td><b>1</b></td><td><b>0</b></td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      この表の「出力」の列をよく観察してください。
+    </p>
+    <ul>
+      <li><b>和（S）</b>の列は、AとBが異なるときに 1 になっています。これはまさに<b>XORゲート</b>の動作です。</li>
+      <li><b>繰り上がり（C）</b>の列は、AとBが両方 1 のときだけ 1 になっています。これはまさに<b>ANDゲート</b>の動作です。</li>
+    </ul>
+
+    <h2>2. 半加算器（Half Adder）の設計</h2>
+    <p>
+      この観察結果から、1ビットのXORゲートと1ビットのANDゲートを並列に繋ぐだけで、2進数1桁の足し算ができる回路が完成します。この回路を<b>半加算器（Half Adder）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Input labels and lines -->
+          <text x="30" y="55" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600">入力 A</text>
+          <text x="30" y="115" font-family="var(--font-sans)" font-size="12" fill="#2A2A2A" font-weight="600">入力 B</text>
+          
+          <!-- Routing wires -->
+          <path d="M 80 50 L 180 50" stroke="#1E3A60" stroke-width="1.5" />
+          <path d="M 80 110 L 180 110" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <!-- Dots and branches -->
+          <circle cx="110" cy="50" r="3" fill="#1E3A60" />
+          <path d="M 110 50 L 110 130 L 180 130" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <circle cx="140" cy="110" r="3" fill="#1E3A60" />
+          <path d="M 140 110 L 140 150 L 180 150" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- XOR Gate (Top) -->
+          <g transform="translate(180, 30)">
+            <path d="M 10 10 C 18 10 25 10 30 10 C 45 10 55 30 55 30 C 55 30 45 50 50 50 C 45 50 38 50 10 50 C 15 38 15 22 10 10 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <path d="M 5 10 C 10 22 10 38 5 50" stroke="#1E3A60" stroke-width="2" fill="none" />
+            <text x="30" y="34" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">XOR</text>
+          </g>
+          
+          <!-- AND Gate (Bottom) -->
+          <g transform="translate(180, 110)">
+            <path d="M 10 10 L 30 10 A 20 20 0 0 1 30 50 L 10 50 Z" stroke="#1E3A60" stroke-width="2" fill="#FAF9F5" />
+            <text x="26" y="34" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">AND</text>
+          </g>
+
+          <!-- Output wires and labels -->
+          <line x1="235" y1="60" x2="320" y2="60" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="230" y1="140" x2="320" y2="140" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <text x="330" y="64" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">和 S (Sum)</text>
+          <text x="330" y="144" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600">繰り上がり C (Carry)</text>
+        </svg>
+      </div>
+      <figcaption>図 2-4：半加算器（Half Adder）の回路図</figcaption>
+    </figure>
+
+    <h2>3. なぜ「半（Half）」加算器なのか？</h2>
+    <p>
+      半加算器は1桁の計算には十分ですが、2桁以上の足し算を行おうとすると問題が発生します。
+      私たちが筆算で足し算をするとき、<b>「下の桁から繰り上がってきた値」</b>も一緒に足す必要があります。
+    </p>
+    <p>
+      しかし、半加算器には入力端子が「A」と「B」の2つしかありません。つまり、下の桁からの繰り上がり数（C_in）を入力として受け取ることができないのです。
+      下の桁からの繰り上がりを加算できないため、これだけでは「半分」の機能しか満たしていないという意味で、「半加算器」と呼ばれます。
+    </p>
+
+    <h2>4. 全加算器（Full Adder）の設計</h2>
+    <p>
+      下の桁からの繰り上がり（C_in）も含めた、3つの入力（A, B, C_in）の足し算を行うことができる回路を<b>全加算器（Full Adder）</b>と呼びます。
+    </p>
+    <p>
+      全加算器は、<b>「2つの半加算器」</b>と<b>「1つのORゲート」</b>を組み合わせることで作ることができます。
+    </p>
+    <ol>
+      <li>まず、1つ目の半加算器で <code>A ＋ B</code> を計算します。</li>
+      <li>その結果（和）と、下の桁からの繰り上がり <code>C_in</code> を、2つ目の半加算器に入力して足し合わせます。これで最終的な<b>和（S）</b>が求まります。</li>
+      <li>1つ目の半加算器で発生した繰り上がり、あるいは2つ目の半加算器で発生した繰り上がりの「どちらか一方」でも 1 であれば、次の桁への<b>繰り上がり（C_out）</b>を 1 にします（ORゲートで統合）。</li>
+    </ol>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="500" height="200" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Blocks -->
+          <!-- Half Adder 1 -->
+          <rect x="80" y="30" width="100" height="70" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="130" y="65" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">半加算器 1</text>
+          
+          <!-- Half Adder 2 -->
+          <rect x="250" y="60" width="100" height="70" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="300" y="95" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600" text-anchor="middle">半加算器 2</text>
+          
+          <!-- OR Gate -->
+          <rect x="390" y="130" width="60" height="40" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="420" y="155" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">OR</text>
+
+          <!-- Inputs -->
+          <text x="20" y="55" font-family="var(--font-sans)" font-size="10" fill="#555555">A</text>
+          <line x1="35" y1="50" x2="80" y2="50" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="20" y="85" font-family="var(--font-sans)" font-size="10" fill="#555555">B</text>
+          <line x1="35" y1="80" x2="80" y2="80" stroke="#1E3A60" stroke-width="1.5" />
+          
+          <text x="20" y="125" font-family="var(--font-sans)" font-size="10" fill="#555555">C_in</text>
+          <path d="M 45 120 L 220 120 L 220 80 L 250 80" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- Internal connections -->
+          <!-- HA1 Sum to HA2 Input -->
+          <path d="M 180 50 L 220 50 L 220 100 L 250 100" stroke="#1E3A60" stroke-width="1.5" />
+          <!-- HA1 Carry to OR -->
+          <path d="M 180 80 L 200 80 L 200 145 L 390 145" stroke="#1E3A60" stroke-width="1.5" />
+          <!-- HA2 Carry to OR -->
+          <path d="M 350 110 L 370 110 L 370 155 L 390 155" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- Outputs -->
+          <!-- HA2 Sum (Final Sum) -->
+          <line x1="350" y1="80" x2="470" y2="80" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="480" y="84" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">和 S</text>
+          
+          <!-- OR Output (Final Carry Out) -->
+          <line x1="450" y1="150" x2="470" y2="150" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="480" y="154" font-family="var(--font-sans)" font-size="11" fill="#1E3A60" font-weight="600">C_out</text>
+        </svg>
+      </div>
+      <figcaption>図 2-5：全加算器（Full Adder）の構成図</figcaption>
+    </figure>
+
+    <h2>5. 多ビットへの拡張：リップルキャリー加算器</h2>
+    <p>
+      全加算器が1つあれば、「繰り上がりを考慮した1桁の足し算」ができます。
+      では、4ビットや8ビット、さらには現代のコンピュータのような32ビットや64ビットの足し算を行うにはどうすればよいでしょうか？
+    </p>
+    <p>
+      答えは簡単です。<b>「全加算器を桁の数だけ横に繋げて、繰り上がり出力（C_out）を隣の全加算器の繰り上がり入力（C_in）へ数珠繋ぎ（チェーン）にする」</b>だけです。
+    </p>
+    <p>
+      このように設計された加算器を<b>リップルキャリー加算器（Ripple Carry Adder）</b>と呼びます。
+      「リップル（漣：さざなみ）」という名がついているのは、繰り上がり信号が下の桁から上の桁へと、水面に広がる波紋のように順番に伝わっていくためです。
+    </p>
+    <p>
+      このシンプルな構造により、どれだけ桁数が増えても、論理ゲートの力だけで自動的に瞬時に足し算を行うことができるようになります。
+    </p>
+    <p>
+      次のセクションでは、足し算だけではなく、コンピュータがデータを「記憶」しておくための回路（メモリの起源）について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter2/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">2-2. 基本論理回路と真理値表</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter2/section4`}>
+        <span class="label">2-4. クロックと同期：記憶の回路</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

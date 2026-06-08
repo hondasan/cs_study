@@ -21,75 +21,85 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 const chapters = [
   {
     number: "1",
-    title: "情報を数える・伝える",
+    title: "情報の表現",
     sections: [
       { id: "1-1", title: "電球1個から始める通信", path: "chapter1/section1" },
-      { id: "1-2", title: "数の表現", path: "chapter1/section2" },
-      { id: "1-3", title: "文字の表現", path: "chapter1/section3" },
-      { id: "1-4", title: "メモリの中を覗く", path: "chapter1/section4" },
+      { id: "1-2", title: "数の表現：2進数と16進数", path: "chapter1/section2" },
+      { id: "1-3", title: "文字の表現：ASCIIからUnicodeへ", path: "chapter1/section3" },
+      { id: "1-4", title: "メモリの中を覗く：バイトとエンディアン", path: "chapter1/section4" },
     ]
   },
   {
     number: "2",
-    title: "電気で計算する",
+    title: "論理回路からCPUへ",
     sections: [
       { id: "2-1", title: "スイッチとしてのトランジスタ", path: "chapter2/section1" },
       { id: "2-2", title: "基本論理回路と真理値表", path: "chapter2/section2" },
       { id: "2-3", title: "計算の実現：加算器", path: "chapter2/section3" },
-      { id: "2-4", title: "クロックと同期：記憶", path: "chapter2/section4" },
-      { id: "2-5", title: "シンプルなCPUの設計図", path: "chapter2/section5" },
+      { id: "2-4", title: "クロックと同期：記憶の回路", path: "chapter2/section4" },
+      { id: "2-5", title: "CPUの設計図", path: "chapter2/section5" },
     ]
   },
   {
     number: "3",
-    title: "メモリの迷宮",
+    title: "プログラムとメモリ",
     sections: [
-      { id: "3-1", title: "プログラムの生涯", path: "chapter3/section1" },
-      { id: "3-2", title: "記憶のピラミッド", path: "chapter3/section2" },
-      { id: "3-3", title: "スタックとヒープ", path: "chapter3/section3" },
-      { id: "3-4", title: "ポインタと参照", path: "chapter3/section4" },
+      { id: "3-1", title: "ソースコードから機械語へ", path: "chapter3/section1" },
+      { id: "3-2", title: "メモリ階層：レジスタからストレージまで", path: "chapter3/section2" },
+      { id: "3-3", title: "スタック領域とヒープ領域", path: "chapter3/section3" },
+      { id: "3-4", title: "アドレスとポインタ", path: "chapter3/section4" },
     ]
   },
   {
     number: "4",
-    title: "効率を極める",
+    title: "オペレーティングシステム",
     sections: [
-      { id: "4-1", title: "データ構造とは箱である", path: "chapter4/section1" },
-      { id: "4-2", title: "スタックとキュー", path: "chapter4/section2" },
-      { id: "4-3", title: "効率のハサミ：二分探索", path: "chapter4/section3" },
-      { id: "4-4", title: "木（ツリー）とグラフ", path: "chapter4/section4" },
-      { id: "4-5", title: "ソートと分割統治法", path: "chapter4/section5" },
+      { id: "4-1", title: "OSとは何か：カーネルとユーザー空間", path: "chapter4/section1" },
+      { id: "4-2", title: "プロセスとスレッド", path: "chapter4/section2" },
+      { id: "4-3", title: "並行処理と排他制御", path: "chapter4/section3" },
+      { id: "4-4", title: "ファイルシステム", path: "chapter4/section4" },
     ]
   },
   {
     number: "5",
-    title: "他者と繋がる",
+    title: "アルゴリズムとデータ構造",
     sections: [
-      { id: "5-1", title: "プロトコルと階層設計", path: "chapter5/section1" },
-      { id: "5-2", title: "IPルーティングと郵便", path: "chapter5/section2" },
-      { id: "5-3", title: "信頼性の担保：TCP", path: "chapter5/section3" },
-      { id: "5-4", title: "世界の住所録：DNS", path: "chapter5/section4" },
-      { id: "5-5", title: "Webの言語：HTTP", path: "chapter5/section5" },
+      { id: "5-1", title: "配列と連結リスト", path: "chapter5/section1" },
+      { id: "5-2", title: "スタックとキュー：LIFOとFIFO", path: "chapter5/section2" },
+      { id: "5-3", title: "計算量と二分探索", path: "chapter5/section3" },
+      { id: "5-4", title: "木構造とグラフ", path: "chapter5/section4" },
+      { id: "5-5", title: "ソートアルゴリズム", path: "chapter5/section5" },
     ]
   },
   {
     number: "6",
-    title: "データを預かる",
+    title: "ネットワーク",
     sections: [
-      { id: "6-1", title: "ファイル保存の限界", path: "chapter6/section1" },
-      { id: "6-2", title: "関係モデルの論理美", path: "chapter6/section2" },
-      { id: "6-3", title: "SQL：宣言型言語の思想", path: "chapter6/section3" },
-      { id: "6-4", title: "トランザクションとACID", path: "chapter6/section4" },
+      { id: "6-1", title: "通信プロトコルとレイヤー構造", path: "chapter6/section1" },
+      { id: "6-2", title: "IPアドレスとルーティング", path: "chapter6/section2" },
+      { id: "6-3", title: "TCPと信頼性のある通信", path: "chapter6/section3" },
+      { id: "6-4", title: "名前解決：DNSの仕組み", path: "chapter6/section4" },
+      { id: "6-5", title: "HTTPとWebの仕組み", path: "chapter6/section5" },
     ]
   },
   {
     number: "7",
-    title: "安全と限界",
+    title: "データベース",
     sections: [
-      { id: "7-1", title: "公開鍵暗号の魔法", path: "chapter7/section1" },
-      { id: "7-2", title: "ハッシュ関数とデジタル署名", path: "chapter7/section2" },
-      { id: "7-3", title: "計算可能限界と停止性", path: "chapter7/section3" },
-      { id: "7-4", title: "P vs NP問題と宇宙寿命", path: "chapter7/section4" },
+      { id: "7-1", title: "なぜデータベースが必要か", path: "chapter7/section1" },
+      { id: "7-2", title: "関係モデルとテーブル設計", path: "chapter7/section2" },
+      { id: "7-3", title: "SQLの基本", path: "chapter7/section3" },
+      { id: "7-4", title: "トランザクションとACID特性", path: "chapter7/section4" },
+    ]
+  },
+  {
+    number: "8",
+    title: "セキュリティと計算の限界",
+    sections: [
+      { id: "8-1", title: "共通鍵暗号と公開鍵暗号", path: "chapter8/section1" },
+      { id: "8-2", title: "ハッシュ関数とデジタル署名", path: "chapter8/section2" },
+      { id: "8-3", title: "チューリングマシンと計算可能性", path: "chapter8/section3" },
+      { id: "8-4", title: "P ≠ NP予想と計算量の壁", path: "chapter8/section4" },
     ]
   }
 ];
