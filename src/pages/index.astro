@@ -3,11 +3,21 @@ import BookLayout from '../layouts/BookLayout.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+
+const chapters = [
+  { number: "1", title: "情報を数える・伝える", description: "電球1個の通信から、2進数・文字コード・メモリの仕組みまで" },
+  { number: "2", title: "電気で計算する", description: "トランジスタ、論理ゲート、加算器、そしてCPUの誕生" },
+  { number: "3", title: "メモリの迷宮", description: "プログラムの翻訳、記憶の階層、スタックとヒープ" },
+  { number: "4", title: "効率を極める", description: "配列・木・グラフ、探索とソートのアルゴリズム" },
+  { number: "5", title: "他者と繋がる", description: "TCP/IP、ルーティング、DNS、HTTPの設計思想" },
+  { number: "6", title: "データを預かる", description: "関係データベース、SQL、トランザクションの信頼性" },
+  { number: "7", title: "安全と限界", description: "公開鍵暗号、ハッシュ関数、計算可能性の境界線" },
+];
 ---
 
 <BookLayout title="ホーム" currentPath={baseUrl}>
   <div class="book-cover">
-    <div class="book-tagline">PHYSICAL TO THEORETICAL LIMITS</div>
+    <div class="book-tagline">FROM PHYSICAL SWITCHES TO THEORETICAL LIMITS</div>
     <h1 class="book-main-title">コンピュータサイエンス<br/>の教科書</h1>
     <div class="book-subtitle">物理世界から計算限界までを紡ぐ、不変の基礎知識</div>
     
@@ -16,103 +26,191 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <div class="preface">
       <h2>序文</h2>
       <p>
-        今日、コンピュータは私たちの日常に溶け込み、空気のような存在となっています。しかし、その中身がどのように動き、どのような論理で成り立っているのかを本質的に知る機会は多くありません。
+        コンピュータは日常に溶け込み、空気のような存在となりました。しかし、その中身がどのように動いているのかを知る機会は多くありません。
       </p>
       <p>
-        コンピュータサイエンスは、流行のプログラミング言語や特定のツールを使いこなすための技術ではありません。それは、電気の「オン・オフ」という物理現象から、宇宙の寿命をかけても解けない計算限界という数学的限界までを繋ぐ、人類の知性の結晶です。
+        コンピュータサイエンスとは、流行のプログラミング言語やツールの使い方ではなく、電気の「オン・オフ」から宇宙の寿命をかけても解けない問題の存在証明まで――人類が積み上げてきた不変の知の体系です。
       </p>
       <p>
-        本書は、ありきたりな技術書のテンプレートや自動生成されたような装飾を排し、紙の教科書のように静かで美しい佇まいを目指しました。ページをめくるように、一つひとつの概念をゆっくりと、自らの手と頭を動かしながら学んでいきましょう。
+        本書では、7つの章を通して、コンピュータの世界を一歩ずつ歩いていきます。
       </p>
-      <div class="start-btn-container">
-        <a href={`${baseUrl}chapter1/section1`} class="start-btn">読み始める</a>
-      </div>
+    </div>
+
+    <div class="toc-section">
+      <h2>目次</h2>
+      <ol class="toc-list">
+        {chapters.map((ch) => (
+          <li class="toc-item">
+            <a href={`${baseUrl}chapter${ch.number}/section1`}>
+              <span class="toc-chapter-title">第{ch.number}章　{ch.title}</span>
+              <span class="toc-chapter-desc">{ch.description}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="start-btn-container">
+      <a href={`${baseUrl}chapter1/section1`} class="start-btn">第1章から読み始める →</a>
     </div>
   </div>
 
   <style>
     .book-cover {
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
-      padding-top: 2rem;
+      padding-top: 1.5rem;
     }
     
     .book-tagline {
       font-family: var(--font-sans);
-      font-size: 0.75rem;
-      letter-spacing: 0.25em;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
       color: var(--text-muted);
       text-align: center;
       margin-bottom: 1rem;
     }
     
     .book-main-title {
-      font-size: 2.8rem;
+      font-size: 2.4rem;
       font-weight: 600;
       text-align: center;
-      line-height: 1.25;
+      line-height: 1.3;
       color: var(--accent-color);
       border-bottom: none;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
     
     .book-subtitle {
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 1rem;
       text-align: center;
       color: var(--text-muted);
-      margin-bottom: 3rem;
+      margin-bottom: 2.5rem;
       font-style: italic;
     }
     
     .divider {
       height: 1px;
       background-color: var(--border-color);
-      width: 100px;
-      margin: 0 auto 3rem auto;
+      width: 80px;
+      margin: 0 auto 2.5rem auto;
     }
     
     .preface {
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1.9;
     }
     
     .preface h2 {
       font-family: var(--font-serif);
       text-align: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
       border-bottom: none;
+    }
+
+    /* Table of Contents */
+    .toc-section {
+      margin-top: 3rem;
+    }
+
+    .toc-section h2 {
+      font-family: var(--font-serif);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      border-bottom: none;
+    }
+
+    .toc-list {
+      list-style: none;
+      margin-left: 0;
+      margin-bottom: 0;
+    }
+
+    .toc-item {
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .toc-item:first-child {
+      border-top: 1px solid var(--border-color);
+    }
+
+    .toc-item a {
+      display: block;
+      padding: 0.9rem 0.6rem;
+      border-bottom: none;
+      color: var(--text-color);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .toc-item a:hover {
+      background-color: var(--accent-light);
+      color: var(--accent-color);
+    }
+
+    .toc-chapter-title {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .toc-chapter-desc {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .toc-item a:hover .toc-chapter-desc {
+      color: var(--accent-color);
+      opacity: 0.7;
     }
     
     .start-btn-container {
       text-align: center;
-      margin-top: 3rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
     }
     
     .start-btn {
       font-family: var(--font-sans);
       display: inline-block;
-      padding: 0.8rem 2.5rem;
+      padding: 0.75rem 2rem;
       background-color: var(--accent-color);
       color: #ffffff;
       border-radius: 4px;
       border-bottom: none;
-      font-size: 0.95rem;
-      letter-spacing: 0.05em;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
       font-weight: 600;
       transition: background-color 0.2s;
     }
     
     .start-btn:hover {
-      background-color: #122c46;
+      background-color: #152d4a;
       color: #ffffff;
-      opacity: 1;
     }
 
     @media (max-width: 600px) {
       .book-main-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+      }
+
+      .book-tagline {
+        font-size: 0.55rem;
+      }
+
+      .book-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .toc-chapter-title {
+        font-size: 0.9rem;
       }
     }
   </style>
