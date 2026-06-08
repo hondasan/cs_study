@@ -1,0 +1,198 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="5-2. スタックとキュー：LIFOとFIFO" 
+  description="データの追加と取り出しに特定のルールを設定した応用的なデータ構造である『スタック』と『キュー』の動作と使われ方を学びます。"
+  currentPath={`${baseUrl}chapter5/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第5章: アルゴリズムとデータ構造</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第5章 2節</div>
+    <h1 class="section-title">スタックとキュー：LIFOとFIFO</h1>
+    <p class="section-intro">
+      配列や連結リストは、どこからでも自由にデータを読み書きできる万能なデータ構造でした。しかし、あえて「データの入れ方と取り出し方」に厳しいルールを課すことで、特定の目的を非常にシンプルかつ効率的に処理できるようになるデータ構造があります。それが「スタック」と「キュー」です。それぞれの動作ルールと応用例を学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. スタック（Stack）：後入れ先出し（LIFO）</h2>
+    <p>
+      <b>スタック（Stack）</b>は、データを縦に積み重ねるように配置していくデータ構造です。
+    </p>
+    <p>
+      机の上に本を高く積み上げる様子や、狭い筒の中にボールを落とし込んでいく様子を想像してください。本を積むときは一番上に置きますし、本を取るときも一番上（最後に置いたもの）から取るしかありません。
+    </p>
+    <p>
+      このルールを<b>「後入れ先出し」</b>、英語で <b>LIFO（Last-In First-Out）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Stack container (U shape) -->
+          <path d="M 150 20 L 150 130 L 250 130 L 250 20" stroke="#1E3A60" stroke-width="2" />
+          
+          <!-- Stored Elements -->
+          <rect x="155" y="95" width="90" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="200" y="114" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">データ 1 (最初)</text>
+
+          <rect x="155" y="60" width="90" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="200" y="79" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">データ 2</text>
+
+          <!-- Push Arrow (Left-top to down) -->
+          <path d="M 100 20 C 120 20 170 30 175 50" stroke="#98C379" stroke-width="2" />
+          <path d="M 170 45 L 175 50 L 178 43 Z" fill="#98C379" />
+          <text x="100" y="15" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600">プッシュ (Push)</text>
+
+          <!-- Pop Arrow (Up to right-top) -->
+          <path d="M 225 50 C 230 30 280 20 300 20" stroke="#E06C75" stroke-width="2" />
+          <path d="M 295 17 L 300 20 L 297 25 Z" fill="#E06C75" />
+          <text x="300" y="15" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600">ポップ (Pop)</text>
+        </svg>
+      </div>
+      <figcaption>図 5-3：スタックのプッシュ（挿入）とポップ（取り出し）</figcaption>
+    </figure>
+
+    <p>
+      スタックに対する基本操作は以下の2つだけです。
+    </p>
+    <ul>
+      <li><b>プッシュ（Push）：</b> スタックの「一番上」に新しくデータを追加する。</li>
+      <li><b>ポップ（Pop）：</b> スタックの「一番上」からデータを取り出す（取り出されたデータはスタックから消滅する）。</li>
+    </ul>
+
+    <h3>応用例：元に戻す（Undo）とブラウザの戻るボタン</h3>
+    <p>
+      スタックは、テキストエディタの「元に戻す（Undo）」機能に使われています。あなたが文字を入力するたびに、その操作履歴がスタックに「プッシュ」されます。Ctrl+Z（Undo）を押すと、スタックから最新の操作が「ポップ」され、一つ前の状態に戻すことができます。
+    </p>
+    <p>
+      ブラウザの「戻る」ボタンも、訪れたページのURL履歴をスタックに保存することで実現されています。
+    </p>
+
+    <h2>2. キュー（Queue）：先入れ先出し（FIFO）</h2>
+    <p>
+      <b>キュー（Queue）</b>は、データの追加を「後ろ」から行い、取り出しを「先頭」から行うデータ構造です。
+    </p>
+    <p>
+      人気店のレジや、チケット売り場の前に並ぶ「行列」を想像してください。新しく並ぶ人は行列の一番後ろ（末尾）に加わり、注文を終えて出ていく人は行列の一番前（先頭）の人です。割り込みは禁止です。
+    </p>
+    <p>
+      このルールを<b>「先入れ先出し」</b>、英語で <b>FIFO（First-In First-Out）</b>と呼びます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="110" viewBox="0 0 450 110" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Queue tube (horizontal parallel lines) -->
+          <line x1="100" y1="30" x2="350" y2="30" stroke="#1E3A60" stroke-width="2" />
+          <line x1="100" y1="70" x2="350" y2="70" stroke="#1E3A60" stroke-width="2" />
+          
+          <!-- Stored Elements -->
+          <rect x="140" y="35" width="60" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="170" y="54" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">データ 3 (末尾)</text>
+
+          <rect x="210" y="35" width="60" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="240" y="54" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">データ 2</text>
+
+          <rect x="280" y="35" width="60" height="30" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="310" y="54" font-family="var(--font-sans)" font-size="9" fill="#555555" text-anchor="middle">データ 1 (先頭)</text>
+
+          <!-- Enqueue Arrow (Left-in) -->
+          <path d="M 50 50 L 95 50" stroke="#98C379" stroke-width="2" />
+          <path d="M 90 46 L 95 50 L 90 54 Z" fill="#98C379" />
+          <text x="70" y="25" font-family="var(--font-sans)" font-size="8" fill="#98C379" font-weight="600" text-anchor="middle">エンキュー (Enqueue)</text>
+
+          <!-- Dequeue Arrow (Right-out) -->
+          <path d="M 355 50 L 400 50" stroke="#E06C75" stroke-width="2" />
+          <path d="M 395 46 L 400 50 L 395 54 Z" fill="#E06C75" />
+          <text x="380" y="25" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600" text-anchor="middle">デキュー (Dequeue)</text>
+        </svg>
+      </div>
+      <figcaption>図 5-4：キューのエンキュー（追加）とデキュー（取り出し）</figcaption>
+    </figure>
+
+    <p>
+      キューに対する基本操作は以下の2つだけです。
+    </p>
+    <ul>
+      <li><b>エンキュー（Enqueue）：</b> キューの「末尾（一番後ろ）」にデータを追加する。</li>
+      <li><b>デキュー（Dequeue）：</b> キューの「先頭（一番前）」からデータを取り出す（取り出されたデータはキューから消滅する）。</li>
+    </ul>
+
+    <h3>応用例：タスクの順番待ちとバッファ</h3>
+    <p>
+      キューは、処理を公平に順番通り実行したいときに多用されます。
+      例えば、オフィスのプリンタに対して複数のPCから一斉に印刷指示が出たとき、プリンタは指示が届いた順に「キュー（印刷ジョブ待ち行列）」にタスクをエンキューし、先頭から順番に印刷を実行（デキュー）していきます。
+    </p>
+    <p>
+      Webサーバーが大量のアクセスを受け取った際、処理が追いつかなくなるのを防ぐためにリクエストを一時的に保存しておく「待ち行列（アクセスバッファ）」にもキューが使われています。
+    </p>
+
+    <h2>3. スタックとキューの比較</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th>スタック（Stack）</th>
+          <th>キュー（Queue）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>別名・動作モデル</b></td>
+          <td><b>LIFO</b>（Last-In First-Out / 後入れ先出し）</td>
+          <td><b>FIFO</b>（First-In First-Out / 先入れ先出し）</td>
+        </tr>
+        <tr>
+          <td><b>挿入操作</b></td>
+          <td>プッシュ（一番上に追加）</td>
+          <td>エンキュー（一番後ろに追加）</td>
+        </tr>
+        <tr>
+          <td><b>取り出し操作</b></td>
+          <td>ポップ（一番上から取り出す）</td>
+          <td>デキュー（一番前から取り出す）</td>
+        </tr>
+        <tr>
+          <td><b>身近な比喩</b></td>
+          <td>本の山、筒の中のボール</td>
+          <td>レジの行列、電車の乗降列</td>
+        </tr>
+        <tr>
+          <td><b>代表的な用途</b></td>
+          <td>関数の実行（コールスタック）、履歴（Undo）</td>
+          <td>印刷処理、イベント処理、アクセス順次待ち</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      次のセクションでは、アルゴリズムの良し悪しを評価するための最大の基準である「計算量（O記法）」と、それを利用して超高速にデータを検索する「二分探索」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter5/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">5-1. 配列と連結リスト</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter5/section3`}>
+        <span class="label">5-3. 計算量と二分探索</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

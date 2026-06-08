@@ -1,0 +1,170 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="5-4. 木構造とグラフ" 
+  description="階層的なつながりを表す『木（ツリー）構造』と、ネットワーク状の複雑なつながりを表す『グラフ構造』という2つの代表的な非線形データ構造を学びます。"
+  currentPath={`${baseUrl}chapter5/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第5章: アルゴリズムとデータ構造</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第5章 4節</div>
+    <h1 class="section-title">木構造とグラフ</h1>
+    <p class="section-intro">
+      配列や連結リスト、スタックやキューなどは、データが一直線に並ぶ「線形データ構造」でした。しかし、現実世界のデータは「親と子」「路線図」「SNSの交友関係」のように、直線ではなく多方向に分岐したり循環したりする網の目の構造をしています。これらをコンピュータ上でモデル化する「木構造」と「グラフ構造」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 木構造（Tree Structure）：階層関係のモデル</h2>
+    <p>
+      <b>木構造（Tree）</b>は、データが根から枝分かれしていく樹木のように、階層的に繋がっているデータ構造です。
+    </p>
+    <p>
+      木構造は、主に以下の要素で構成されます。
+    </p>
+    <ul>
+      <li><b>ルート（根：Root）：</b> 木の最上部に位置する唯一の出発点ノード。</li>
+      <li><b>ノード（節・要素：Node）：</b> データを持つ個々の箱。</li>
+      <li><b>エッジ（枝・辺：Edge）：</b> ノード同士を結ぶ線。</li>
+      <li><b>リーフ（葉：Leaf）：</b> 下にこれ以上子供を持たない末端のノード。</li>
+    </ul>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="180" viewBox="0 0 450 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Tree diagram -->
+          <!-- Root (Node A) -->
+          <circle cx="225" cy="30" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="2" />
+          <text x="225" y="34" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">A</text>
+          <text x="250" y="25" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600">ルート (根)</text>
+
+          <!-- Edges Level 1 -->
+          <line x1="215" y1="42" x2="135" y2="78" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="235" y1="42" x2="315" y2="78" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- Node B (Left) -->
+          <circle cx="125" cy="90" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="125" y="94" font-family="var(--font-sans)" font-size="10" fill="#2A2A2A" text-anchor="middle">B</text>
+
+          <!-- Node C (Right) -->
+          <circle cx="325" cy="90" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="325" y="94" font-family="var(--font-sans)" font-size="10" fill="#2A2A2A" text-anchor="middle">C</text>
+
+          <!-- Edges Level 2 -->
+          <line x1="115" y1="102" x2="75" y2="138" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="135" y1="102" x2="175" y2="138" stroke="#1E3A60" stroke-width="1.5" />
+
+          <!-- Node D (Leaf) -->
+          <circle cx="65" cy="150" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="65" y="154" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">D</text>
+          <text x="65" y="174" font-family="var(--font-sans)" font-size="7" fill="#888888" text-anchor="middle">リーフ (葉)</text>
+
+          <!-- Node E (Leaf) -->
+          <circle cx="185" cy="150" r="15" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="185" y="154" font-family="var(--font-sans)" font-size="10" fill="#555555" text-anchor="middle">E</text>
+          <text x="185" y="174" font-family="var(--font-sans)" font-size="7" fill="#888888" text-anchor="middle">リーフ (葉)</text>
+        </svg>
+      </div>
+      <figcaption>図 5-7：木構造を構成する各要素（ルート、ノード、リーフ）の関係</figcaption>
+    </figure>
+
+    <h3>応用としての「二分探索木（Binary Search Tree）」</h3>
+    <p>
+      木構造の特別なルールとして、<b>「左側の子孫の値 ≦ 親の値 ≦ 右側の子孫の値」</b>という制約をかけたものを<b>二分探索木</b>と呼びます。
+      この木構造を使うと、二分探索と同様に、ルートから「左右のどちらに進むべきか」を判定するだけで、目的のデータを <b>O(log N)</b> という圧倒的な速度で検索・挿入できるようになります。
+    </p>
+
+    <h2>2. グラフ構造（Graph Structure）：網の目のネットワーク</h2>
+    <p>
+      木構造は上下の「親子（階層）関係」しか表せませんが、上下のない横同士の自由な繋がりや、循環する関係を表現するデータ構造が<b>グラフ構造（Graph）</b>です。
+    </p>
+    <p>
+      グラフは、<b>頂点（ノード／バーテックス：Vertex）</b>と、頂点間を結ぶ<b>辺（エッジ：Edge）</b>の集合として定義されます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="120" viewBox="0 0 450 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Left: Undirected Graph -->
+          <g transform="translate(0, 0)">
+            <text x="100" y="15" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">無向グラフ（双方向）</text>
+            
+            <circle cx="50" cy="50" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <circle cx="150" cy="50" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <circle cx="100" cy="95" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            
+            <line x1="62" y1="50" x2="138" y2="50" stroke="#1E3A60" stroke-width="1.5" />
+            <line x1="58" y1="58" x2="92" y2="87" stroke="#1E3A60" stroke-width="1.5" />
+            <line x1="142" y1="58" x2="108" y2="87" stroke="#1E3A60" stroke-width="1.5" />
+          </g>
+
+          <!-- Right: Directed Graph -->
+          <g transform="translate(250, 0)">
+            <text x="100" y="15" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">有向グラフ（一方通行含む）</text>
+            
+            <circle cx="50" cy="50" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <circle cx="150" cy="50" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            <circle cx="100" cy="95" r="12" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+            
+            <!-- Arrows -->
+            <path d="M 62 50 L 138 50" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 133 46 L 138 50 L 133 54 Z" fill="#1E3A60" />
+
+            <path d="M 58 58 L 92 87" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 87 85 L 92 87 L 90 81 Z" fill="#1E3A60" />
+
+            <path d="M 100 83 L 100 83" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 108 87 L 142 58" stroke="#1E3A60" stroke-width="1.5" />
+            <path d="M 137 60 L 142 58 L 140 64 Z" fill="#1E3A60" />
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 5-8：無向グラフと有向グラフの構造の違い</figcaption>
+    </figure>
+
+    <div class="note-box">
+      <div class="note-box-title">グラフの種類と特徴</div>
+      <ul>
+        <li><b>無向グラフ：</b> 辺に矢印（向き）がないグラフです。繋がりは双方向です。（例：Facebookの友達関係、双方向の道路網）</li>
+        <li><b>有向グラフ：</b> 辺に矢印（向き）があり、一方通行の繋がりを表現できます。（例：Twitter/Xのフォロー関係、一方通行の道路網、ウェブページのリンク構造）</li>
+      </ul>
+    </div>
+
+    <h3>現実世界への応用：最短ルート探索やSNS</h3>
+    <p>
+      グラフ構造は、私たちの生活の裏側で驚くほど使われています。
+      最も身近な例が<b>「地図アプリの乗換案内やカーナビ」</b>です。駅や交差点を「頂点」、路線や道路を「辺」（所要時間を重み値とする）としてグラフ構造を構築し、ダイクストラ法などのアルゴリズムを用いて、目的地までの「最短ルート」を一瞬で計算し出しています。
+    </p>
+    <p>
+      また、Googleの初期の検索技術である「ページランク（PageRank）」も、世界中のウェブページを頂点、リンクを有向の辺とする巨大な有向グラフとして捉え、どのページが価値あるページかを数学的に分析する仕組みでした。
+    </p>
+
+    <p>
+      次のセクションでは、データ構造の上に成り立つアルゴリズムの代表例として、バラバラのデータを規則正しく並び替える「ソートアルゴリズム」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter5/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">5-3. 計算量と二分探索</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter5/section5`}>
+        <span class="label">5-5. ソートアルゴリズム</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

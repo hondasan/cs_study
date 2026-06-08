@@ -1,0 +1,184 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="5-1. 配列と連結リスト" 
+  description="データをメモリ上にどう並べるかという『データ構造』の基本である『配列』と『連結リスト』の違い、メモリ上の物理配置とアクセス速度のトレードオフを学びます。"
+  currentPath={`${baseUrl}chapter5/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第5章: アルゴリズムとデータ構造</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第5章 1節</div>
+    <h1 class="section-title">配列と連結リスト</h1>
+    <p class="section-intro">
+      プログラムで複数のデータを扱うとき、それらをメモリ上にどのように並べて配置するかによって、データの読み書きや追加・削除にかかる速度が劇的に変化します。この「データの整理整頓のルール」のことを<b>データ構造（Data Structure）</b>と呼びます。最も基礎的でありながら、メモリの使い方において対極に位置する「配列」と「連結リスト」の違いを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 配列（Array）：隣り合わせの連続配置</h2>
+    <p>
+      <b>配列（Array）</b>は、複数のデータをメモリ上の<b>「連続した一続きの領域」</b>に隙間なく順番に配置するデータ構造です。
+    </p>
+    <p>
+      アパートの部屋が 101号室、102号室、103号室と順番に並んでいるイメージです。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="90" viewBox="0 0 450 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Array layout (Continuous boxes) -->
+          <rect x="50" y="30" width="60" height="35" rx="1" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="80" y="20" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">[0]</text>
+          <text x="80" y="52" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">A</text>
+
+          <rect x="110" y="30" width="60" height="35" rx="1" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="140" y="20" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">[1]</text>
+          <text x="140" y="52" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">B</text>
+
+          <rect x="170" y="30" width="60" height="35" rx="1" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="200" y="20" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">[2]</text>
+          <text x="200" y="52" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">C</text>
+
+          <rect x="230" y="30" width="60" height="35" rx="1" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="260" y="20" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">[3]</text>
+          <text x="260" y="52" font-family="var(--font-sans)" font-size="12" fill="#1E3A60" font-weight="600" text-anchor="middle">D</text>
+
+          <text x="310" y="52" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600">連続したメモリ空間</text>
+        </svg>
+      </div>
+      <figcaption>図 5-1：配列におけるデータの連続配置構造</figcaption>
+    </figure>
+
+    <div class="note-box">
+      <div class="note-box-title">配列の長所と短所</div>
+      <ul>
+        <li><b>長所：ランダムアクセスが極めて高速</b><br/>データが連続しているため、先頭のアドレスさえわかっていれば、「先頭アドレス ＋ データのサイズ × インデックス」という簡単な計算だけで、何番目の要素であっても狙い撃ちで瞬時（O(1)の計算量）にアクセスできます。</li>
+        <li><b>短所：データの挿入・削除が激重</b><br/>配列の「先頭」や「途中」に新しいデータを挿入する場合、それ以降にあるすべてのデータを1マスずつ後ろにズラして空きスペースを作る必要があります。これにはデータ数（N）に比例した時間がかかります（O(N)の計算量）。また、後からサイズを増やすのが難しいという弱点もあります。</li>
+      </ul>
+    </div>
+
+    <h2>2. 連結リスト（Linked List）：アドレスで繋ぐ芋づる式</h2>
+    <p>
+      <b>連結リスト（Linked List）</b>は、データをメモリ上の<b>「バラバラの位置（順不同）」</b>に配置し、各データが<b>「次のデータが置いてあるメモリのアドレス（ポインタ）」</b>を保持することによって、チェーン（鎖）のように繋ぎ合わせるデータ構造です。
+    </p>
+    <p>
+      連結リストを構成する個々の箱のことを<b>ノード（Node）</b>と呼びます。ノードは「データ本体」と「次のノードを指すポインタ」のペアでできています。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="90" viewBox="0 0 450 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Linked List Node 1 -->
+          <rect x="30" y="30" width="70" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="75" y1="30" x2="75" y2="65" stroke="#1E3A60" />
+          <text x="52" y="52" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">A</text>
+          <!-- Pointer arrow -->
+          <circle cx="87" cy="47" r="3" fill="#E06C75" />
+          <path d="M 87 47 L 160 47" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 155 43 L 160 47 L 155 51 Z" fill="#E06C75" />
+
+          <!-- Node 2 -->
+          <rect x="160" y="30" width="70" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="205" y1="30" x2="205" y2="65" stroke="#1E3A60" />
+          <text x="182" y="52" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">B</text>
+          <!-- Pointer arrow -->
+          <circle cx="217" cy="47" r="3" fill="#E06C75" />
+          <path d="M 217 47 L 290 47" stroke="#E06C75" stroke-width="1.5" />
+          <path d="M 285 43 L 290 47 L 285 51 Z" fill="#E06C75" />
+
+          <!-- Node 3 (Last) -->
+          <rect x="290" y="30" width="70" height="35" rx="3" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <line x1="335" y1="30" x2="335" y2="65" stroke="#1E3A60" />
+          <text x="312" y="52" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">C</text>
+          <!-- Null pointer indicator -->
+          <text x="350" y="52" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">NULL</text>
+        </svg>
+      </div>
+      <figcaption>図 5-2：連結リストにおけるノード同士のポインタ接続構造</figcaption>
+    </figure>
+
+    <div class="note-box">
+      <div class="note-box-title">連結リストの長所と短所</div>
+      <ul>
+        <li><b>長所：データの挿入・削除が爆速</b><br/>リストの途中に新しいデータを挿入する場合、データをずらす必要はありません。挿入箇所の前後のノードが持っている「ポインタ（次のアドレス）」を書き換えて、新しいノードを指し示すように変えるだけで完了します。この処理は常に一瞬（O(1)の計算量）で完了します。また、空きメモリがある限り、サイズを無限に後から拡張できます。</li>
+        <li><b>短所：ランダムアクセスが不可能</b><br/>データがメモリ上に散らばっているため、アドレスの計算で「5番目の要素」に直接ジャンプすることはできません。5番目のデータにアクセスするには、先頭（ヘッド）ノードからポインタを「1つ、2つ、3つ…」と順番に辿っていくしかありません。そのため、アクセス速度はデータ数（N）に比例して遅くなります（O(N)の計算量）。</li>
+      </ul>
+    </div>
+
+    <h2>3. どっちを使うべき？（トレードオフ）</h2>
+    <p>
+      配列と連結リストは、どちらが優れているというわけではなく、用途に応じたトレードオフの関係にあります。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>操作・特性</th>
+          <th>配列（Array）</th>
+          <th>連結リスト（Linked List）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>メモリの物理配置</b></td>
+          <td>連続した一続きの空間</td>
+          <td>バラバラ（順不同）の空間</td>
+        </tr>
+        <tr>
+          <td><b>インデックスによるアクセス</b></td>
+          <td><b>超高速</b>（O(1)）</td>
+          <td>遅い（O(N) / 順次検索が必要）</td>
+        </tr>
+        <tr>
+          <td><b>データの挿入・削除（途中）</b></td>
+          <td>遅い（O(N) / データの移動が発生）</td>
+          <td><b>超高速</b>（O(1) / ポインタ書き換えのみ）</td>
+        </tr>
+        <tr>
+          <td><b>メモリのオーバーヘッド</b></td>
+          <td>なし（データのみ保持）</td>
+          <td>あり（ポインタを保持するための余分なメモリ）</td>
+        </tr>
+        <tr>
+          <td><b>サイズ変更の自由度</b></td>
+          <td>難しい（事前に最大サイズを決める必要あり）</td>
+          <td><b>非常に自由</b>（動的にノードを増やせる）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      例えば、「データの数が事前に決まっており、頻繁に中のデータを読み取る」ような用途（例：画像ピクセルデータやゲームのステージデータなど）には<b>配列</b>が適しています。
+    </p>
+    <p>
+      逆に、「データの数が予測できず、頻繁にデータの追加や削除が行われる」用途（例：ブラウザの履歴リストやテキストエディタのUndo/Redoバッファなど）には<b>連結リスト</b>が適しています。
+    </p>
+    <p>
+      次のセクションでは、これら配列やリストの応用であり、制限をあえてかけることで特定のデータ処理を非常にシンプルに解くことができる「スタック」と「キュー」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter4/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">4-4. ファイルシステム</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter5/section2`}>
+        <span class="label">5-2. スタックとキュー：LIFOとFIFO</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

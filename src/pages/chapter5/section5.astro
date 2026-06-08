@@ -1,0 +1,209 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="5-5. ソートアルゴリズム" 
+  description="バラバラに並んだデータを規則正しく並び替える『ソート』の重要性と、代表的なアルゴリズムである『バブルソート』『クイックソート』の動作メカニズムを学びます。"
+  currentPath={`${baseUrl}chapter5/section5`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第5章: アルゴリズムとデータ構造</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第5章 5節</div>
+    <h1 class="section-title">ソートアルゴリズム</h1>
+    <p class="section-intro">
+      バラバラに散らばった数値や文字列のデータを、大きさ順（昇順や降順）に規則正しく並び替える処理のことを<b>ソート（Sort：整列）</b>と呼びます。ソートは、第5章3節で学んだ「二分探索」を行うための大前提となる処理であり、コンピュータサイエンスにおいて最も研究し尽くされた基本のアルゴリズムです。単純な方法から超高速な方法まで、その仕組みを対比します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. なぜソートが必要なのか？</h2>
+    <p>
+      データを並び替える目的は、単に人間が見やすくするためだけではありません。
+    </p>
+    <p>
+      前述の通り、1億件のデータから線形探索 O(N) を行うと最大1億回かかりますが、<b>事前にソートされてさえいれば、二分探索 O(log N) を使ってわずか27回の比較で見つけ出せます。</b>
+    </p>
+    <p>
+      このように、データを高速に探索・分析・加工するためには、データを「ソートしておくこと」がほぼ必須の前提条件になります。そのため、ソートの高速化はコンピュータ全体の高速化に直結します。
+    </p>
+
+    <h2>2. バブルソート（Bubble Sort）：直感的だが遅いアルゴリズム</h2>
+    <p>
+      もっとも単純で直感的なソートの1つが<b>バブルソート（泡ソート）</b>です。
+    </p>
+    <p>
+      配列の端からスタートし、<b>「隣り合う2つのデータを比較して、順序が逆（左の方が大きい）なら入れ替える」</b>という処理を繰り返します。この様子が、炭酸水の泡（バブル）が下から上に浮かび上がってくるように見えるため、この名が付けられました。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="130" viewBox="0 0 450 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Bubble Sort Step visual -->
+          <!-- State 1: [5, 3, 8, 2] -> Compare 5 and 3 -> Swap -->
+          <g transform="translate(30, 20)">
+            <text x="0" y="15" font-family="var(--font-sans)" font-size="8" fill="#555555">比較前:</text>
+            <rect x="50" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="62" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">5</text>
+            
+            <rect x="80" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="92" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">3</text>
+
+            <rect x="110" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="122" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">8</text>
+            <rect x="140" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="152" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">2</text>
+
+            <!-- Swap indicator -->
+            <path d="M 62 25 C 62 32 92 32 92 25" stroke="#E06C75" stroke-width="1.2" stroke-dasharray="2 2" fill="none" />
+            <text x="77" y="38" font-family="var(--font-serif)" font-size="7" fill="#E06C75" text-anchor="middle">逆順なので交換</text>
+          </g>
+
+          <!-- State 2: [3, 5, 8, 2] -> Compare 5 and 8 -> No swap -->
+          <g transform="translate(250, 20)">
+            <text x="0" y="15" font-family="var(--font-sans)" font-size="8" fill="#555555">交換後:</text>
+            <rect x="50" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="62" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">3</text>
+
+            <rect x="80" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="92" y="13" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">5</text>
+            <rect x="110" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+            <text x="122" y="13" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">8</text>
+
+            <rect x="140" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <text x="152" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">2</text>
+
+            <text x="100" y="38" font-family="var(--font-serif)" font-size="7" fill="#98C379" text-anchor="middle">正しい順序なのでそのまま</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 5-9：バブルソートにおける隣接データの比較と交換ステップ</figcaption>
+    </figure>
+
+    <p>
+      このアルゴリズムは、すべての要素が整列し終わるまで、二重のループで比較を繰り返すため、計算量はデータ数Nに対して <b>O(N²)</b> になります。
+      Nが10倍になると計算の手間は100倍になり、Nが100万件になると計算回数は1兆回（＝遅すぎて実用に耐えない）に達してしまいます。
+    </p>
+
+    <h2>3. クリックソート（Quick Sort）：圧倒的に速い「分割統治」</h2>
+    <p>
+      実用上のソートとして、最も広く使用されているのが<b>クイックソート（Quick Sort）</b>です。
+    </p>
+    <p>
+      クイックソートは、<b>「分割統治法（Divide and Conquer）」</b>というアプローチを採用しています。これは、大きな問題を小さな問題に分割して解く手法です。
+    </p>
+    <ol>
+      <li>データ群の中から、基準となる値を1つ適当に選びます。この値を<b>ピボット（Pivot）</b>と呼びます。</li>
+      <li>ピボットよりも「小さい値のグループ」と、「大きい値のグループ」の2つにデータを左右に振り分けます。</li>
+      <li>分割された左右それぞれのグループに対して、再び独立してステップ1（ピボットの選定と分割）を再帰的に適用します。</li>
+      <li>これ以上分割できなくなるまで（要素数が1個になるまで）繰り返すと、全体のソートが美しく完了します。</li>
+    </ol>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Quick Sort Divide Visual -->
+          <!-- Root array: [5, 8, 3, 2, 6, 7] -> Pivot: 5 -->
+          <rect x="175" y="10" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="225" y="24" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">初期リスト: 5, 8, 3, 2, 6, 7</text>
+          <text x="170" y="22" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600">ピボット [5]</text>
+
+          <path d="M 225 32 L 225 50 M 225 50 L 125 55 L 125 70 M 225 50 L 325 55 L 325 70" stroke="#1E3A60" stroke-width="1.2" />
+
+          <!-- Left partition (Smaller than 5): [3, 2] -->
+          <rect x="75" y="70" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
+          <text x="125" y="84" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">小さいグループ: 3, 2</text>
+
+          <!-- Right partition (Larger than 5): [8, 6, 7] -->
+          <rect x="275" y="70" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+          <text x="325" y="84" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">大きいグループ: 8, 6, 7</text>
+
+          <path d="M 125 92 L 125 110" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+          <path d="M 325 92 L 325 110" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
+          <text x="225" y="130" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">それぞれで同様の分割を再帰的に繰り返す</text>
+        </svg>
+      </div>
+      <figcaption>図 5-10：クイックソートにおけるピボットを基準とした「分割統治」モデル</figcaption>
+    </figure>
+
+    <p>
+      この「毎回綺麗に半分ずつのグループに切り分けて統治していく」という再帰的なプロセスにより、計算量は平均して <b>O(N log N)</b> にまで削減されます。
+    </p>
+    <p>
+      Nが100万件の場合を比較すると、バブルソート O(N²) が 1兆回 の計算を要するのに対して、クイックソート O(N log N) は約 <b>2000万回</b>（$1000000 \times 20$）の計算ステップで完了します。実行速度にして数万倍、数時間かかる処理が「一瞬（コンマ数秒）」で終わる決定的な差になります。
+    </p>
+
+    <h2>4. 代表的なソートの比較表</h2>
+    <p>
+      ソートアルゴリズムには、他にもメモリ消費量や「安定性（同じ値のデータの順序が崩れないか）」などの特徴があり、用途に合わせて選ばれます。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>アルゴリズム</th>
+          <th>平均計算量</th>
+          <th>最悪計算量</th>
+          <th>メモリ効率</th>
+          <th>安定性</th>
+          <th>特徴</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>バブルソート</b></td>
+          <td>O(N²)</td>
+          <td>O(N²)</td>
+          <td><b>極めて高い</b></td>
+          <td><b>安定</b></td>
+          <td>極めてシンプルだが、遅いため実用には使われない。</td>
+        </tr>
+        <tr>
+          <td><b>クイックソート</b></td>
+          <td><b>O(N log N)</b></td>
+          <td>O(N²)</td>
+          <td>高い</td>
+          <td>不安定</td>
+          <td>実用上もっとも高速。ただし、ピボットの選び方によっては最悪のケースがある。</td>
+        </tr>
+        <tr>
+          <td><b>マージソート</b></td>
+          <td><b>O(N log N)</b></td>
+          <td><b>O(N log N)</b></td>
+          <td>やや低い</td>
+          <td><b>安定</b></td>
+          <td>常に安定した速度。ただし、データを並び替えるための余分なワーク領域メモリが必要。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      第5章では、アルゴリズムとデータ構造について学びました。物理的なメモリをどう配置して抽象化し、どう整理整頓して高速に探索・加工するかという、プログラムの論理的な骨組みを理解できたはずです。
+    </p>
+    <p>
+      次の第6章では、単体のコンピュータを飛び出し、無数のコンピュータが世界規模で繋がり合う「ネットワーク」の仕組みについて探求していきましょう。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter5/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">5-4. 木構造とグラフ</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter6/section1`}>
+        <span class="label">6-1. 通信プロトコルとレイヤー構造</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

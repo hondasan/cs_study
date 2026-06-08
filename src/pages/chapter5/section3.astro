@@ -1,0 +1,199 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="5-3. 計算量と二分探索" 
+  description="アルゴリズムの効率の良さを評価する『計算量（O記法）』の概念と、データ検索を圧倒的に高速化する『二分探索』の動作原理を学びます。"
+  currentPath={`${baseUrl}chapter5/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第5章: アルゴリズムとデータ構造</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第5章 3節</div>
+    <h1 class="section-title">計算量と二分探索</h1>
+    <p class="section-intro">
+      プログラムで何か問題を解くとき、解法（アルゴリズム）は1つとは限りません。あるやり方は一瞬で終わるかもしれませんが、別のやり方では数日経っても終わらないことがあります。アルゴリズムの「良し悪し（効率の良さ）」を数学的に判定する世界共通の基準が「計算量」です。計算量の見方と、それを活用した超高速探索「二分探索」の威力を学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. アルゴリズムの効率のモノサシ：計算量</h2>
+    <p>
+      アルゴリズムの効率を測るとき、「手元のPCで実行したら 0.5秒だった」という測定の仕方は不適切です。なぜなら、PCの性能（CPUやメモリの速度）やプログラミング言語の種類によって実行時間は変わってしまうからです。
+    </p>
+    <p>
+      そこで、コンピュータサイエンスでは<b>「処理するデータ数（N）が増えたときに、計算のステップ数がどの程度の割合で増加するか」</b>という数学的な評価基準を使用します。これを<b>計算量（Computational Complexity）</b>と呼びます。
+    </p>
+    <p>
+      計算量を表すためには、<b>O記法（オーダー記法：Big-O Notation）</b>が使われます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="200" viewBox="0 0 450 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Graph axes -->
+          <path d="M 50 20 L 50 170 L 400 170" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="40" y="25" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle" transform="rotate(-90 40 25)">計算時間 ➔</text>
+          <text x="390" y="185" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" text-anchor="middle">データ数 N ➔</text>
+
+          <!-- O(N^2) Curve (Exponential growth) -->
+          <path d="M 50 170 Q 150 160 200 40" stroke="#E06C75" stroke-width="2" fill="none" />
+          <text x="210" y="35" font-family="var(--font-sans)" font-size="8" fill="#E06C75" font-weight="600">O(N²)</text>
+
+          <!-- O(N) Line (Linear) -->
+          <path d="M 50 170 L 320 50" stroke="#1E3A60" stroke-width="2" fill="none" />
+          <text x="330" y="48" font-family="var(--font-sans)" font-size="8" fill="#1E3A60" font-weight="600">O(N)</text>
+
+          <!-- O(log N) Curve (Logarithmic) -->
+          <path d="M 50 170 Q 100 130 380 120" stroke="#98C379" stroke-width="2" fill="none" />
+          <text x="390" y="118" font-family="var(--font-sans)" font-size="8" fill="#98C379" font-weight="600">O(log N)</text>
+
+          <!-- O(1) Line (Constant) -->
+          <line x1="50" y1="160" x2="380" y2="160" stroke="#555555" stroke-width="1.5" stroke-dasharray="2 2" />
+          <text x="390" y="158" font-family="var(--font-sans)" font-size="8" fill="#555555" font-weight="600">O(1)</text>
+        </svg>
+      </div>
+      <figcaption>図 5-5：データ数Nの増加に伴う各O（オーダー）計算量の増加比較</figcaption>
+    </figure>
+
+    <div class="note-box">
+      <div class="note-box-title">代表的な計算量（オーダー）の種類</div>
+      <ul>
+        <li><b>O(1)：定数時間（Constant Time）</b><br/>データ数Nに関わらず、常に一定の時間で終わります。（例：配列からインデックス指定で値を読み出す）</li>
+        <li><b>O(log N)：対数時間（Logarithmic Time）</b><br/>データ数Nが倍々で増えても、計算時間は微増するだけという、極めて効率の良いアルゴリズムです。（例：二分探索）</li>
+        <li><b>O(N)：線形時間（Linear Time）</b><br/>データ数Nの増加に比例して、計算時間も真っ直ぐ増えます。（例：線形探索）</li>
+        <li><b>O(N²)：二乗時間（Quadratic Time）</b><br/>データが少し増えるだけで計算時間が急激に爆発します。データが10倍になると時間は100倍になります。（例：単純なソートなど）</li>
+      </ul>
+    </div>
+
+    <h2>2. 線形探索（Linear Search）：O(N)</h2>
+    <p>
+      あるデータ群（例えば配列）の中から、目的の値を見つけ出す最も素朴な方法が<b>線形探索（Linear Search）</b>です。
+    </p>
+    <p>
+      これは、配列の「先頭の要素から末尾に向かって、順番に1つずつ目的の値と一致するかチェックする」という方法です。
+    </p>
+    <p>
+      最悪の場合、一番最後のデータまで見つからないか、データがリストに含まれていないため、データ数Nと同じ回数だけループチェックをする必要があります。よって、最悪計算量は <b>O(N)</b> になります。
+    </p>
+
+    <h2>3. 二分探索（Binary Search）：O(log N)</h2>
+    <p>
+      もし、検索対象のデータが<b>「事前に順番通り綺麗に並び替え（ソート）されている」</b>場合、圧倒的に高速な<b>二分探索（Binary Search）</b>を使うことができます。
+    </p>
+    <p>
+      二分探索の考え方は、辞書で単語を引くときや、数当てゲーム（1〜100の中で数字を当てるゲーム）と全く同じです。
+    </p>
+    <ol>
+      <li>まず、並んでいるデータ群の<b>「ちょうど真ん中の値」</b>を確認します。</li>
+      <li>探したいターゲットの値が、その真ん中の値よりも「大きい」か「小さい」かを判定します。</li>
+      <li>もしターゲットの方が大きければ、真ん中より「左側半分」には絶対にデータはないことが確定するため、探索範囲を「右側半分」に絞り込みます（小さければその逆）。</li>
+      <li>絞り込まれた新しい範囲に対して、再びステップ1（真ん中を確認）を繰り返します。</li>
+    </ol>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Binary Search Step Visual -->
+          <!-- Array elements: [12, 23, 35, 42, 56, 68, 77, 85, 91] -> Target: 77 -->
+          <text x="30" y="20" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" font-weight="600">ターゲット: 77 を探す</text>
+
+          <!-- Step 1: Range is whole array, Mid is 56 -->
+          <g transform="translate(30, 30)">
+            <text x="0" y="12" font-family="var(--font-sans)" font-size="8" fill="#555555">ステップ 1:</text>
+            <rect x="50" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <rect x="80" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <rect x="110" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            <rect x="140" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
+            
+            <rect x="170" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="185" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">56</text>
+            <text x="185" y="-3" font-family="var(--font-sans)" font-size="7" fill="#E06C75" text-anchor="middle">中央</text>
+
+            <rect x="200" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <rect x="230" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <rect x="260" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <rect x="290" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+
+            <text x="260" y="13" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">77</text>
+            
+            <path d="M 50 10 L 170 10" stroke="#888888" stroke-width="1" stroke-dasharray="2 2" />
+            <text x="110" y="32" font-family="var(--font-serif)" font-size="7" fill="#888888" text-anchor="middle">➔ 77は56より大きいため、左半分を除外</text>
+          </g>
+
+          <!-- Step 2: Range is [68, 77, 85, 91], Mid is 85 -->
+          <g transform="translate(30, 90)">
+            <text x="0" y="12" font-family="var(--font-sans)" font-size="8" fill="#555555">ステップ 2:</text>
+            <!-- Excluded part visual -->
+            <rect x="50" y="0" width="150" height="20" rx="1" fill="#F4F4F4" stroke="#EBE6DC" />
+            <text x="125" y="13" font-family="var(--font-sans)" font-size="8" fill="#aaaaaa" text-anchor="middle">除外済み領域</text>
+
+            <rect x="200" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="215" y="13" font-family="var(--font-sans)" font-size="9" fill="#2A2A2A" text-anchor="middle">68</text>
+            
+            <rect x="230" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="245" y="13" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">77</text>
+            
+            <rect x="260" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
+            <text x="275" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">85</text>
+            <text x="275" y="-3" font-family="var(--font-sans)" font-size="7" fill="#E06C75" text-anchor="middle">中央</text>
+
+            <rect x="290" y="0" width="30" height="20" rx="1" fill="#FAF9F5" stroke="#1E3A60" />
+            <text x="305" y="13" font-family="var(--font-sans)" font-size="9" fill="#2A2A2A" text-anchor="middle">91</text>
+            
+            <text x="270" y="32" font-family="var(--font-serif)" font-size="7" fill="#888888" text-anchor="middle">➔ 77は85より小さいため、右半分を除外 ➔ 次で77を発見！</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>図 5-6：二分探索によって探索範囲が毎ステップ「半分」になる様子</figcaption>
+    </figure>
+
+    <p>
+      このアルゴリズムの凄さは、探索範囲が<b>「毎ステップで半分（1/2）に縮小していく」</b>点にあります。
+    </p>
+    <p>
+      データ数Nに対する最悪計算回数は、数学的に $\log_2 N$ 回になります。よって、最悪計算量は <b>O(log N)</b> です。
+    </p>
+
+    <h2>4. O(N) と O(log N) の決定的な速度差</h2>
+    <p>
+      データ数が少ないときは、線形探索 O(N) も二分探索 O(log N) も一瞬で終わり、違いは分かりません。
+      しかし、データの件数が巨大になったとき、この2つには天と地ほどの差が生まれます。
+    </p>
+    <p>
+      例えば、<b>「日本の全人口（約 1億2000万人）の名簿」</b>から特定の名前を検索する場合を考えてみます。
+    </p>
+    <ul>
+      <li><b>線形探索 O(N) の場合：</b><br/>最悪で <b>1億2000万回</b> の比較ループを実行します。スマホやPCでも、データ読み込みとループ処理で数秒〜数十秒の待ち時間が発生します。</li>
+      <li><b>二分探索 O(log N) の場合：</b><br/>最悪でもわずか <b>27回</b>（$\log_2 120,000,000 \approx 26.8$）の比較だけで完了します。27回といえば、CPUからすれば一瞬（数ナノ秒）であり、人間には完全にリアルタイム（0秒）で表示されます。</li>
+    </ul>
+    <p>
+      この「データが数千万倍になっても、計算回数は数十回しか増えない」という対数の圧倒的なパフォーマンスこそが、Google検索などの大規模なシステムを破綻させずに高速稼働させている最大の技術的支柱です。
+    </p>
+    <p>
+      次のセクションでは、直線的な並びではなく、データの親子関係などを網の目のように表現する非線形データ構造「木構造」と「グラフ」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter5/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">5-2. スタックとキュー：LIFOとFIFO</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter5/section4`}>
+        <span class="label">5-4. 木構造とグラフ</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
