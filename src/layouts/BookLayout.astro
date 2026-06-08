@@ -581,6 +581,47 @@ const jsonLd = isHomepage
           }
         });
       });
+
+      // --- Table Responsive Enhancements ---
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => {
+        // ネストされたテーブル（真理値表内のテーブルなど）は処理をスキップ
+        if (table.closest('td')) return;
+
+        const headers = Array.from(table.querySelectorAll('thead th'));
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const colCount = headers.length;
+
+        // 4列以上、またはコンテンツ量が多い場合にカードレイアウトを適用
+        let shouldCard = colCount >= 4;
+
+        if (!shouldCard && colCount >= 2) {
+          let totalLength = 0;
+          const tds = table.querySelectorAll('tbody td');
+          tds.forEach(td => totalLength += td.textContent.trim().length);
+          const avgLength = tds.length ? (totalLength / tds.length) : 0;
+          
+          // 1セル平均15文字を超える場合は見やすさのためにカード化
+          if (avgLength > 15) {
+            shouldCard = true;
+          }
+        }
+
+        if (shouldCard && headers.length > 0) {
+          table.classList.add('responsive-card-table');
+          const headerTexts = headers.map(th => th.textContent.trim());
+          rows.forEach(tr => {
+            const tds = Array.from(tr.querySelectorAll(':scope > td'));
+            tds.forEach((td, index) => {
+              if (headerTexts[index]) {
+                td.setAttribute('data-label', headerTexts[index]);
+              }
+            });
+          });
+        } else {
+          table.classList.add('responsive-simple-table');
+        }
+      });
     </script>
   </body>
 </html>

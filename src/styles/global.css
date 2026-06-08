@@ -458,12 +458,80 @@ tr:nth-child(even) {
     margin: 1.2em 0;
   }
 
-  th, td {
-    padding: 0.5rem 0.5rem;
-    font-size: 0.8rem;
-    white-space: normal; /* Allow text to wrap on mobile */
-    word-break: break-all;
-    line-height: 1.4;
+  /* 簡易テーブル：折り返しを有効にし、画面幅に収める */
+  table.responsive-simple-table {
+    display: table !important;
+    width: 100% !important;
+    table-layout: auto !important;
+    overflow-x: visible !important;
+  }
+
+  table.responsive-simple-table th, 
+  table.responsive-simple-table td {
+    padding: 0.5rem !important;
+    font-size: 0.8rem !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.4 !important;
+  }
+
+  /* カード型テーブル：列数が多く複雑な場合にカード状に展開 */
+  table.responsive-card-table {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    overflow-x: visible !important;
+  }
+
+  table.responsive-card-table thead {
+    display: none !important;
+  }
+
+  table.responsive-card-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  table.responsive-card-table tr {
+    display: block !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    background-color: var(--quote-bg) !important;
+    margin-bottom: 1rem !important;
+    padding: 0.6rem 0.8rem !important;
+  }
+
+  table.responsive-card-table tr:nth-child(even) {
+    background-color: rgba(245, 241, 232, 0.7) !important;
+  }
+
+  table.responsive-card-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    border: none !important;
+    border-bottom: 1px dashed rgba(229, 224, 216, 0.6) !important;
+    padding: 0.5rem 0 !important;
+    font-size: 0.82rem !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    text-align: right !important;
+  }
+
+  table.responsive-card-table td:last-child {
+    border-bottom: none !important;
+  }
+
+  table.responsive-card-table td::before {
+    content: attr(data-label) !important;
+    font-weight: 600 !important;
+    color: var(--accent-color) !important;
+    text-align: left !important;
+    padding-right: 1.5rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
 
   .textbook-pagination {
