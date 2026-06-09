@@ -583,6 +583,12 @@ const jsonLd = isHomepage
         });
       });
 
+      // アクティブなセクション（現在の章）にサイドバーのスクロール位置を追従させる
+      const activeSection = sidebar?.querySelector('.section-item.active');
+      if (activeSection) {
+        activeSection.scrollIntoView({ block: 'center', inline: 'nearest' });
+      }
+
       // --- Table Responsive Enhancements ---
       function initializeResponsiveTables() {
         const tables = document.querySelectorAll('table');
