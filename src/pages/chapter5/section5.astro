@@ -42,49 +42,36 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       配列の端からスタートし、<b>「隣り合う2つを比較して順序が逆なら交換する」</b>という処理を繰り返します。泡が下から上へ浮かぶように見えることから、この名が付きました。
     </p>
 
-    <figure>
-      <div class="diagram-container">
-        <svg width="450" height="130" viewBox="0 0 450 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
-          <!-- Bubble Sort Step visual -->
-          <!-- State 1: [5, 3, 8, 2] -> Compare 5 and 3 -> Swap -->
-          <g transform="translate(30, 20)">
-            <text x="0" y="15" font-family="var(--font-sans)" font-size="8" fill="#555555">比較前:</text>
-            <rect x="50" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
-            <text x="62" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">5</text>
-            
-            <rect x="80" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
-            <text x="92" y="13" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">3</text>
-
-            <rect x="110" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
-            <text x="122" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">8</text>
-            <rect x="140" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
-            <text x="152" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">2</text>
-
-            <!-- Swap indicator -->
-            <path d="M 62 25 C 62 32 92 32 92 25" stroke="#E06C75" stroke-width="1.2" stroke-dasharray="2 2" fill="none" />
-            <text x="77" y="38" font-family="var(--font-serif)" font-size="7" fill="#E06C75" text-anchor="middle">逆順なので交換</text>
-          </g>
-
-          <!-- State 2: [3, 5, 8, 2] -> Compare 5 and 8 -> No swap -->
-          <g transform="translate(250, 20)">
-            <text x="0" y="15" font-family="var(--font-sans)" font-size="8" fill="#555555">交換後:</text>
-            <rect x="50" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
-            <text x="62" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">3</text>
-
-            <rect x="80" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
-            <text x="92" y="13" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">5</text>
-            <rect x="110" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
-            <text x="122" y="13" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">8</text>
-
-            <rect x="140" y="0" width="25" height="20" rx="1" fill="#FAF9F5" stroke="#EBE6DC" />
-            <text x="152" y="13" font-family="var(--font-sans)" font-size="9" fill="#888888" text-anchor="middle">2</text>
-
-            <text x="100" y="38" font-family="var(--font-serif)" font-size="7" fill="#98C379" text-anchor="middle">正しい順序なのでそのまま</text>
-          </g>
-        </svg>
+    <div class="bubble-sort-visualizer" id="bubble-visualizer">
+      <div class="visualizer-header">
+        <span class="visualizer-title">バブルソート・シミュレータ</span>
+        <div class="visualizer-stats">
+          <span>比較回数: <strong id="bubble-compare-count">0</strong> 回</span>
+          <span>交換回数: <strong id="bubble-swap-count">0</strong> 回</span>
+        </div>
       </div>
-      <figcaption>図 5-9：バブルソートにおける隣接データの比較と交換ステップ</figcaption>
-    </figure>
+      
+      <div class="visualizer-display">
+        <div class="array-container" id="bubble-array-container">
+          <div class="array-card" style="--index: 0; --value: 5;" data-val="5">5</div>
+          <div class="array-card" style="--index: 1; --value: 3;" data-val="3">3</div>
+          <div class="array-card" style="--index: 2; --value: 8;" data-val="8">8</div>
+          <div class="array-card" style="--index: 3; --value: 2;" data-val="2">2</div>
+        </div>
+      </div>
+
+      <div class="visualizer-explanation" id="bubble-explanation">
+        「自動再生」または「1ステップ進む」を押して、ソートの様子を見てみましょう。
+      </div>
+      
+      <div class="visualizer-controls">
+        <button id="bubble-btn-shuffle" class="btn btn-secondary">シャッフル</button>
+        <button id="bubble-btn-reset" class="btn btn-secondary">最初から</button>
+        <button id="bubble-btn-step" class="btn btn-primary">1ステップ進む</button>
+        <button id="bubble-btn-play" class="btn btn-primary">自動再生</button>
+      </div>
+    </div>
+    <figcaption style="margin-top: -1rem; margin-bottom: 2rem;">図 5-9：バブルソートにおける隣接データの比較と交換ステップ（インタラクティブ版）</figcaption>
 
     <p>
       このアルゴリズムは、すべての要素が整列し終わるまで、二重のループで比較を繰り返すため、計算量はデータ数Nに対して <b>O(N²)</b> になります。
@@ -105,32 +92,113 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       <li>これ以上分割できなくなるまで（要素数が1個になるまで）繰り返すと、全体のソートが美しく完了します。</li>
     </ol>
 
-    <figure>
-      <div class="diagram-container">
-        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
-          <!-- Quick Sort Divide Visual -->
-          <!-- Root array: [5, 8, 3, 2, 6, 7] -> Pivot: 5 -->
-          <rect x="175" y="10" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
-          <text x="225" y="24" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">初期リスト: 5, 8, 3, 2, 6, 7</text>
-          <text x="170" y="22" font-family="var(--font-sans)" font-size="7" fill="#E06C75" font-weight="600">ピボット [5]</text>
+    <div class="quick-sort-visualizer" id="quick-visualizer">
+      <div class="visualizer-header">
+        <span class="visualizer-title">クイックソート・分割統治シミュレータ</span>
+      </div>
 
-          <path d="M 225 32 L 225 50 M 225 50 L 125 55 L 125 70 M 225 50 L 325 55 L 325 70" stroke="#1E3A60" stroke-width="1.2" />
+      <!-- 上部：パーティションデモ画面 -->
+      <div class="quick-demo-screen">
+        <div class="quick-explanation" id="quick-explanation">
+          下のツリー図から、見たい分割ステップをクリックしてください。
+        </div>
+        
+        <div class="quick-array-display" id="quick-array-display" style="position: relative;">
+          <div class="active-range-indicator" id="quick-range-indicator" style="display: none;"></div>
+          <div class="quick-card-placeholder">ツリーのノードを選択してください</div>
+        </div>
 
-          <!-- Left partition (Smaller than 5): [3, 2] -->
-          <rect x="75" y="70" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#98C379" stroke-width="1.5" />
-          <text x="125" y="84" font-family="var(--font-sans)" font-size="9" fill="#98C379" font-weight="600" text-anchor="middle">小さいグループ: 3, 2</text>
+        <div class="quick-action-area" id="quick-action-area" style="display: none; gap: 0.8rem; justify-content: center; width: 100%;">
+          <button id="quick-btn-reset" class="btn btn-secondary">最初から</button>
+          <button id="quick-btn-step" class="btn btn-primary">1ステップ進む</button>
+          <button id="quick-btn-play" class="btn btn-primary">自動再生</button>
+        </div>
+      </div>
 
-          <!-- Right partition (Larger than 5): [8, 6, 7] -->
-          <rect x="275" y="70" width="100" height="22" rx="2" fill="#FAF9F5" stroke="#E06C75" stroke-width="1.5" />
-          <text x="325" y="84" font-family="var(--font-sans)" font-size="9" fill="#E06C75" font-weight="600" text-anchor="middle">大きいグループ: 8, 6, 7</text>
+      <!-- 下部：分割統治のツリーマップ（SVG） -->
+      <div class="quick-tree-container">
+        <div class="tree-instruction">クリックして各ステップの分割を見る：</div>
+        <svg class="quick-tree-svg" viewBox="0 0 500 240" width="500" height="240" style="max-width: 100%; height: auto;">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 8 5 L 0 8 z" fill="#1E3A60" />
+            </marker>
+          </defs>
 
-          <path d="M 125 92 L 125 110" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
-          <path d="M 325 92 L 325 110" stroke="#1E3A60" stroke-width="1" stroke-dasharray="2 2" />
-          <text x="225" y="130" font-family="var(--font-serif)" font-size="8" fill="#555555" text-anchor="middle">それぞれで同様の分割を再帰的に繰り返す</text>
+          <!-- 接続線 -->
+          <path d="M 250 40 L 135 85" stroke="#E5E0D8" stroke-width="2" marker-end="url(#arrow)" />
+          <path d="M 250 40 L 365 85" stroke="#E5E0D8" stroke-width="2" marker-end="url(#arrow)" />
+          
+          <path d="M 130 115 L 75 155" stroke="#E5E0D8" stroke-width="1.5" marker-end="url(#arrow)" />
+          <path d="M 130 115 L 155 155" stroke="#E5E0D8" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <path d="M 370 115 L 315 155" stroke="#E5E0D8" stroke-width="1.5" marker-end="url(#arrow)" />
+          <path d="M 370 115 L 425 155" stroke="#E5E0D8" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <path d="M 310 185 L 285 215" stroke="#E5E0D8" stroke-width="1" marker-end="url(#arrow)" />
+          <path d="M 310 185 L 335 215" stroke="#E5E0D8" stroke-width="1" marker-end="url(#arrow)" />
+
+          <!-- レベル0 -->
+          <g class="tree-node active" id="qnode-root" transform="translate(250, 25)" data-step="root">
+            <rect x="-65" y="-15" width="130" height="30" rx="4" />
+            <text y="3" class="node-title">初期: 5, 8, 3, 2, 6, 7</text>
+            <text y="12" class="node-subtitle">ピボット: 5</text>
+          </g>
+
+          <!-- レベル1: 左 -->
+          <g class="tree-node" id="qnode-l1-left" transform="translate(130, 100)" data-step="l1-left">
+            <rect x="-55" y="-15" width="110" height="30" rx="4" />
+            <text y="3" class="node-title">小グループ: 3, 2</text>
+            <text y="12" class="node-subtitle">ピボット: 3</text>
+          </g>
+
+          <!-- レベル1: 右 -->
+          <g class="tree-node" id="qnode-l1-right" transform="translate(370, 100)" data-step="l1-right">
+            <rect x="-60" y="-15" width="120" height="30" rx="4" />
+            <text y="3" class="node-title">大グループ: 8, 6, 7</text>
+            <text y="12" class="node-subtitle">ピボット: 8</text>
+          </g>
+
+          <!-- レベル2: 左の左 -->
+          <g class="tree-node leaf" id="qnode-l2-ll" transform="translate(70, 170)" data-step="l2-ll">
+            <rect x="-25" y="-12" width="50" height="24" rx="4" />
+            <text y="4" class="node-title">値: 2</text>
+          </g>
+
+          <!-- レベル2: 左の右 -->
+          <g class="tree-node leaf" id="qnode-l2-lr" transform="translate(160, 170)" data-step="l2-lr">
+            <rect x="-25" y="-12" width="50" height="24" rx="4" />
+            <text y="4" class="node-title">値: 3</text>
+          </g>
+
+          <!-- レベル2: 右の左 -->
+          <g class="tree-node" id="qnode-l2-rl" transform="translate(310, 170)" data-step="l2-rl">
+            <rect x="-40" y="-15" width="80" height="30" rx="4" />
+            <text y="3" class="node-title">グループ: 6, 7</text>
+            <text y="12" class="node-subtitle">ピボット: 6</text>
+          </g>
+
+          <!-- レベル2: 右の右 -->
+          <g class="tree-node leaf" id="qnode-l2-rr" transform="translate(430, 170)" data-step="l2-rr">
+            <rect x="-25" y="-12" width="50" height="24" rx="4" />
+            <text y="4" class="node-title">値: 8</text>
+          </g>
+
+          <!-- レベル3: 右の左の左 -->
+          <g class="tree-node leaf" id="qnode-l3-rll" transform="translate(280, 225)" data-step="l3-rll">
+            <rect x="-20" y="-10" width="40" height="20" rx="4" />
+            <text y="3" class="node-title">値: 6</text>
+          </g>
+
+          <!-- レベル3: 右の左の右 -->
+          <g class="tree-node leaf" id="qnode-l3-rlr" transform="translate(340, 225)" data-step="l3-rlr">
+            <rect x="-20" y="-10" width="40" height="20" rx="4" />
+            <text y="3" class="node-title">値: 7</text>
+          </g>
         </svg>
       </div>
-      <figcaption>図 5-10：クイックソートにおけるピボットを基準とした「分割統治」モデル</figcaption>
-    </figure>
+    </div>
+    <figcaption style="margin-top: -1rem; margin-bottom: 2rem;">図 5-10：クイックソートにおけるピボットを基準とした「分割統治」モデル（インタラクティブ版）</figcaption>
 
     <p>
       毎回ほぼ半分ずつに切り分けていく再帰プロセスにより、計算量は平均 <b>O(N log N)</b> にまで下がります。
@@ -206,4 +274,1040 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       </a>
     </div>
   </div>
+
+  <style is:global>
+    /* バブルソートビジュアライザ */
+    .bubble-sort-visualizer {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 4px 12px rgba(30, 58, 96, 0.05);
+      font-family: var(--font-sans);
+    }
+
+    .visualizer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .visualizer-title {
+      font-weight: 600;
+      color: var(--accent-color);
+      font-size: 1rem;
+    }
+
+    .visualizer-stats {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .visualizer-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      position: relative;
+      background: var(--bg-color);
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .array-container {
+      display: flex;
+      position: relative;
+      width: 280px; /* 70px * 4 */
+      height: 60px;
+    }
+
+    .array-card {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--accent-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                  background-color 0.3s, 
+                  border-color 0.3s,
+                  color 0.3s,
+                  box-shadow 0.3s;
+      transform: translateX(calc(var(--index) * 70px));
+    }
+
+    .array-card.comparing {
+      border-color: #E06C75;
+      background-color: #FDF3F3;
+      color: #E06C75;
+      box-shadow: 0 0 8px rgba(224, 108, 117, 0.3);
+    }
+
+    .array-card.swapping {
+      border-color: #D19A66;
+      background-color: #FFF9F3;
+      color: #D19A66;
+      animation: card-pulse 0.4s alternate infinite;
+    }
+
+    .array-card.sorted {
+      border-color: #98C379;
+      background-color: #F3F9ED;
+      color: #98C379;
+    }
+
+    .visualizer-explanation {
+      background: var(--quote-bg);
+      border-left: 3px solid var(--accent-color);
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      min-height: 3.6rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+      display: flex;
+      align-items: center;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    .visualizer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-family: var(--font-sans);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: #2c5282;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background-color: #a0aec0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background-color: var(--accent-light);
+      color: var(--accent-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #cbd5e0;
+      transform: translateY(-1px);
+    }
+
+    @keyframes card-pulse {
+      0% { transform: translateX(calc(var(--index) * 70px)) scale(1); }
+      100% { transform: translateX(calc(var(--index) * 70px)) scale(1.05); }
+    }
+
+    /* クイックソートビジュアライザ */
+    .quick-sort-visualizer {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: 0 4px 12px rgba(30, 58, 96, 0.05);
+      font-family: var(--font-sans);
+    }
+
+    .quick-demo-screen {
+      background: var(--bg-color);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px dashed var(--border-color);
+      position: relative;
+    }
+
+    .quick-explanation {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      text-align: center;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      min-height: 3.2rem;
+      width: 100%;
+    }
+
+    .active-range-indicator {
+      position: absolute;
+      height: 64px;
+      background-color: rgba(30, 58, 96, 0.05);
+      border: 1.5px dashed rgba(30, 58, 96, 0.25);
+      border-radius: 6px;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      top: 0px;
+      pointer-events: none;
+    }
+
+    .quick-array-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 85px;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .quick-card-placeholder {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-style: italic;
+    }
+
+    .quick-card {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--accent-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                  background-color 0.4s, 
+                  border-color 0.4s,
+                  color 0.4s,
+                  box-shadow 0.4s;
+    }
+
+    .quick-card.pivot {
+      border-color: #E06C75;
+      background-color: #FDF3F3;
+      color: #E06C75;
+      box-shadow: 0 0 10px rgba(224, 108, 117, 0.4);
+      font-weight: 800;
+    }
+
+    .quick-card.smaller {
+      border-color: #98C379;
+      background-color: #F3F9ED;
+      color: #98C379;
+    }
+
+    .quick-card.larger {
+      border-color: #61AFEF;
+      background-color: #F0F7FD;
+      color: #61AFEF;
+    }
+
+    .quick-card.scanning {
+      border-color: #D19A66;
+      background-color: #FFF9F3;
+      color: #D19A66;
+      box-shadow: 0 0 10px rgba(209, 154, 102, 0.5);
+      font-weight: 800;
+    }
+
+    .quick-card.sorted {
+      border-color: #98C379;
+      background-color: #F3F9ED;
+      color: #98C379;
+      box-shadow: 0 0 6px rgba(152, 195, 121, 0.25);
+    }
+
+    .pivot-badge {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem;
+      color: #E06C75;
+      background: #FDF3F3;
+      border: 1px solid #E06C75;
+      border-radius: 3px;
+      padding: 1px 3px;
+      font-weight: 600;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .quick-action-area {
+      display: flex;
+      justify-content: center;
+    }
+
+    .quick-tree-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .tree-instruction {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      align-self: flex-start;
+      font-weight: 600;
+    }
+
+    .quick-tree-svg {
+      background-color: var(--bg-color);
+      border-radius: 6px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tree-node {
+      cursor: pointer;
+    }
+
+    .tree-node rect {
+      fill: #ffffff;
+      stroke: var(--border-color);
+      stroke-width: 1.5;
+      transition: all 0.3s ease;
+    }
+
+    .tree-node text {
+      font-family: var(--font-sans);
+      text-anchor: middle;
+      fill: var(--text-color);
+      transition: all 0.3s ease;
+    }
+
+    .tree-node .node-title {
+      font-size: 8px;
+      font-weight: 600;
+    }
+
+    .tree-node .node-subtitle {
+      font-size: 7px;
+      fill: var(--text-muted);
+    }
+
+    .tree-node:hover rect {
+      stroke: var(--accent-color);
+      fill: var(--accent-light);
+      filter: drop-shadow(0 2px 4px rgba(30, 58, 96, 0.1));
+    }
+
+    .tree-node.active rect {
+      fill: var(--accent-color);
+      stroke: var(--accent-color);
+    }
+
+    .tree-node.active text {
+      fill: #ffffff;
+    }
+
+    .tree-node.active .node-subtitle {
+      fill: rgba(255, 255, 255, 0.8);
+    }
+
+    .tree-node.leaf rect {
+      stroke-dasharray: 3 3;
+    }
+
+    .tree-node.leaf.active rect {
+      fill: #98C379;
+      stroke: #98C379;
+    }
+
+    .tree-node.leaf.active text {
+      fill: #ffffff;
+    }
+
+    /* モバイル対応：カードの間隔やサイズを調整 */
+    @media (max-width: 600px) {
+      .array-container {
+        width: 220px;
+        height: 50px;
+      }
+      .array-card {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        transform: translateX(calc(var(--index) * 55px));
+      }
+      @keyframes card-pulse {
+        0% { transform: translateX(calc(var(--index) * 55px)) scale(1); }
+        100% { transform: translateX(calc(var(--index) * 55px)) scale(1.05); }
+      }
+      .visualizer-display {
+        height: 100px;
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // === 1. バブルソートシミュレータ ===
+      const bubbleContainer = document.getElementById('bubble-array-container');
+      if (!bubbleContainer) return; // セーフティガード
+
+      const bubbleCards = Array.from(bubbleContainer.querySelectorAll('.array-card'));
+      const bubbleCompareCountText = document.getElementById('bubble-compare-count');
+      const bubbleSwapCountText = document.getElementById('bubble-swap-count');
+      const bubbleExplanationText = document.getElementById('bubble-explanation');
+      
+      const btnBubbleShuffle = document.getElementById('bubble-btn-shuffle');
+      const btnBubbleReset = document.getElementById('bubble-btn-reset');
+      const btnBubbleStep = document.getElementById('bubble-btn-step');
+      const btnBubblePlay = document.getElementById('bubble-btn-play');
+
+      let bubbleArray = [5, 3, 8, 2];
+      let bubbleOrigArray = [...bubbleArray];
+      let bubbleSteps = [];
+      let bubbleCurrentStepIdx = -1;
+      let bubblePlayingInterval = null;
+
+      function generateBubbleSortSteps() {
+        const steps = [];
+        const arr = [...bubbleOrigArray];
+        const n = arr.length;
+        let compares = 0;
+        let swaps = 0;
+
+        // 初期状態
+        steps.push({
+          array: [...arr],
+          comparing: [],
+          swapping: [],
+          sorted: [],
+          explanation: "初期リストです。「1ステップ進む」または「自動再生」を押して開始します。",
+          compares: 0,
+          swaps: 0
+        });
+
+        const sortedIndices = new Set();
+
+        for (let i = 0; i < n - 1; i++) {
+          for (let j = 0; j < n - i - 1; j++) {
+            compares++;
+            // 比較
+            steps.push({
+              array: [...arr],
+              comparing: [j, j + 1],
+              swapping: [],
+              sorted: [...sortedIndices],
+              explanation: `隣り合う要素 <strong>${arr[j]}</strong> と <strong>${arr[j+1]}</strong> を比較します。`,
+              compares: compares,
+              swaps: swaps
+            });
+
+            if (arr[j] > arr[j + 1]) {
+              swaps++;
+              // 交換前
+              steps.push({
+                array: [...arr],
+                comparing: [],
+                swapping: [j, j + 1],
+                sorted: [...sortedIndices],
+                explanation: `<code>${arr[j]} &gt; ${arr[j+1]}</code> で順序が逆のため、位置を交換します。`,
+                compares: compares,
+                swaps: swaps
+              });
+
+              // 交換
+              const temp = arr[j];
+              arr[j] = arr[j + 1];
+              arr[j + 1] = temp;
+
+              // 交換後
+              steps.push({
+                array: [...arr],
+                comparing: [],
+                swapping: [j, j + 1],
+                sorted: [...sortedIndices],
+                explanation: `位置を交換しました。`,
+                compares: compares,
+                swaps: swaps
+              });
+            } else {
+              // 交換なし
+              steps.push({
+                array: [...arr],
+                comparing: [j, j + 1],
+                swapping: [],
+                sorted: [...sortedIndices],
+                explanation: `<code>${arr[j]} &le; ${arr[j+1]}</code> で正しい順序のため、交換は行いません。`,
+                compares: compares,
+                swaps: swaps
+              });
+            }
+          }
+          // 右端確定
+          sortedIndices.add(n - i - 1);
+          steps.push({
+            array: [...arr],
+            comparing: [],
+            swapping: [],
+            sorted: [...sortedIndices],
+            explanation: `この周の最大値 <strong>${arr[n - i - 1]}</strong> が右端に達し、位置が確定しました。`,
+            compares: compares,
+            swaps: swaps
+          });
+        }
+        // 最後の1要素確定
+        sortedIndices.add(0);
+        steps.push({
+          array: [...arr],
+          comparing: [],
+          swapping: [],
+          sorted: [...sortedIndices],
+          explanation: `すべての要素の整列が完了しました！`,
+          compares: compares,
+          swaps: swaps
+        });
+
+        return steps;
+      }
+
+      function applyBubbleStep(stepIdx) {
+        if (stepIdx < 0 || stepIdx >= bubbleSteps.length) return;
+        const step = bubbleSteps[stepIdx];
+
+        const valueToDom = {};
+        bubbleCards.forEach(card => {
+          const val = parseInt(card.getAttribute('data-val'), 10);
+          valueToDom[val] = card;
+        });
+
+        step.array.forEach((val, index) => {
+          const card = valueToDom[val];
+          if (card) {
+            card.style.setProperty('--index', index.toString());
+            
+            card.classList.remove('comparing', 'swapping', 'sorted');
+            
+            if (step.comparing.includes(index)) {
+              card.classList.add('comparing');
+            } else if (step.swapping.includes(index)) {
+              card.classList.add('swapping');
+            } else if (step.sorted.includes(index)) {
+              card.classList.add('sorted');
+            }
+          }
+        });
+
+        if (bubbleCompareCountText) bubbleCompareCountText.textContent = step.compares.toString();
+        if (bubbleSwapCountText) bubbleSwapCountText.textContent = step.swaps.toString();
+        if (bubbleExplanationText) bubbleExplanationText.innerHTML = step.explanation;
+      }
+
+      function bubbleReset() {
+        bubbleStopPlaying();
+        bubbleOrigArray = [...bubbleArray];
+        bubbleSteps = generateBubbleSortSteps();
+        bubbleCurrentStepIdx = 0;
+        applyBubbleStep(bubbleCurrentStepIdx);
+      }
+
+      function bubbleShuffle() {
+        bubbleStopPlaying();
+        const base = [2, 3, 5, 8];
+        for (let i = base.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [base[i], base[j]] = [base[j], base[i]];
+        }
+        bubbleArray = [...base];
+        
+        bubbleCards.forEach((card, index) => {
+          const newVal = bubbleArray[index];
+          card.textContent = newVal.toString();
+          card.setAttribute('data-val', newVal.toString());
+          card.style.setProperty('--value', newVal.toString());
+        });
+
+        bubbleReset();
+      }
+
+      function bubbleStepForward() {
+        if (bubbleCurrentStepIdx < bubbleSteps.length - 1) {
+          bubbleCurrentStepIdx++;
+          applyBubbleStep(bubbleCurrentStepIdx);
+        } else {
+          bubbleStopPlaying();
+        }
+      }
+
+      function bubbleStopPlaying() {
+        if (bubblePlayingInterval) {
+          clearInterval(bubblePlayingInterval);
+          bubblePlayingInterval = null;
+          if (btnBubblePlay) {
+            btnBubblePlay.textContent = "自動再生";
+            btnBubblePlay.classList.remove('btn-secondary');
+            btnBubblePlay.classList.add('btn-primary');
+          }
+        }
+      }
+
+      function bubbleTogglePlay() {
+        if (bubblePlayingInterval) {
+          bubbleStopPlaying();
+        } else {
+          if (bubbleCurrentStepIdx === bubbleSteps.length - 1) {
+            bubbleCurrentStepIdx = 0;
+            applyBubbleStep(bubbleCurrentStepIdx);
+          }
+          if (btnBubblePlay) {
+            btnBubblePlay.textContent = "一時停止";
+            btnBubblePlay.classList.remove('btn-primary');
+            btnBubblePlay.classList.add('btn-secondary');
+          }
+          
+          bubblePlayingInterval = setInterval(() => {
+            if (bubbleCurrentStepIdx < bubbleSteps.length - 1) {
+              bubbleStepForward();
+            } else {
+              bubbleStopPlaying();
+            }
+          }, 1200);
+        }
+      }
+
+      if (btnBubbleShuffle) btnBubbleShuffle.addEventListener('click', bubbleShuffle);
+      if (btnBubbleReset) btnBubbleReset.addEventListener('click', bubbleReset);
+      if (btnBubbleStep) btnBubbleStep.addEventListener('click', bubbleStepForward);
+      if (btnBubblePlay) btnBubblePlay.addEventListener('click', bubbleTogglePlay);
+
+      bubbleReset();
+
+
+      // === 2. クイックソートシミュレータ ===
+      const quickTreeNodes = document.querySelectorAll('.tree-node');
+      const quickExplanation = document.getElementById('quick-explanation');
+      const quickArrayDisplay = document.getElementById('quick-array-display');
+      const quickRangeIndicator = document.getElementById('quick-range-indicator');
+      const quickActionArea = document.getElementById('quick-action-area');
+      
+      const btnQuickReset = document.getElementById('quick-btn-reset');
+      const btnQuickStep = document.getElementById('quick-btn-step');
+      const btnQuickPlay = document.getElementById('quick-btn-play');
+
+      if (!quickArrayDisplay) return;
+
+      const quickInitialArray = [5, 8, 3, 2, 6, 7];
+
+      // クイックソート全体のステップを事前生成する
+      function generateAllQuickSteps() {
+        const steps = [];
+        const arr = [...quickInitialArray];
+        const n = arr.length;
+        
+        const sortedIndices = new Set();
+        
+        // 1. 初期状態
+        steps.push({
+          array: [...arr],
+          activeRange: [0, n - 1],
+          pivotIdx: -1,
+          scanIdx: -1,
+          sorted: [],
+          nodeKey: 'root',
+          explanation: "クイックソート全体のソートプロセスを開始します。初期リストは <code>[5, 8, 3, 2, 6, 7]</code> です。最初に全体を対象範囲とします。"
+        });
+
+        function runSort(left, right, nodeKey) {
+          if (left > right) return;
+          if (left === right) {
+            sortedIndices.add(left);
+            steps.push({
+              array: [...arr],
+              activeRange: [left, right],
+              pivotIdx: -1,
+              scanIdx: -1,
+              sorted: [...sortedIndices],
+              nodeKey: nodeKey,
+              explanation: `要素数が1（値: <strong>${arr[left]}</strong>）のため、自動的にこの位置で確定します。`
+            });
+            return;
+          }
+
+          const pivotVal = arr[left];
+          const pivotIdx = left;
+
+          // ピボット選択ステップ
+          steps.push({
+            array: [...arr],
+            activeRange: [left, right],
+            pivotIdx: pivotIdx,
+            scanIdx: -1,
+            sorted: [...sortedIndices],
+            nodeKey: nodeKey,
+            explanation: `範囲内の先頭要素 <strong>${pivotVal}</strong> をピボット（基準値）に選び、少し上に浮かせます。`
+          });
+
+          // Lomutoパーティション処理の記録
+          let i = left;
+          for (let j = left + 1; j <= right; j++) {
+            const val = arr[j];
+            
+            // 比較ステップ
+            steps.push({
+              array: [...arr],
+              activeRange: [left, right],
+              pivotIdx: pivotIdx,
+              scanIdx: j,
+              sorted: [...sortedIndices],
+              nodeKey: nodeKey,
+              explanation: `走査要素 <strong>${val}</strong> とピボット <strong>${pivotVal}</strong> を比較します。`
+            });
+
+            if (val <= pivotVal) {
+              i++;
+              const swapOccurred = (i !== j);
+              if (swapOccurred) {
+                const temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+              }
+
+              steps.push({
+                array: [...arr],
+                activeRange: [left, right],
+                pivotIdx: pivotIdx,
+                scanIdx: j,
+                sorted: [...sortedIndices],
+                nodeKey: nodeKey,
+                explanation: `<code>${val} &le; ${pivotVal}</code> なので、ピボット以下のグループ（左）へ振り分けます。${swapOccurred ? `（値 ${val} と ${arr[j]} を物理的に交換しました）` : ''}`
+              });
+            } else {
+              steps.push({
+                array: [...arr],
+                activeRange: [left, right],
+                pivotIdx: pivotIdx,
+                scanIdx: j,
+                sorted: [...sortedIndices],
+                nodeKey: nodeKey,
+                explanation: `<code>${val} &gt; ${pivotVal}</code> なので、ピボットより大きいグループ（右）へ振り分けます（位置はそのまま）。`
+              });
+            }
+          }
+
+          // ピボットを境界位置（i）に交換
+          const finalPivotIdx = i;
+          const needPivotSwap = (left !== finalPivotIdx);
+          if (needPivotSwap) {
+            const temp = arr[left];
+            arr[left] = arr[finalPivotIdx];
+            arr[finalPivotIdx] = temp;
+          }
+
+          steps.push({
+            array: [...arr],
+            activeRange: [left, right],
+            pivotIdx: finalPivotIdx,
+            scanIdx: -1,
+            sorted: [...sortedIndices],
+            nodeKey: nodeKey,
+            explanation: `ピボットの <strong>${pivotVal}</strong> を、小さいグループと大きいグループの境界位置（インデックス ${finalPivotIdx}）と交換します。`
+          });
+
+          // ピボット位置を確定
+          sortedIndices.add(finalPivotIdx);
+
+          steps.push({
+            array: [...arr],
+            activeRange: [left, right],
+            pivotIdx: -1,
+            scanIdx: -1,
+            sorted: [...sortedIndices],
+            nodeKey: nodeKey,
+            explanation: `ピボット <strong>${pivotVal}</strong> の最終的な位置が確定しました。次に、確定した位置の左右それぞれのグループを再帰的にソートします。`
+          });
+
+          // 子ノードのキー決定
+          let leftNodeKey = '';
+          let rightNodeKey = '';
+          if (nodeKey === 'root') {
+            leftNodeKey = 'l1-left';
+            rightNodeKey = 'l1-right';
+          } else if (nodeKey === 'l1-left') {
+            leftNodeKey = 'l2-ll';
+            rightNodeKey = 'l2-lr';
+          } else if (nodeKey === 'l1-right') {
+            leftNodeKey = 'l2-rl';
+            rightNodeKey = 'l2-rr';
+          } else if (nodeKey === 'l2-rl') {
+            leftNodeKey = 'l3-rll';
+            rightNodeKey = 'l3-rlr';
+          }
+
+          // 再帰実行
+          runSort(left, finalPivotIdx - 1, leftNodeKey);
+          runSort(finalPivotIdx + 1, right, rightNodeKey);
+        }
+
+        runSort(0, n - 1, 'root');
+
+        // 最後の完了ステップ
+        steps.push({
+          array: [...arr],
+          activeRange: [-1, -1],
+          pivotIdx: -1,
+          scanIdx: -1,
+          sorted: [0, 1, 2, 3, 4, 5],
+          nodeKey: '',
+          explanation: "すべての再帰分割が完了しました！ 配列が完全に整列されました <code>[2, 3, 5, 6, 7, 8]</code>。"
+        });
+
+        return steps;
+      }
+
+      let quickSubSteps = [];
+      let quickCurrentStepIdx = -1;
+      let quickPlayingInterval = null;
+
+      function createQuickCards() {
+        // 表示エリアをクリア（プレースホルダーとインジケータ以外をクリア）
+        const placeholders = quickArrayDisplay.querySelectorAll('.quick-card-placeholder');
+        placeholders.forEach(p => p.remove());
+
+        // すでにカードがあればクリア
+        const existingCards = quickArrayDisplay.querySelectorAll('.quick-card');
+        existingCards.forEach(c => c.remove());
+
+        // 初期状態でカードをDOMに追加
+        quickInitialArray.forEach((val) => {
+          const card = document.createElement('div');
+          card.className = 'quick-card';
+          card.setAttribute('data-val', val.toString());
+          card.textContent = val.toString();
+          quickArrayDisplay.appendChild(card);
+        });
+      }
+
+      function applyQuickSubStep(stepIdx) {
+        if (stepIdx < 0 || stepIdx >= quickSubSteps.length) return;
+        const step = quickSubSteps[stepIdx];
+
+        const cards = Array.from(quickArrayDisplay.querySelectorAll('.quick-card'));
+        
+        // 値とDOMのマップを作成
+        const valueToCard = {};
+        cards.forEach(card => {
+          const val = parseInt(card.getAttribute('data-val'), 10);
+          valueToCard[val] = card;
+        });
+
+        const cardWidth = 44;
+        const gap = 8;
+        const n = quickInitialArray.length;
+        const totalWidth = n * cardWidth + (n - 1) * gap;
+
+        // 各カードの位置・クラスを設定
+        step.array.forEach((val, index) => {
+          const card = valueToCard[val];
+          if (!card) return;
+
+          // クラスのリセット
+          card.classList.remove('scanning', 'smaller', 'larger', 'sorted', 'pivot');
+          
+          const badge = card.querySelector('.pivot-badge');
+          if (badge) badge.remove();
+
+          // スキャン中
+          if (step.scanIdx === index) {
+            card.classList.add('scanning');
+          }
+
+          // ピボット
+          if (step.pivotIdx === index) {
+            card.classList.add('pivot');
+            const newBadge = document.createElement('div');
+            newBadge.className = 'pivot-badge';
+            newBadge.textContent = 'ピボット';
+            card.appendChild(newBadge);
+          }
+
+          // 部分グループの色分け（ピボット比較中のみ有効）
+          if (step.pivotIdx !== -1 && index !== step.pivotIdx && index >= step.activeRange[0] && index <= step.activeRange[1]) {
+            const pivotVal = step.array[step.pivotIdx];
+            if (step.scanIdx !== -1 && index <= step.scanIdx) {
+              if (val <= pivotVal) {
+                card.classList.add('smaller');
+              } else {
+                card.classList.add('larger');
+              }
+            }
+          }
+
+          // ソート確定
+          if (step.sorted.includes(index)) {
+            card.classList.add('sorted');
+          }
+
+          // X/Y座標の計算
+          const x = (index * (cardWidth + gap)) - (totalWidth / 2) + (cardWidth / 2);
+          const y = (step.pivotIdx === index) ? -15 : 10;
+
+          card.style.transform = `translate(calc(50% + ${x}px - ${cardWidth/2}px), ${y}px)`;
+        });
+
+        // 範囲インジケータの更新
+        if (quickRangeIndicator) {
+          if (step.activeRange[0] !== -1) {
+            const leftIdx = step.activeRange[0];
+            const rightIdx = step.activeRange[1];
+            
+            const width = (rightIdx - leftIdx + 1) * cardWidth + (rightIdx - leftIdx) * gap + 10;
+            const startX = (leftIdx * (cardWidth + gap)) - (totalWidth / 2) - 5;
+            
+            quickRangeIndicator.style.display = 'block';
+            quickRangeIndicator.style.width = `${width}px`;
+            quickRangeIndicator.style.transform = `translateX(calc(50% + ${startX}px))`;
+          } else {
+            quickRangeIndicator.style.display = 'none';
+          }
+        }
+
+        // 解説テキスト
+        if (quickExplanation) quickExplanation.innerHTML = step.explanation;
+
+        // ツリーマップのノードアクティブ化
+        quickTreeNodes.forEach(node => {
+          if (node.getAttribute('data-step') === step.nodeKey) {
+            node.classList.add('active');
+          } else {
+            node.classList.remove('active');
+          }
+        });
+      }
+
+      function initQuickVisualizer() {
+        quickStopPlaying();
+        
+        // カードDOMを作成
+        createQuickCards();
+
+        if (quickActionArea) {
+          quickActionArea.style.display = 'flex';
+          if (btnQuickStep) btnQuickStep.disabled = false;
+          if (btnQuickPlay) {
+            btnQuickPlay.disabled = false;
+            btnQuickPlay.textContent = "自動再生";
+          }
+        }
+
+        // 全ステップ生成
+        quickSubSteps = generateAllQuickSteps();
+        quickCurrentStepIdx = 0;
+        applyQuickSubStep(quickCurrentStepIdx);
+      }
+
+      function quickReset() {
+        quickStopPlaying();
+        quickCurrentStepIdx = 0;
+        applyQuickSubStep(quickCurrentStepIdx);
+      }
+
+      function quickStepForward() {
+        if (quickCurrentStepIdx < quickSubSteps.length - 1) {
+          quickCurrentStepIdx++;
+          applyQuickSubStep(quickCurrentStepIdx);
+        } else {
+          quickStopPlaying();
+        }
+      }
+
+      function quickStopPlaying() {
+        if (quickPlayingInterval) {
+          clearInterval(quickPlayingInterval);
+          quickPlayingInterval = null;
+          if (btnQuickPlay) {
+            btnQuickPlay.textContent = "自動再生";
+            btnQuickPlay.classList.remove('btn-secondary');
+            btnQuickPlay.classList.add('btn-primary');
+          }
+        }
+      }
+
+      function quickTogglePlay() {
+        if (quickPlayingInterval) {
+          quickStopPlaying();
+        } else {
+          if (quickCurrentStepIdx === quickSubSteps.length - 1) {
+            quickCurrentStepIdx = 0;
+            applyQuickSubStep(quickCurrentStepIdx);
+          }
+          if (btnQuickPlay) {
+            btnQuickPlay.textContent = "一時停止";
+            btnQuickPlay.classList.remove('btn-primary');
+            btnQuickPlay.classList.add('btn-secondary');
+          }
+          
+          quickPlayingInterval = setInterval(() => {
+            if (quickCurrentStepIdx < quickSubSteps.length - 1) {
+              quickStepForward();
+            } else {
+              quickStopPlaying();
+            }
+          }, 1500);
+        }
+      }
+
+      // ツリーのノードをクリックしたら、そのノードの処理開始ステップにジャンプする
+      quickTreeNodes.forEach(node => {
+        node.addEventListener('click', () => {
+          const stepKey = node.getAttribute('data-step');
+          if (!stepKey) return;
+          
+          // quickSubSteps の中から、最初に stepKey が一致するインデックスを検索
+          const targetIdx = quickSubSteps.findIndex(step => step.nodeKey === stepKey);
+          if (targetIdx !== -1) {
+            quickStopPlaying();
+            quickCurrentStepIdx = targetIdx;
+            applyQuickSubStep(quickCurrentStepIdx);
+          }
+        });
+      });
+
+      if (btnQuickReset) btnQuickReset.addEventListener('click', quickReset);
+      if (btnQuickStep) btnQuickStep.addEventListener('click', quickStepForward);
+      if (btnQuickPlay) btnQuickPlay.addEventListener('click', quickTogglePlay);
+
+      // 初回起動
+      initQuickVisualizer();
+    });
+  </script>
 </BookLayout>
