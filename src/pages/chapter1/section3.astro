@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -119,6 +120,41 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       この可変長方式のおかげで、英語圏のデータ量は従来のまま維持しつつ、世界中の多様な文字や絵文字まで、文字化けなく1つのシステムで共存・伝送できるようになりました。現代のWebサイトの9割以上がUTF-8で記述されています。
     </p>
+
+    <FocusCard title="整理のポイント：主要な文字コードの特徴">
+      <p>
+        コンピュータの文字表現で中心となる各規格の特徴を整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>ASCII（アスキー）</b>：
+          <ul>
+            <li>データ長：<b>7ビット</b>（実質1バイト）</li>
+            <li>特徴：英数字と基本的な記号のみ。すべての現代的な文字コードのベース。</li>
+          </ul>
+        </li>
+        <li>
+          <b>Shift_JIS（シフトJIS）</b>：
+          <ul>
+            <li>データ長：日本語文字を<b>2バイト</b>で表現</li>
+            <li>特徴：かつて国内のOSやPC環境で広く普及。多言語混在環境で文字化けの原因になりやすい。</li>
+          </ul>
+        </li>
+        <li>
+          <b>Unicode（ユニコード）</b>：
+          <ul>
+            <li>役割：世界中のすべての文字に固有の識別番号（コードポイント）を割り当てる<b>「共通の背番号表」</b>。</li>
+          </ul>
+        </li>
+        <li>
+          <b>UTF-8（ユーティーエフエイト）</b>：
+          <ul>
+            <li>データ長：<b>1〜4バイトの可変長</b></li>
+            <li>特徴：Unicodeの番号を実際のデータに落とし込む符号化方式。ASCIIと互換性があり、現代のWeb標準規格。</li>
+          </ul>
+        </li>
+      </ul>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

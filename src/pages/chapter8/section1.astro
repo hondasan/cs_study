@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -159,6 +160,36 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、データが「改ざん」されていないかチェックしたり、データの同一性を証明したりする「ハッシュ関数」と「デジタル署名」の仕組みについて学びます。
     </p>
+
+    <FocusCard title="整理のポイント：共通鍵暗号と公開鍵暗号の比較">
+      <p>
+        セキュリティを支える2つの代表的な暗号方式の違いと、その組み合わせを整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>共通鍵暗号方式</b>：
+          <ul>
+            <li>使用する鍵：暗号化と復号に<b>同じ1つの鍵（共通鍵）</b>を使用。</li>
+            <li>特徴：処理速度が<b>非常に高速</b>だが、事前に安全に鍵を共有しなければならない<b>鍵配送問題</b>がある。</li>
+            <li>代表例：AES</li>
+          </ul>
+        </li>
+        <li>
+          <b>公開鍵暗号方式</b>：
+          <ul>
+            <li>使用する鍵：暗号化用の<b>公開鍵</b>（誰にでも公開して配る鍵）と、復号用の<b>秘密鍵</b>（本人のみ保持）という<b>対になる異なる2つの鍵</b>を使用。</li>
+            <li>特徴：鍵配送問題がないが、複雑な数学計算が必要なため処理速度が<b>低速</b>。</li>
+            <li>代表例：RSA</li>
+          </ul>
+        </li>
+        <li>
+          <b>ハイブリッド暗号方式</b>：
+          <ul>
+            <li>仕組み：公開鍵暗号を用いて「使い捨ての共通鍵」を安全に送信し、その後の大容量データのやり取りには共通鍵暗号を使用することで、<b>安全性と高速性</b>を両立します。</li>
+          </ul>
+        </li>
+      </ul>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

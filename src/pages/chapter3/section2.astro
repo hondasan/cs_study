@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -142,6 +143,45 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、メインメモリ（RAM）の内部に目を向け、プログラム実行時にメモリがどのように用途別に区分されるのか、スタックとヒープの仕組みを学びます。
     </p>
+
+    <FocusCard title="整理のポイント：メモリ階層のトレードオフ">
+      <p>
+        メモリ階層における各記憶装置の「速度・容量・コスト・揮発性」の特性を整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>レジスタ</b>：
+          <ul>
+            <li>速度：<b>最も高速</b>（ナノ秒未満）</li>
+            <li>特徴：CPU内部のフリップフロップ回路。電源を切るとデータが消える<b>揮発性</b>。</li>
+          </ul>
+        </li>
+        <li>
+          <b>キャッシュメモリ</b>：
+          <ul>
+            <li>速度：極めて高速（レジスタと主記憶の中間）</li>
+            <li>特徴：CPU内部の<b>SRAM</b>。よく使われる主記憶のデータを一時コピーしておく。揮発性。</li>
+          </ul>
+        </li>
+        <li>
+          <b>主記憶（メインメモリ）</b>：
+          <ul>
+            <li>速度：高速</li>
+            <li>特徴：マザーボード上の<b>DRAM</b>。実行中のプログラムやOSのデータを保持。揮発性。</li>
+          </ul>
+        </li>
+        <li>
+          <b>補助記憶（ストレージ）</b>：
+          <ul>
+            <li>速度：低速</li>
+            <li>特徴：SSDやHDD。電源を切ってもデータが消えない<b>不揮発性</b>。大容量かつ低コスト。</li>
+          </ul>
+        </li>
+      </ul>
+      <p>
+        また、よく使うデータを先回りして高速なメモリに保持し、全体の処理速度を高める仕組み（キャッシュヒット率の向上）は、プログラムの<b>「局所性の原理」</b>（時間的・空間的局所性）に支えられています。
+      </p>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

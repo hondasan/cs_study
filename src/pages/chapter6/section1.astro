@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -141,6 +142,29 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、インターネットの要となる「IP（インターネット層）」に焦点を当て、データパケットが世界中のネットワークを旅して目的地に届く「IPアドレスとルーティング」の仕組みについて学びます。
     </p>
+
+    <FocusCard title="整理のポイント：OSI参照モデルとTCP/IPモデルの階層対比">
+      <p>
+        ネットワークの階層モデルである「OSI参照モデル（7階層）」と「TCP/IPモデル（4階層）」の対応関係と、各層の代表的なプロトコルを整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>階層の対応関係</b>：
+          <ul>
+            <li><b>アプリケーション層</b>（TCP/IP第4層） ≒ OSI参照モデルの<b>アプリケーション層 / プレゼンテーション層 / セッション層</b>（第7〜5層）<br/>プロトコル例：HTTP, DNS, SMTP, FTP</li>
+            <li><b>トランスポート層</b>（TCP/IP第3層） ≒ OSI参照モデルの<b>トランスポート層</b>（第4層）<br/>プロトコル例：TCP, UDP</li>
+            <li><b>インターネット層</b>（TCP/IP第2層） ≒ OSI参照モデルの<b>ネットワーク層</b>（第3層）<br/>プロトコル例：IP, ICMP</li>
+            <li><b>リンク層</b>（TCP/IP第1層） ≒ OSI参照モデルの<b>データリンク層 / 物理層</b>（第2〜1層）<br/>プロトコル例：Ethernet, Wi-Fi</li>
+          </ul>
+        </li>
+        <li>
+          <b>カプセル化</b>：
+          <ul>
+            <li>送信側で上層のデータに下層の制御情報（<b>ヘッダ</b>）を付加していく処理。受信側では逆に下層からヘッダを取り除く<b>非カプセル化</b>（カプセル化解除）を行います。</li>
+          </ul>
+        </li>
+      </ul>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

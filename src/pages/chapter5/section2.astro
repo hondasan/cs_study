@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -174,6 +175,31 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
         </tr>
       </tbody>
     </table>
+
+    <FocusCard title="整理のポイント：データ構造の操作と応用">
+      <p>
+        データ構造の基本的な性質と、それぞれで使われる操作名を正しく整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>スタック（LIFO / 後入れ先出し）</b>：
+          <ul>
+            <li>操作名：<b>プッシュ（Push）</b> / <b>ポップ（Pop）</b></li>
+            <li>応用例：再帰呼び出しの管理、数式の構文解析、深さ優先探索（DFS）</li>
+          </ul>
+        </li>
+        <li>
+          <b>キュー（FIFO / 先入れ先出し）</b>：
+          <ul>
+            <li>操作名：<b>エンキュー（Enqueue）</b> / <b>デキュー（Dequeue）</b></li>
+            <li>応用例：プリンタの印刷待ち、通信パケットのバッファ、幅優先探索（BFS）</li>
+          </ul>
+        </li>
+      </ul>
+      <p>
+        データ構造の基礎知識では「スタックに A, B, C の順でデータをプッシュしたとき、ポップされる順序はどうなるか（答え：C, B, A）」といった、取り出しのルールを順番通りになぞるトレースがよく用いられます。
+      </p>
+    </FocusCard>
 
     <p>
       次のセクションでは、アルゴリズムの効率を評価する最大の基準「計算量（O記法）」と、それを活かして超高速にデータを検索する「二分探索」について学びます。

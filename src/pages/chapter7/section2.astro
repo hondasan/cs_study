@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -124,6 +125,29 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、このように設計されたテーブル群に対して、プログラムから「データを取得せよ」「新しい注文を書き込め」と指示を送るための標準データベース言語「SQL」について学びます。
     </p>
+
+    <FocusCard title="整理のポイント：データベースの正規化">
+      <p>
+        関係データベース設計における正規化の段階と、それぞれの要点を整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>非正規形</b>：ひとつのセルに複数のデータが含まれている（繰り返しがある）状態。
+        </li>
+        <li>
+          <b>第1正規形</b>：すべての列の値が、これ以上分割できない最小単位（<b>原子値</b>）のみで構成されている状態。
+        </li>
+        <li>
+          <b>第2正規形</b>：第1正規形を満たし、主キーの一部によって一意に決まる列（<b>部分関数従属</b>）を別テーブルに分割した状態。
+        </li>
+        <li>
+          <b>第3正規形</b>：第2正規形を満たし、主キー以外の列によって決まる列（<b>推移的関数従属</b>）を別テーブルに分割した状態。
+        </li>
+      </ul>
+      <p>
+        正規化を行うことで、データの重複が排除され、データの挿入・更新・削除にともなう<b>整合性の破綻（整合性異常）</b>を防ぐことができます。
+      </p>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

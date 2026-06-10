@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -134,6 +135,30 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、複数のスレッドが同じメモリ空間を同時に書き換えようとしたときに発生する深刻な問題（競合状態）と、それを解決するための「排他制御」について学びます。
     </p>
+
+    <FocusCard title="整理のポイント：プロセスとスレッドの比較">
+      <p>
+        実行中の処理単位である「プロセス」と「スレッド」の決定的な違いを整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>プロセス</b>：
+          <ul>
+            <li>メモリ空間：<b>完全に独立・隔離</b>。他のプロセスのメモリは原則読み書き不可。</li>
+            <li>リソース・コスト：起動や切り替え（コンテキストスイッチ）の処理負荷が<b>重い</b>。</li>
+            <li>安定性：高い。一つのプロセスがバグで強制終了しても、他のプロセスは影響を受けない。</li>
+          </ul>
+        </li>
+        <li>
+          <b>スレッド</b>：
+          <ul>
+            <li>メモリ空間：同一プロセス内のスレッド間で<b>コードやグローバル変数、ヒープ領域を共有</b>する（スタック領域はスレッドごとに独立）。</li>
+            <li>リソース・コスト：親プロセスのメモリ空間を再利用するため、生成や切り替えが<b>非常に軽い</b>。</li>
+            <li>安定性：低い。共有メモリのバグによって一つのスレッドがクラッシュすると、プロセス全体（他のスレッドも含む）が道連れで強制終了する。</li>
+          </ul>
+        </li>
+      </ul>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

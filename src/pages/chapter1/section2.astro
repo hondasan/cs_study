@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -190,6 +191,25 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
         <tr><td>15</td><td><code>1111</code></td><td><code>F</code></td></tr>
       </tbody>
     </table>
+
+    <FocusCard title="整理のポイント：n進数から10進数への変換（基数変換）">
+      <p>
+        2進数や16進数などのn進数を10進数に変換するときは、<b>「各桁の数字 × その桁の重み（基数のべき乗）」</b>をすべて足し合わせます。
+      </p>
+      <ul>
+        <li>
+          <b>2進数 <code>1101</code> を10進数にする場合</b>：<br/>
+          (1 × 2³) + (1 × 2²) + (0 × 2¹) + (1 × 2⁰) = 8 + 4 + 0 + 1 = <b>13</b>
+        </li>
+        <li>
+          <b>16進数 <code>A5</code> を10進数にする場合</b>（Aは10を表す）：<br/>
+          (10 × 16¹) + (5 × 16⁰) = 160 + 5 = <b>165</b>
+        </li>
+      </ul>
+      <p>
+        桁の重みは、小数点から左（整数部分）に向かって <b>n⁰, n¹, n², n³ ...</b> と増えていき、右（小数部分）に向かって <b>n⁻¹, n⁻², n⁻³ ...</b> と減っていきます。この規則性を意識すると、あらゆる基数変換で迷うことがなくなります。
+      </p>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

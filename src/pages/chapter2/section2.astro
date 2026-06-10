@@ -1,6 +1,7 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
 import LogicGateSimulator from '../../components/interactive/LogicGateSimulator.astro';
+import FocusCard from '../../components/FocusCard.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -273,6 +274,42 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
         設計者たちは、材料をシリコンから別の素材に変えたり、3次元的に素子を積み上げたりする（3D積層）ことで、この極小の「AND」「OR」「NOT」回路をさらに高速・省電力で動かすための技術革新を日々続けています。
       </p>
     </div>
+
+    <FocusCard title="整理のポイント：基本論理演算とベン図">
+      <p>
+        4つの代表的な論理演算の入力（A, B）に対する出力（Y）の条件と、集合（ベン図）で表した場合の対応イメージを整理しておきましょう。
+      </p>
+      <ul>
+        <li>
+          <b>AND（論理積）</b>：
+          <ul>
+            <li>条件：AとBの<b>両方が1</b>のときだけ出力が1。</li>
+            <li>集合：AとBの共通部分（交わり：A ∩ B）。</li>
+          </ul>
+        </li>
+        <li>
+          <b>OR（論理和）</b>：
+          <ul>
+            <li>条件：AとBの<b>少なくとも一方が1</b>のとき出力が1。</li>
+            <li>集合：AとBの全体部分（結び：A ∪ B）。</li>
+          </ul>
+        </li>
+        <li>
+          <b>NOT（論理否定）</b>：
+          <ul>
+            <li>条件：入力値が<b>反転</b>（1なら0、0なら1）。</li>
+            <li>集合：A以外の部分（補集合：<span style="text-decoration: overline;">A</span>）。</li>
+          </ul>
+        </li>
+        <li>
+          <b>XOR（排他的論理和）</b>：
+          <ul>
+            <li>条件：AとBの<b>入力値が異なるとき</b>だけ出力が1。</li>
+            <li>集合：AまたはBのどちらか一方のみに属する部分（対称差）。</li>
+          </ul>
+        </li>
+      </ul>
+    </FocusCard>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

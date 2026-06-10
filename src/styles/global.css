@@ -598,3 +598,53 @@ tr:nth-child(even) {
     page-break-inside: avoid;
   }
 }
+
+/* ---- Focus Card (整理のポイント) ---- */
+.focus-card {
+  background-color: #F0F4F8; /* 少しトーンを変えた極薄のブルー */
+  border: 1px solid #D2E0EE; /* 境界線もソフトなブルー */
+  border-left: 4px solid var(--accent-color); /* 左にアクセントライン */
+  padding: 1.2rem 1.4rem;
+  margin: 2em 0;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  border-radius: 0 6px 6px 0;
+  box-shadow: 0 2px 8px rgba(30, 58, 96, 0.04); /* 微細なシャドウで浮かせる */
+}
+
+.focus-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px dashed #D2E0EE;
+  padding-bottom: 0.4rem;
+}
+
+.focus-card-icon-wrapper {
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.focus-card-svg {
+  display: block;
+}
+
+.focus-card-title {
+  font-weight: 600;
+  color: var(--accent-color);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.focus-card-content p:last-child {
+  margin-bottom: 0;
+}
+
+.focus-card-content ul {
+  margin-bottom: 0;
+}
+
