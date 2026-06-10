@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import LogicGateSimulator from '../../components/interactive/LogicGateSimulator.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -136,6 +137,8 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       トランジスタでこれを作る場合、ゲート端子に電圧がかかった際、電気がアース（グラウンド）に逃げていき、出力側の電圧が下がってしまう「バイパス」構造を利用します。
     </p>
 
+    <LogicGateSimulator />
+
     <h2>5. 真理値表と論理記号のまとめ</h2>
     <p>
       これらの論理動作を数式的に記述し、視覚的に表現するために、コンピュータサイエンスでは特有の<b>「論理記号（MIL記号）」</b>と、すべての入力パターンの入出力をまとめた<b>「真理値表（Truth Table）」</b>を使用します。
@@ -256,6 +259,20 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       このXOR回路は、AND, OR, NOTゲートを組み合わせることで合成して作られます。
       次のセクションでは、これらの論理ゲートを用いて、実際にコンピュータが「算術計算（足し算）」を行う回路を設計してみましょう。
     </p>
+
+    <div class="note-box">
+      <div class="note-box-title">現実世界と繋ぐ：トランジスタの微細化限界と私たちのスマートフォン</div>
+      <p>
+        私たちが日常的に使っているスマートフォンやPCのプロセッサ（CPU/GPU）の中には、今回学んだ論理回路が信じられないほどの規模で詰め込まれています。
+      </p>
+      <ul>
+        <li><b>数億から数百億個のスイッチ</b>: 現代の最高峰のスマートフォン用チップ（例：3ナノメートルプロセスで製造されるチップ）には、爪の先ほどの面積に<b>150億個以上</b>のトランジスタが搭載されています。</li>
+        <li><b>光速と物理の限界への挑戦</b>: トランジスタが小さくなりすぎた結果、絶縁体をすり抜けて電気が漏れ出す「量子トンネル効果」や発熱といった物理限界に直面しています。</li>
+      </ul>
+      <p>
+        設計者たちは、材料をシリコンから別の素材に変えたり、3次元的に素子を積み上げたりする（3D積層）ことで、この極小の「AND」「OR」「NOT」回路をさらに高速・省電力で動かすための技術革新を日々続けています。
+      </p>
+    </div>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

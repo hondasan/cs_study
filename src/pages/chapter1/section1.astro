@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import InteractiveBulb from '../../components/interactive/InteractiveBulb.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -97,6 +98,8 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       電球が1個あれば、<code>0</code>（消灯）か <code>1</code>（点灯）のどちらか1つの状態を表せます。つまり、電球1個は「1ビットの情報」を表現できる装置です。
     </p>
 
+    <InteractiveBulb />
+
     <h2>4. 電球を増やすと何が起きるか？</h2>
     <p>
       電球1個では、2通りのことしか伝えられません。では、もし電球を<b>2個</b>に増やし、スイッチも2個用意したらどうなるでしょうか？
@@ -151,6 +154,20 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       <b>本質的な視点：</b><br/>
       私たちのスマートフォンやPCの中には、この「目に見えない極小の電球（トランジスタ）」が何百億個も敷き詰められており、それらが猛烈なスピードで明滅を繰り返すことで、文字、音楽、高画質な動画まであらゆる情報を描き出しています。
     </blockquote>
+
+    <div class="note-box">
+      <div class="note-box-title">現実世界と繋ぐ：光ファイバーやWi-Fiも、中身は「電球の明滅」と同じ？</div>
+      <p>
+        私たちが毎日使っている超高速インターネット。実はその裏側で動いている基本原理は、この「電球のオン・オフ」とまったく同じです。
+      </p>
+      <ul>
+        <li><b>光ファイバー回線</b>: ケーブルの先端で、目に見えないレーザー光を1秒間に数億回から数千億回という超高速で点滅させて、データを「1（光る）と0（消える）」に変換して送っています。</li>
+        <li><b>Wi-Fiや携帯電話（電波）</b>: 空間を飛び交う高周波の波の「振幅（強弱）」や「位相（波のずれ）」を規則的に変化させることで、やはり「1と0」の情報を物理的な波にのせて伝送しています。</li>
+      </ul>
+      <p>
+        どんなに高度に見えるデジタルインフラも、突き詰めればこの「物理現象を1と0のビットとして約束事（プロトコル）に落とし込む」という不変の設計思想で成り立っているのです。
+      </p>
+    </div>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

@@ -1,5 +1,6 @@
 ---
 import BookLayout from '../../layouts/BookLayout.astro';
+import MemoryAllocatorSimulator from '../../components/interactive/MemoryAllocatorSimulator.astro';
 
 const rawBaseUrl = import.meta.env.BASE_URL;
 const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
@@ -103,6 +104,8 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       </ul>
     </div>
 
+    <MemoryAllocatorSimulator />
+
     <h2>4. 2つの領域の比較まとめ</h2>
     <p>
       スタックとヒープは適材適所で使い分けられています。
@@ -148,6 +151,20 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <p>
       次のセクションでは、メモリの「番地」を直接扱う低レベルかつ強力な概念「ポインタ」について学びます。
     </p>
+
+    <div class="note-box">
+      <div class="note-box-title">現実世界と繋ぐ：アプリのクラッシュ原因？「メモリリーク」と「スタックオーバーフロー」</div>
+      <p>
+        プログラムが突然フリーズしたり強制終了したりするバグの多くは、このメモリ管理の仕組みと密接に関係しています。
+      </p>
+      <ul>
+        <li><b>メモリリーク (Memory Leak)</b>: ヒープ領域を `malloc` などで確保したものの、使い終わった後に `free` による解放を忘れてしまうバグです。PCを再起動しないと徐々に動作が重くなるブラウザやゲームは、多くの場合メモリリークが蓄積して、OS全体からメモリを奪ってしまっている状態です。</li>
+        <li><b>スタックオーバーフロー (Stack Overflow)</b>: スタック領域は容量が小さいため、再帰関数（自分自身を呼び出す関数）の終了条件を書き忘れたり、画像データのような巨大な配列をローカル変数に配置しようとすると、あっという間にスタックの壁を突き破ってプログラムが即座に強制終了（クラッシュ）します。</li>
+      </ul>
+      <p>
+        今日の主要なプログラミング言語（JavaScript, Python, Swiftなど）では、不要になったヒープメモリを自動で掃除する仕組み（ガベージコレクションやARC）が導入されていますが、依然として「メモリ消費量を低く保つ」ことは、開発者にとって重要なスキルであり続けています。
+      </p>
+    </div>
   </div>
 
   <!-- Textbook navigation (Footer pagination) -->

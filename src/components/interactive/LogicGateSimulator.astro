@@ -1,0 +1,628 @@
+---
+---
+
+<div class="interactive-simulator-card">
+  <div class="simulator-header">
+    <div class="simulator-title-tag">SIMULATOR</div>
+    <h3 class="simulator-title">基本論理回路シミュレータ</h3>
+    <p class="simulator-desc">論理ゲート（AND, OR, NOT, XOR）を選択し、入力スイッチを切り替えてみましょう。信号が流れて出力が変化する様子と、真理値表との関係を理解できます。</p>
+  </div>
+
+  <div class="simulator-controls">
+    <div class="control-group">
+      <span class="control-label">論理ゲートを選択:</span>
+      <div class="segmented-control gates-select">
+        <input type="radio" id="gate-and" name="gate-type" value="AND" checked />
+        <label for="gate-and">AND (論理積)</label>
+        
+        <input type="radio" id="gate-or" name="gate-type" value="OR" />
+        <label for="gate-or">OR (論理和)</label>
+        
+        <input type="radio" id="gate-not" name="gate-type" value="NOT" />
+        <label for="gate-not">NOT (否定)</label>
+        
+        <input type="radio" id="gate-xor" name="gate-type" value="XOR" />
+        <label for="gate-xor">XOR (排他的論理和)</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="simulator-layout">
+    <!-- Visual Circuit Area -->
+    <div class="circuit-area">
+      <div class="inputs-column">
+        <!-- Input A -->
+        <div class="gate-input-wrapper">
+          <span class="input-label">入力 A</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="input-a" />
+            <span class="slider"></span>
+          </label>
+          <span id="val-a-text" class="input-val-badge">0</span>
+        </div>
+        
+        <!-- Input B -->
+        <div id="input-b-wrapper" class="gate-input-wrapper">
+          <span class="input-label">入力 B</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="input-b" />
+            <span class="slider"></span>
+          </label>
+          <span id="val-b-text" class="input-val-badge">0</span>
+        </div>
+      </div>
+
+      <div class="diagram-column">
+        <svg id="circuit-svg" width="220" height="150" viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Wire A -->
+          <path id="wire-a" d="M 30 45 L 90 45" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+          <!-- Wire B -->
+          <path id="wire-b" d="M 30 105 L 90 105" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+          
+          <!-- Wire Output -->
+          <path id="wire-out" d="M 145 75 L 180 75" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+
+          <!-- NOT Gate special single wire -->
+          <path id="wire-not-single" d="M 30 75 L 90 75" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" display="none" />
+
+          <!-- Gate Body SVG Paths -->
+          <!-- AND Gate -->
+          <g id="svg-gate-and">
+            <path d="M 90 30 L 110 30 A 45 45 0 0 1 110 120 L 90 120 Z" fill="#ffffff" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round" />
+            <text x="108" y="81" font-family="var(--font-sans)" font-size="16" font-weight="700" fill="var(--accent-color)" text-anchor="middle">AND</text>
+          </g>
+
+          <!-- OR Gate -->
+          <g id="svg-gate-or" display="none">
+            <path d="M 90 30 Q 110 30 140 75 Q 110 120 90 120 Q 105 75 90 30 Z" fill="#ffffff" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round" />
+            <text x="112" y="81" font-family="var(--font-sans)" font-size="16" font-weight="700" fill="var(--accent-color)" text-anchor="middle">OR</text>
+          </g>
+
+          <!-- NOT Gate -->
+          <g id="svg-gate-not" display="none">
+            <polygon points="90,35 130,75 90,115" fill="#ffffff" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round" />
+            <circle cx="137" cy="75" r="7" fill="#ffffff" stroke="var(--accent-color)" stroke-width="3" />
+            <text x="108" y="81" font-family="var(--font-sans)" font-size="14" font-weight="700" fill="var(--accent-color)" text-anchor="middle">NOT</text>
+          </g>
+
+          <!-- XOR Gate -->
+          <g id="svg-gate-xor" display="none">
+            <path d="M 80 30 Q 95 75 80 120" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round" />
+            <path d="M 90 30 Q 110 30 140 75 Q 110 120 90 120 Q 105 75 90 30 Z" fill="#ffffff" stroke="var(--accent-color)" stroke-width="3" stroke-linejoin="round" />
+            <text x="114" y="81" font-family="var(--font-sans)" font-size="14" font-weight="700" fill="var(--accent-color)" text-anchor="middle">XOR</text>
+          </g>
+
+          <!-- Output Node (LED) -->
+          <circle id="output-led-glow" cx="195" cy="75" r="14" fill="rgba(253, 224, 71, 0)" />
+          <circle id="output-led" cx="195" cy="75" r="10" fill="#e5e7eb" stroke="var(--accent-color)" stroke-width="2" />
+        </svg>
+      </div>
+
+      <div class="output-column">
+        <span class="output-label">出力 Y</span>
+        <div id="output-badge" class="output-val-badge">0</div>
+      </div>
+    </div>
+
+    <!-- Truth Table Area -->
+    <div class="truth-table-area">
+      <div class="table-title">真理値表</div>
+      <table id="truth-table" class="truth-table-mini">
+        <!-- Will be dynamically populated by JS -->
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  .interactive-simulator-card {
+    background-color: var(--quote-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-sans);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .simulator-header {
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.8rem;
+  }
+
+  .simulator-title-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.4rem;
+  }
+
+  .simulator-title {
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.15rem;
+    color: var(--accent-color);
+  }
+
+  .simulator-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  .simulator-controls {
+    margin-bottom: 1.5rem;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .control-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  /* Segmented Control */
+  .segmented-control {
+    display: flex;
+    background-color: var(--code-bg);
+    padding: 0.25rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap;
+  }
+
+  .segmented-control input[type="radio"] {
+    display: none;
+  }
+
+  .segmented-control label {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    color: var(--text-muted);
+  }
+
+  .segmented-control input[type="radio"]:checked + label {
+    background-color: #ffffff;
+    color: var(--accent-color);
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Simulator Layout (Grid) */
+  .simulator-layout {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Circuit Area Box */
+  .circuit-area {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 180px;
+  }
+
+  .inputs-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 70px;
+  }
+
+  .gate-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .input-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .input-val-badge {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    background-color: var(--code-bg);
+    color: var(--text-color);
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .input-val-badge.active {
+    background-color: var(--accent-light);
+    color: var(--accent-color);
+  }
+
+  .output-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 60px;
+  }
+
+  .output-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  #output-badge {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    background-color: #e5e7eb;
+    color: var(--text-muted);
+    padding: 0.2rem 0.8rem;
+    border-radius: 4px;
+    transition: background-color 0.25s, color 0.25s;
+  }
+
+  #output-badge.active {
+    background-color: #fef08a; /* Soft bright yellow */
+    color: #b45309;
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+  }
+
+  /* Custom Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .2s;
+    border-radius: 20px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: var(--accent-color);
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+
+  /* SVG Diagram elements styling */
+  .diagram-column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+  }
+
+  #circuit-svg path {
+    transition: stroke 0.2s ease;
+  }
+
+  /* Truth Table Area styling */
+  .truth-table-area {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .table-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.2rem;
+  }
+
+  .truth-table-mini {
+    width: 100%;
+    margin: 0 !important;
+    font-size: 0.75rem !important;
+  }
+
+  .truth-table-mini th, .truth-table-mini td {
+    padding: 0.25rem 0.4rem !important;
+    text-align: center !important;
+  }
+
+  .truth-table-mini tr.active-row {
+    background-color: rgba(30, 58, 96, 0.1) !important;
+    font-weight: 700;
+  }
+
+  .truth-table-mini tr.active-row td {
+    color: var(--accent-color);
+  }
+
+  @media (max-width: 600px) {
+    .simulator-layout {
+      grid-template-columns: 1fr;
+    }
+    
+    .circuit-area {
+      padding: 0.5rem;
+    }
+    
+    #circuit-svg {
+      width: 170px;
+      height: 115px;
+    }
+  }
+</style>
+
+<script>
+  // Logic Gate Truth Tables
+  const GATE_CONFIGS = {
+    AND: {
+      inputsCount: 2,
+      calc: (a, b) => a && b,
+      table: [
+        { a: 0, b: 0, y: 0 },
+        { a: 0, b: 1, y: 0 },
+        { a: 1, b: 0, y: 0 },
+        { a: 1, b: 1, y: 1 }
+      ]
+    },
+    OR: {
+      inputsCount: 2,
+      calc: (a, b) => a || b,
+      table: [
+        { a: 0, b: 0, y: 0 },
+        { a: 0, b: 1, y: 1 },
+        { a: 1, b: 0, y: 1 },
+        { a: 1, b: 1, y: 1 }
+      ]
+    },
+    NOT: {
+      inputsCount: 1,
+      calc: (a) => !a,
+      table: [
+        { a: 0, y: 1 },
+        { a: 1, y: 0 }
+      ]
+    },
+    XOR: {
+      inputsCount: 2,
+      calc: (a, b) => a !== b,
+      table: [
+        { a: 0, b: 0, y: 0 },
+        { a: 0, b: 1, y: 1 },
+        { a: 1, b: 0, y: 1 },
+        { a: 1, b: 1, y: 0 }
+      ]
+    }
+  };
+
+  const ACTIVE_COLOR = "#3b82f6"; // Bright electric blue
+  const INACTIVE_COLOR = "#cbd5e1"; // Muted gray
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const gateRadios = document.querySelectorAll('input[name="gate-type"]');
+    const inputACheckbox = document.getElementById('input-a') as HTMLInputElement;
+    const inputBCheckbox = document.getElementById('input-b') as HTMLInputElement;
+    const inputBWrapper = document.getElementById('input-b-wrapper');
+    
+    const valAText = document.getElementById('val-a-text');
+    const valBText = document.getElementById('val-b-text');
+    const outputBadge = document.getElementById('output-badge');
+
+    const truthTable = document.getElementById('truth-table');
+
+    // SVG elements
+    const wireA = document.getElementById('wire-a');
+    const wireB = document.getElementById('wire-b');
+    const wireOut = document.getElementById('wire-out');
+    const wireNotSingle = document.getElementById('wire-not-single');
+    const outputLed = document.getElementById('output-led');
+    const outputLedGlow = document.getElementById('output-led-glow');
+
+    const gateSVGs = {
+      AND: document.getElementById('svg-gate-and'),
+      OR: document.getElementById('svg-gate-or'),
+      NOT: document.getElementById('svg-gate-not'),
+      XOR: document.getElementById('svg-gate-xor')
+    };
+
+    let currentGate = "AND";
+
+    // Setup / Update function
+    function update() {
+      const config = GATE_CONFIGS[currentGate];
+      
+      // Toggle Input B visibility based on inputsCount
+      if (config.inputsCount === 1) {
+        if (inputBWrapper) inputBWrapper.style.display = 'none';
+        if (wireA) wireA.setAttribute('display', 'none');
+        if (wireB) wireB.setAttribute('display', 'none');
+        if (wireNotSingle) wireNotSingle.setAttribute('display', 'block');
+      } else {
+        if (inputBWrapper) inputBWrapper.style.display = 'flex';
+        if (wireA) wireA.removeAttribute('display');
+        if (wireB) wireB.removeAttribute('display');
+        if (wireNotSingle) wireNotSingle.setAttribute('display', 'none');
+      }
+
+      // Read Inputs
+      const a = inputACheckbox?.checked ? 1 : 0;
+      const b = inputBCheckbox?.checked ? 1 : 0;
+
+      // Calculate output
+      const yVal = config.calc(a === 1, b === 1) ? 1 : 0;
+
+      // Update input text badges
+      if (valAText) {
+        valAText.textContent = String(a);
+        if (a) valAText.classList.add('active');
+        else valAText.classList.remove('active');
+      }
+      if (valBText) {
+        valBText.textContent = String(b);
+        if (b) valBText.classList.add('active');
+        else valBText.classList.remove('active');
+      }
+
+      // Update output badge
+      if (outputBadge) {
+        outputBadge.textContent = String(yVal);
+        if (yVal) outputBadge.classList.add('active');
+        else outputBadge.classList.remove('active');
+      }
+
+      // Update SVGs wire colors
+      if (config.inputsCount === 1) {
+        if (wireNotSingle) wireNotSingle.setAttribute('stroke', a ? ACTIVE_COLOR : INACTIVE_COLOR);
+      } else {
+        if (wireA) wireA.setAttribute('stroke', a ? ACTIVE_COLOR : INACTIVE_COLOR);
+        if (wireB) wireB.setAttribute('stroke', b ? ACTIVE_COLOR : INACTIVE_COLOR);
+      }
+      if (wireOut) wireOut.setAttribute('stroke', yVal ? ACTIVE_COLOR : INACTIVE_COLOR);
+      
+      // LED color
+      if (outputLed) {
+        outputLed.setAttribute('fill', yVal ? '#fef08a' : '#e5e7eb');
+      }
+      if (outputLedGlow) {
+        outputLedGlow.setAttribute('fill', yVal ? 'rgba(253, 224, 71, 0.6)' : 'rgba(253, 224, 71, 0)');
+      }
+
+      // Show the selected Gate SVG path, hide others
+      Object.keys(gateSVGs).forEach(gate => {
+        const svgGroup = gateSVGs[gate];
+        if (svgGroup) {
+          if (gate === currentGate) {
+            svgGroup.removeAttribute('display');
+          } else {
+            svgGroup.setAttribute('display', 'none');
+          }
+        }
+      });
+
+      // Update/Rebuild Truth Table
+      rebuildTruthTable(config, a, b, yVal);
+    }
+
+    // Function to generate the truth table in DOM
+    function rebuildTruthTable(config, currentA, currentB, currentY) {
+      if (!truthTable) return;
+
+      let tableHTML = '';
+      if (config.inputsCount === 1) {
+        tableHTML = `
+          <thead>
+            <tr>
+              <th>入力 A</th>
+              <th>出力 Y</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
+        config.table.forEach(row => {
+          const isActive = row.a === currentA;
+          tableHTML += `
+            <tr class="${isActive ? 'active-row' : ''}">
+              <td><code>${row.a}</code></td>
+              <td><code>${row.y}</code></td>
+            </tr>
+          `;
+        });
+      } else {
+        tableHTML = `
+          <thead>
+            <tr>
+              <th>入力 A</th>
+              <th>入力 B</th>
+              <th>出力 Y</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
+        config.table.forEach(row => {
+          const isActive = row.a === currentA && row.b === currentB;
+          tableHTML += `
+            <tr class="${isActive ? 'active-row' : ''}">
+              <td><code>${row.a}</code></td>
+              <td><code>${row.b}</code></td>
+              <td><code>${row.y}</code></td>
+            </tr>
+          `;
+        });
+      }
+      tableHTML += `</tbody>`;
+      truthTable.innerHTML = tableHTML;
+    }
+
+    // Attach Event Listeners
+    inputACheckbox?.addEventListener('change', update);
+    inputBCheckbox?.addEventListener('change', update);
+
+    gateRadios.forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        currentGate = target.value;
+        update();
+      });
+    });
+
+    // Initial load
+    update();
+  });
+</script>

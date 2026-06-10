@@ -1,0 +1,610 @@
+---
+---
+
+<div class="interactive-simulator-card">
+  <div class="simulator-header">
+    <div class="simulator-title-tag">SIMULATOR</div>
+    <h3 class="simulator-title">スタック vs ヒープ メモリ仮想アロケーター</h3>
+    <p class="simulator-desc">関数呼び出しによる「スタック」の自動積載と、`malloc`/`free`による「ヒープ」の手動確保・解放をシミュレートします。メモリリークや断片化（フラグメンテーション）が起きる仕組みを体験しましょう。</p>
+  </div>
+
+  <div class="simulator-grid-layout">
+    <!-- Controls Column -->
+    <div class="allocator-controls">
+      <div class="control-section">
+        <h4 class="control-section-title">スタック操作 (LIFO)</h4>
+        <p class="control-section-desc">関数が呼ばれると自動で積まれ、終わると自動で消滅します。</p>
+        <div class="button-group">
+          <button id="btn-stack-push" class="sim-btn accent-btn">関数を呼び出す (Push)</button>
+          <button id="btn-stack-pop" class="sim-btn secondary-btn">関数から戻る (Pop)</button>
+        </div>
+      </div>
+
+      <div class="control-section">
+        <h4 class="control-section-title">ヒープ操作 (手動管理)</h4>
+        <p class="control-section-desc">任意のサイズで動的に確保し、使い終わったら明示的に解放します。</p>
+        <div class="heap-inputs">
+          <select id="heap-size-select" class="sim-select">
+            <option value="1">小ブロック (16B)</option>
+            <option value="2" selected>中ブロック (32B)</option>
+            <option value="4">大ブロック (64B)</option>
+          </select>
+          <button id="btn-heap-malloc" class="sim-btn accent-btn">malloc() で確保</button>
+        </div>
+        <div class="heap-free-actions">
+          <span class="control-label">確保済みブロックの解放:</span>
+          <div id="active-heap-blocks" class="active-blocks-list">
+            <!-- Dynamically populated buttons to free blocks -->
+            <span class="no-blocks-text">確保されているブロックはありません</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-alloc-reset" class="sim-btn reset-btn">シミュレータをリセット</button>
+    </div>
+
+    <!-- Visual Memory Area -->
+    <div class="memory-visualization">
+      <!-- High Address (Stack starts here) -->
+      <div class="address-marker high-addr">高アドレス (Stack開始)</div>
+
+      <!-- Main Memory Box -->
+      <div class="memory-container">
+        
+        <!-- Stack Area (Grows downwards visually, but conceptually grows towards low address) -->
+        <div class="memory-section-wrapper stack-wrapper">
+          <div class="memory-section-header">スタック領域 (Stack)</div>
+          <div id="stack-memory" class="stack-memory-blocks">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div class="stack-frame hidden" id={`stack-frame-${i}`} />
+            ))}
+          </div>
+        </div>
+
+        <!-- Buffer Zone (Middle) -->
+        <div class="memory-buffer-zone">
+          <div class="buffer-line"></div>
+          <span class="buffer-text">未使用領域 (空きメモリ)</span>
+          <div class="buffer-line"></div>
+        </div>
+
+        <!-- Heap Area (Grows upwards visually, conceptually grows towards high address) -->
+        <div class="memory-section-wrapper heap-wrapper">
+          <div class="memory-section-header">ヒープ領域 (Heap)</div>
+          <div id="heap-memory" class="heap-memory-blocks">
+            <div class="heap-grid">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <div class="heap-cell" id={`heap-cell-${i}`} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Low Address -->
+      <div class="address-marker low-addr">低アドレス (Heap開始 / 静的領域)</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .interactive-simulator-card {
+    background-color: var(--quote-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-sans);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .simulator-header {
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.8rem;
+  }
+
+  .simulator-title-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.4rem;
+  }
+
+  .simulator-title {
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.15rem;
+    color: var(--accent-color);
+  }
+
+  .simulator-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  /* Grid Layout */
+  .simulator-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1.5rem;
+  }
+
+  .allocator-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .control-section {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+  }
+
+  .control-section-title {
+    margin: 0 0 0.2rem 0;
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .control-section-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .heap-inputs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .sim-select {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .sim-btn {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .accent-btn {
+    background-color: var(--accent-color);
+    color: #ffffff;
+  }
+
+  .accent-btn:hover {
+    background-color: #12243d;
+  }
+
+  .secondary-btn {
+    background-color: var(--accent-light);
+    color: var(--accent-color);
+  }
+
+  .secondary-btn:hover {
+    background-color: #cbd5e1;
+  }
+
+  .reset-btn {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-color);
+    align-self: flex-start;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .reset-btn:hover {
+    background-color: var(--code-bg);
+    color: var(--text-color);
+  }
+
+  .heap-free-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 0.6rem;
+  }
+
+  .control-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .active-blocks-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-height: 30px;
+    align-items: center;
+  }
+
+  .no-blocks-text {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .free-block-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid var(--quote-border);
+    background-color: var(--quote-bg);
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .free-block-btn:hover {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+  }
+
+  /* Memory Visualization Column */
+  .memory-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .address-marker {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0.2rem;
+    background-color: var(--code-bg);
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+  }
+
+  .memory-container {
+    background-color: #ffffff;
+    border: 2px solid var(--accent-color);
+    border-radius: 6px;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 340px;
+    gap: 0.5rem;
+  }
+
+  .memory-section-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+
+  .memory-section-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.2rem;
+    text-align: center;
+  }
+
+  /* Stack layout */
+  .stack-memory-blocks {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 上詰めにして下（低アドレス）方向へ成長させる */
+    gap: 0.3rem;
+    min-height: 80px;
+  }
+
+  .stack-frame {
+    background-color: var(--accent-light);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    border-radius: 4px;
+    padding: 0.4rem;
+    font-size: 0.78rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    animation: slideDown 0.25s ease-out;
+  }
+
+  .stack-frame.hidden {
+    display: none !important;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Heap layout */
+  .heap-memory-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 100px;
+  }
+
+  /* Grid of 16 blocks of Heap memory */
+  .heap-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.2rem;
+    background-color: var(--code-bg);
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    height: 64px;
+    min-height: 64px;
+  }
+
+  .heap-cell {
+    aspect-ratio: 1;
+    width: 100%;
+    border-radius: 2px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    transition: background-color 0.2s, border-color 0.2s;
+    position: relative;
+  }
+
+  /* Colors for different allocated chunks */
+  .heap-cell.allocated-1 { background-color: #fca5a5; border-color: #f87171; } /* Red */
+  .heap-cell.allocated-2 { background-color: #93c5fd; border-color: #60a5fa; } /* Blue */
+  .heap-cell.allocated-3 { background-color: #86efac; border-color: #4ade80; } /* Green */
+  .heap-cell.allocated-4 { background-color: #fde047; border-color: #facc15; } /* Yellow */
+
+  /* Middle Space */
+  .memory-buffer-zone {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+    opacity: 0.6;
+  }
+
+  .buffer-line {
+    width: 2px;
+    height: 15px;
+    background-color: var(--border-color);
+  }
+
+  .buffer-text {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0.2rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .simulator-grid-layout {
+      grid-template-columns: 1fr;
+    }
+    .memory-container {
+      min-height: 280px;
+    }
+  }
+</style>
+
+<script>
+  // Simple simulator state
+  const STACK_FRAMES = ["main()", "processOrder()", "calculateTax()", "dbLookup()"];
+  let stack = ["main()"]; // Default has main
+  
+  // Heap representation: 16 units of memory
+  // We represent allocations as blocks. Each block has an ID, size, and cell indices.
+  let heapBlocks = []; 
+  let nextBlockId = 1;
+
+  const MAX_HEAP_CELLS = 16;
+  const CELL_COLORS = [1, 2, 3, 4]; // Color suffixes for CSS classes
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnStackPush = document.getElementById('btn-stack-push');
+    const btnStackPop = document.getElementById('btn-stack-pop');
+    const btnHeapMalloc = document.getElementById('btn-heap-malloc');
+    const btnReset = document.getElementById('btn-alloc-reset');
+    
+    const heapSizeSelect = document.getElementById('heap-size-select') as HTMLSelectElement;
+    const stackContainer = document.getElementById('stack-memory');
+    const heapContainer = document.getElementById('heap-memory');
+    const activeBlocksList = document.getElementById('active-heap-blocks');
+
+    // JavaScript now only updates existing cells in render()
+
+    // Render loop
+    function render() {
+      // 1. Render Stack
+      for (let i = 0; i < 5; i++) {
+        const frame = document.getElementById(`stack-frame-${i}`);
+        if (frame) {
+          if (i < stack.length) {
+            frame.textContent = stack[i];
+            frame.classList.remove('hidden');
+          } else {
+            frame.classList.add('hidden');
+          }
+        }
+      }
+
+      // 2. Render Heap
+      // First reset all cells to empty
+      for (let i = 0; i < MAX_HEAP_CELLS; i++) {
+        const cell = document.getElementById(`heap-cell-${i}`);
+        if (cell) {
+          cell.className = 'heap-cell';
+        }
+      }
+
+      // Mark allocated cells
+      heapBlocks.forEach(block => {
+        block.cells.forEach(cellIdx => {
+          const cell = document.getElementById(`heap-cell-${cellIdx}`);
+          if (cell) {
+            cell.classList.add(`allocated-${block.colorSuffix}`);
+          }
+        });
+      });
+
+      // 3. Render Free Blocks Controls
+      if (activeBlocksList) {
+        activeBlocksList.innerHTML = '';
+        if (heapBlocks.length === 0) {
+          activeBlocksList.innerHTML = '<span class="no-blocks-text">確保されているブロックはありません</span>';
+        } else {
+          heapBlocks.forEach(block => {
+            const btn = document.createElement('button');
+            btn.className = 'free-block-btn';
+            btn.textContent = `free(ptr_${block.id}) [${block.size * 16}B]`;
+            btn.addEventListener('click', () => freeBlock(block.id));
+            activeBlocksList.appendChild(btn);
+          });
+        }
+      }
+    }
+
+    // Stack Push
+    if (btnStackPush) {
+      btnStackPush.addEventListener('click', () => {
+        if (stack.length >= 5) {
+          alert('スタックオーバーフロー！スタックサイズの上限に達しました。(関数呼び出しのネストが深すぎます)');
+          return;
+        }
+        // Choose next frame name
+        const nextFrame = STACK_FRAMES[stack.length] || `helperFunc${stack.length}()`;
+        stack.push(nextFrame);
+        render();
+      });
+    }
+
+    // Stack Pop
+    if (btnStackPop) {
+      btnStackPop.addEventListener('click', () => {
+        if (stack.length <= 1) {
+          alert('これ以上戻れません。(メインスレッドの終了)');
+          return;
+        }
+        stack.pop();
+        render();
+      });
+    }
+
+    // Memory Allocation helper (First-Fit algorithm)
+    function malloc(size) {
+      // Find contiguous empty cells of required size
+      let contiguousCount = 0;
+      let startIdx = -1;
+
+      // Find which cells are currently occupied
+      const occupied = new Array(MAX_HEAP_CELLS).fill(false);
+      heapBlocks.forEach(block => {
+        block.cells.forEach(idx => occupied[idx] = true);
+      });
+
+      // Simple First-Fit search
+      for (let i = 0; i < MAX_HEAP_CELLS; i++) {
+        if (!occupied[i]) {
+          if (contiguousCount === 0) startIdx = i;
+          contiguousCount++;
+          if (contiguousCount === size) {
+            break;
+          }
+        } else {
+          contiguousCount = 0;
+          startIdx = -1;
+        }
+      }
+
+      if (contiguousCount < size) {
+        alert('メモリ不足 (OutOfMemory): ヒープ領域に十分な連続した空き領域がありません。断片化（フラグメンテーション）が発生している可能性があります。');
+        return;
+      }
+
+      // Allocate
+      const cells = [];
+      for (let i = startIdx; i < startIdx + size; i++) {
+        cells.push(i);
+      }
+
+      // Add block
+      const colorSuffix = CELL_COLORS[(nextBlockId - 1) % CELL_COLORS.length];
+      heapBlocks.push({
+        id: nextBlockId++,
+        size: size,
+        cells: cells,
+        colorSuffix: colorSuffix
+      });
+
+      render();
+    }
+
+    // Free block helper
+    function freeBlock(id) {
+      heapBlocks = heapBlocks.filter(b => b.id !== id);
+      render();
+    }
+
+    // Heap Malloc trigger
+    if (btnHeapMalloc) {
+      btnHeapMalloc.addEventListener('click', () => {
+        if (!heapSizeSelect) return;
+        const size = parseInt(heapSizeSelect.value);
+        malloc(size);
+      });
+    }
+
+    // Reset
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        stack = ["main()"];
+        heapBlocks = [];
+        nextBlockId = 1;
+        render();
+      });
+    }
+
+    // Initialize
+    render();
+  });
+</script>
