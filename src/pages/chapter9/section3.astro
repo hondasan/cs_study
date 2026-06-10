@@ -1,0 +1,129 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="9-3. 構文解析と意味解析" 
+  description="トークン列の文法関係を解析し、プログラムの構造を示す『抽象構文木（AST）』を構築する構文解析と、意味上の整合性を保証する意味解析のプロセスを学びます。"
+  currentPath={`${baseUrl}chapter9/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第9章: コンパイラとプログラミング言語の設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第9章 3節</div>
+    <h1 class="section-title">構文解析 (AST) と意味解析</h1>
+    <p class="section-intro">
+      切り分けられたフラットなトークンの列は、このままではプログラムの入れ子構造（ブロック構造や数式の結合優先度）を表現できていません。トークン同士の文法関係を解析してツリー構造へとマッピングする<b>「構文解析」</b>と、文法的には正しくても「型」や「定義」に矛盾がないかを検査する<b>「意味解析」</b>の仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 抽象構文木（AST: Abstract Syntax Tree）とは</h2>
+    <p>
+      構文解析器（パーサー）の主な役割は、入力されたトークンの並びから、ソースコードの論理的な構造を表現した木構造データである<b>「抽象構文木（AST）」</b>を構築することです。
+    </p>
+    <p>
+      「抽象」と呼ばれるのは、ソースコード中に記述されている括弧 <code>()</code> やコロン <code>:</code>、セミコロン <code>;</code> といった文法上の区切り文字のうち、木構造そのものによって表現できる冗長な情報を削ぎ落とし、純粋な演算子と被演算子（オペランド）の関係だけを抽出しているためです。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="400" height="180" viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- AST Graph for '3 + 5 * x' -->
+          <!-- Root Node: '+' -->
+          <circle cx="200" cy="40" r="18" fill="#FCE8E6" stroke="#E06C75" stroke-width="1.5" />
+          <text x="200" y="44" font-family="var(--font-sans)" font-size="12" fill="#E06C75" font-weight="600" text-anchor="middle">+</text>
+          
+          <!-- Connectors to children -->
+          <line x1="187" y1="53" x2="113" y2="97" stroke="var(--text-muted)" stroke-width="1.2" />
+          <line x1="213" y1="53" x2="287" y2="97" stroke="var(--text-muted)" stroke-width="1.2" />
+
+          <!-- Left child: '3' -->
+          <circle cx="100" cy="110" r="18" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="100" y="114" font-family="var(--font-mono)" font-size="10" fill="#1E3A60" font-weight="600" text-anchor="middle">3</text>
+
+          <!-- Right child: '*' -->
+          <circle cx="300" cy="110" r="18" fill="#FCE8E6" stroke="#E06C75" stroke-width="1.5" />
+          <text x="300" y="114" font-family="var(--font-sans)" font-size="12" fill="#E06C75" font-weight="600" text-anchor="middle">*</text>
+
+          <!-- Connectors to grand-children -->
+          <line x1="287" y1="123" x2="243" y2="157" stroke="var(--text-muted)" stroke-width="1.2" />
+          <line x1="313" y1="123" x2="357" y2="157" stroke="var(--text-muted)" stroke-width="1.2" />
+
+          <!-- Grandchild 1: '5' -->
+          <circle cx="230" cy="165" r="15" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="230" y="169" font-family="var(--font-mono)" font-size="9" fill="#1E3A60" font-weight="600" text-anchor="middle">5</text>
+
+          <!-- Grandchild 2: 'x' -->
+          <circle cx="370" cy="165" r="15" fill="#EFEBE9" stroke="#795548" stroke-width="1.5" />
+          <text x="370" y="169" font-family="var(--font-mono)" font-size="9" fill="#795548" font-weight="600" text-anchor="middle">x</text>
+        </svg>
+      </div>
+      <figcaption>図 9-3：ソースコード 3 + 5 * x から構築される抽象構文木 (AST)</figcaption>
+    </figure>
+
+    <p>
+      この木構造により、演算の優先順位（足し算 <code>+</code> よりも掛け算 <code>*</code> が先に評価されること）が階層の深さによって明示的に表現されています。
+    </p>
+
+    <h2>2. 文法の定義（BNF記法）と構文解析の手法</h2>
+    <p>
+      プログラミング言語の文法は、通常、<b>バッカス・ナウア記法（BNF: Backus-Naur Form）</b>などのルール群によって厳密に定義されます。
+      例えば、単純な四則演算の文法ルールは次のように記述されます。
+    </p>
+    <pre class="code-output"><code>&lt;Expr&gt;   ::= &lt;Term&gt; ( ("+" | "-") &lt;Term&gt; )*
+&lt;Term&gt;   ::= &lt;Factor&gt; ( ("*" | "/") &lt;Factor&gt; )*
+&lt;Factor&gt; ::= NUMBER | IDENTIFIER | "(" &lt;Expr&gt; ")"</code></pre>
+    <p>
+      この再帰的な文法定義に沿って、プログラムは<b>再帰下降構文解析（Recursive Descent Parsing）</b>などのアプローチで処理されます。
+      再帰下降パーサーは、各文法カテゴリ（<code>Expr</code> や <code>Term</code>）に対応する関数をプログラム内に用意し、次のトークンを先読みしながらこれらの関数を相互に再帰的に呼び出すことで、自然にツリーを構築していきます。
+    </p>
+
+    <h2>3. 意味解析（Semantic Analysis）の役割</h2>
+    <p>
+      構文解析によって文法的に正しいASTが完成しても、それがプログラミング言語として実質的に動作可能であるとは限りません。
+      例えば、次のようなコードは文法（構文）としては正しいですが、意味的に矛盾が生じています。
+    </p>
+    <pre class="code-output"><code>let name = "Alice";
+let result = name * 10;  // 文字列と数値の乗算</code></pre>
+    <p>
+      この「意味的（ロジック的）な適合性」を検査するフェーズが<b>意味解析</b>です。意味解析器はASTを巡回し、以下のチェックを行います。
+    </p>
+
+    <ul>
+      <li>
+        <b>静的型チェック（Type Checking）：</b><br/>
+        演算子や関数のパラメータに渡されたデータの「型（Type）」が適合しているかを検査します（例：整数型と文字列型の乗算を禁止する）。
+      </li>
+      <li>
+        <b>宣言とスコープの解決（Scope Resolution）：</b><br/>
+        参照されている変数や関数が、事前に定義されているか、またその場所からアクセス可能なスコープ内にあるかをシンボルテーブルを用いて検証します。
+      </li>
+    </ul>
+
+    <p>
+      意味解析を通過したASTは、いよいよターゲットコード（アセンブリ、機械語、または中間コード）を出力する「コード生成」と、無駄な計算を省く「最適化」の段階へと移行します。次節では、この最終工程と、Webの新しい実行規格について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter9/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">9-2. 字句解析 (Lexical Analysis)</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter9/section4`}>
+        <span class="label">9-4. 中間表現 (IR) と最適化</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

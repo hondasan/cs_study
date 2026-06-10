@@ -1,0 +1,97 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import CompilerSimulator from '../../components/interactive/CompilerSimulator.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="9-4. 中間表現と最適化" 
+  description="コンパイラにおける中間表現（IR）のメリットや、代表的なコード最適化手法、およびWebAssemblyの動作モデルについて学びます。"
+  currentPath={`${baseUrl}chapter9/section4`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第9章: コンパイラとプログラミング言語の設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第9章 4節</div>
+    <h1 class="section-title">中間表現 (IR) と最適化</h1>
+    <p class="section-intro">
+      コンパイラは意味解析を終えた抽象構文木から、直接ターゲットの機械語を作るわけではありません。移植性を高めるための「中間表現」を経由し、プログラムの論理構造を維持したまま、実行効率を極限まで高める「コード最適化」を実行します。この最終ステージの内部処理と、シミュレータを用いた実際のコード生成プロセスを観察します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 中間表現（IR: Intermediate Representation）の重要性</h2>
+    <p>
+      高水準言語（C、Rust、Javaなど）が $M$ 種類あり、実行対象のターゲットアーキテクチャ（x86、ARM、MIPSなど）が $N$ 種類あると仮定します。
+      もしコンパイラがソース言語からターゲットの機械語へ直接翻訳を行っていた場合、それぞれの組み合わせごとに $M \times N$ 個の翻訳器を個別に開発する必要があります。
+    </p>
+    <p>
+      この設計問題を解消するのが<b>中間表現（IR）</b>です。
+      コンパイラは「フロントエンド」でソースコードを解析して共通の「中間コード」へと翻訳し、それを「バックエンド」が任意のターゲット機械語に変換します。この共通の中間表現を挟む設計により、開発すべき翻訳処理の数を $M + N$ 個に削減できます（代表例としてLLVMアーキテクチャなど）。
+    </p>
+
+    <h2>2. コンパイラによるコード最適化技術</h2>
+    <p>
+      中間表現またはターゲットコードの段階で、コンパイラは実行速度の向上やファイルサイズの削減を目指し、プログラムの動作結果を変えずに処理の無駄を省く<b>「最適化（Optimization）」</b>を実行します。代表的な最適化手法は以下の通りです。
+    </p>
+
+    <ul>
+      <li>
+        <b>定数畳み込み（Constant Folding）：</b><br/>
+        ソースコード上の `3 + 5` のような、実行時ではなくコンパイル時に結果が確定している定数演算を、事前に `8` という単一の値に書き換えておく最適化。
+      </li>
+      <li>
+        <b>デッドコード削除（Dead Code Elimination）：</b><br/>
+        条件分岐によって絶対に実行されることのないデッドコードや、定義されたもののどこからも参照されない変数などを検出して削除する最適化。
+      </li>
+      <li>
+        <b>ループ不変式追い出し（Loop-Invariant Code Motion）：</b><br/>
+        ループの内部で実行されているものの、ループの繰り返しによって値が変わらない処理（不変式）をループの外側に移動させ、冗長な計算回数を抑える最適化。
+      </li>
+    </ul>
+
+    <h2>3. コンパイラの動作シミュレータ</h2>
+    <p>
+      以下のシミュレータで、実際の数式が「字句解析（トークン化）」➔「構文解析（AST木構造の構築）」➔「スタックマシンコードおよびWebAssembly（WAT）の自動生成」へと遷移するコンパイルのプロセスを体験できます。
+    </p>
+
+    <CompilerSimulator />
+
+    <div class="note-box">
+      <div class="note-box-title">現実世界と繋ぐ：Webブラウザ上のバイナリ実行環境：WebAssemblyの仕組みと期待される役割</div>
+      <p>
+        伝統的に、Webブラウザ上で動作するプログラミング言語はJavaScript（動的型付け・インタプリタ/JIT実行）のみでした。しかし、ブラウザ上で3Dゲームや動画編集、高度な画像処理などの「ネイティブ並みのパフォーマンス」を求める要件に対して、JavaScriptの実行負荷は大きな障壁でした。
+      </p>
+      <p>
+        この課題を克服するために開発されたのが、W3Cで標準化された<b>WebAssembly（Wasm）</b>です。
+      </p>
+      <ul>
+        <li><b>WebAssemblyとは</b>: C、C++、Rust、Goといったコンパイル型言語から出力された「スタックマシン型の中間バイトコード（バイナリ）」を、Webブラウザに組み込まれたWasm仮想環境上で極めて高速（ネイティブに近い速度）に実行する技術です。</li>
+        <li><b>コンパイラ技術との関わり</b>: 開発者はブラウザのためにコードを書き直す必要はなく、既存のC/C++やRustのソースコードをコンパイラ（LLVMなど）を使ってWebAssembly形式（`.wasm`）に出力し、ブラウザ上で読み込ませるだけで動作させることができます。</li>
+      </ul>
+      <p>
+        これは、コンパイラの「中間表現（IR）」の概念がWebブラウザという共通のプラットフォームに適用された好例であり、言語の壁や実行速度の制限を超えてWebアプリケーションの可能性を拡張しています。
+      </p>
+    </div>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter9/section3`}>
+        <span class="arrow">←</span>
+        <span class="label">9-3. 構文解析 (AST) と意味解析</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter10/section1`}>
+        <span class="label">10-1. スケールアウトとロードバランシング</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

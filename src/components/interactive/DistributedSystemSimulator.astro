@@ -1,0 +1,928 @@
+---
+---
+
+<div class="interactive-simulator-card">
+  <div class="simulator-header">
+    <div class="simulator-title-tag">SIMULATOR</div>
+    <h3 class="simulator-title">分散システムの一貫性（CAP）シミュレータ</h3>
+    <p class="simulator-desc">
+      ロードバランサと3台のサーバーノードからなるシステムで、ノード障害やネットワーク分断が発生した際の挙動の違いをシミュレートし、CAP定理のトレードオフを視覚的に学習します。
+    </p>
+  </div>
+
+  <div class="simulator-controls">
+    <div class="control-row">
+      <div class="control-group">
+        <span class="control-label">システムモード:</span>
+        <div class="segmented-control">
+          <input type="radio" id="mode-cp" name="system-mode" value="CP" checked />
+          <label for="mode-cp">CPモード（一貫性重視）</label>
+          <input type="radio" id="mode-ap" name="system-mode" value="AP" />
+          <label for="mode-ap">APモード（可用性重視）</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="control-row secondary-controls">
+      <div class="control-group">
+        <span class="control-label">データ書込み (Write):</span>
+        <div class="input-with-button">
+          <input type="text" id="write-value" value="42" placeholder="値を入力" maxlength="5" />
+          <button id="write-btn" class="primary-btn">書込みを実行</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">データ読出し (Read):</span>
+        <button id="read-btn" class="secondary-btn">読出しを実行</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="simulator-network-container">
+    <!-- SVG Network Lines -->
+    <svg class="network-svg" width="100%" height="280" viewBox="0 0 600 280">
+      <!-- Defs for markers and effects -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"></path>
+        </marker>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      <!-- Connection Lines -->
+      <!-- Client to LB -->
+      <path id="line-client-lb" d="M 100 140 L 250 140" stroke="var(--border-color)" stroke-width="2" stroke-dasharray="4" />
+      
+      <!-- LB to Nodes -->
+      <path id="line-lb-node1" d="M 280 140 L 420 50" stroke="var(--border-color)" stroke-width="2" />
+      <path id="line-lb-node2" d="M 280 140 L 420 140" stroke="var(--border-color)" stroke-width="2" />
+      <path id="line-lb-node3" d="M 280 140 L 420 230" stroke="var(--border-color)" stroke-width="2" />
+
+      <!-- Replication links between nodes -->
+      <path id="line-n1-n2" d="M 460 75 L 460 115" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+      <path id="line-n2-n3" d="M 460 165 L 460 205" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+      <path id="line-n1-n3" d="M 490 60 C 530 110, 530 170, 490 220" stroke="var(--border-color)" stroke-width="2" stroke-dasharray="2" fill="none" />
+
+      <!-- Animated packet (circle) -->
+      <circle id="anim-packet" cx="0" cy="0" r="6" fill="#ff9800" class="hidden" filter="url(#glow)"></circle>
+    </svg>
+
+    <!-- UI Nodes Overlaid -->
+    <!-- Client Node -->
+    <div class="network-node client-node" style="left: 40px; top: 105px;">
+      <div class="node-icon">💻</div>
+      <div class="node-name">クライアント</div>
+      <div class="node-value-box">
+        Read: <span id="client-read-val">-</span>
+      </div>
+    </div>
+
+    <!-- Load Balancer -->
+    <div class="network-node lb-node" style="left: 215px; top: 105px;">
+      <div class="node-icon">🔀</div>
+      <div class="node-name">Load Balancer</div>
+      <div class="node-status">正常稼働</div>
+    </div>
+
+    <!-- Node 1 -->
+    <div class="network-node server-node" id="server-n1" style="left: 415px; top: 15px;">
+      <div class="server-header-bar">
+        <span class="node-name">Node A</span>
+        <button class="node-toggle-btn active" data-node="1" title="サーバーの稼働/停止を切り替え">稼働中</button>
+      </div>
+      <div class="node-data">
+        <span class="data-label">値(x):</span> <span class="data-value" id="n1-val">10</span>
+        <span class="data-label">Ver:</span> <span class="data-ver" id="n1-ver">1</span>
+      </div>
+    </div>
+
+    <!-- Node 2 -->
+    <div class="network-node server-node" id="server-n2" style="left: 415px; top: 105px;">
+      <div class="server-header-bar">
+        <span class="node-name">Node B</span>
+        <button class="node-toggle-btn active" data-node="2" title="サーバーの稼働/停止を切り替え">稼働中</button>
+      </div>
+      <div class="node-data">
+        <span class="data-label">値(x):</span> <span class="data-value" id="n2-val">10</span>
+        <span class="data-label">Ver:</span> <span class="data-ver" id="n2-ver">1</span>
+      </div>
+    </div>
+
+    <!-- Node 3 -->
+    <div class="network-node server-node" id="server-n3" style="left: 415px; top: 195px;">
+      <div class="server-header-bar">
+        <span class="node-name">Node C</span>
+        <button class="node-toggle-btn active" data-node="3" title="サーバーの稼働/停止を切り替え">稼働中</button>
+      </div>
+      <div class="node-data">
+        <span class="data-label">値(x):</span> <span class="data-value" id="n3-val">10</span>
+        <span class="data-label">Ver:</span> <span class="data-ver" id="n3-ver">1</span>
+      </div>
+    </div>
+
+    <!-- Partition Toggle Controls -->
+    <div class="partition-controls">
+      <div class="partition-btn-wrapper">
+        <button id="toggle-partition-c" class="partition-toggle-btn" title="Node Cと他のノード間のネットワーク接続を切断します">
+          ⚡ Node C のネットワーク分断を切り替え (通信遮断)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="simulator-log-panel">
+    <div class="log-header">
+      <span>イベントログ</span>
+      <button id="clear-log-btn" class="text-btn">ログをクリア</button>
+    </div>
+    <div id="sim-logs" class="log-contents">
+      <div class="log-entry system">[SYSTEM] シミュレータが初期化されました。CPモードです。</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .interactive-simulator-card {
+    background-color: var(--quote-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-sans);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .simulator-header {
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.8rem;
+  }
+
+  .simulator-title-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.4rem;
+  }
+
+  .simulator-title {
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.15rem;
+    color: var(--accent-color);
+  }
+
+  .simulator-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  .simulator-controls {
+    margin-bottom: 1.5rem;
+    background-color: var(--bg-color);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+  }
+
+  .control-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .secondary-controls {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--border-color);
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .control-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+
+  .segmented-control {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #ffffff;
+  }
+
+  .segmented-control input {
+    display: none;
+  }
+
+  .segmented-control label {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    user-select: none;
+    color: var(--text-muted);
+  }
+
+  .segmented-control input:checked + label {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .input-with-button {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .input-with-button input {
+    width: 80px;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    background-color: #ffffff;
+  }
+
+  .primary-btn {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .secondary-btn {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .secondary-btn:hover {
+    background-color: var(--code-bg);
+  }
+
+  /* Network Canvas */
+  .simulator-network-container {
+    position: relative;
+    height: 320px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  }
+
+  .network-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Node Styling */
+  .network-node {
+    position: absolute;
+    z-index: 2;
+    background-color: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.6rem;
+    width: 110px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .client-node {
+    border-color: #90caf9;
+    background-color: #f1f8fe;
+  }
+
+  .lb-node {
+    border-color: #a5d6a7;
+    background-color: #f1f8e9;
+    width: 120px;
+  }
+
+  .server-node {
+    width: 140px;
+    text-align: left;
+    padding: 0.5rem;
+  }
+
+  .node-icon {
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .node-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-color);
+  }
+
+  .node-status {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+
+  .node-value-box {
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: 0.1rem 0;
+    font-family: monospace;
+  }
+
+  .server-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.2rem;
+  }
+
+  .node-toggle-btn {
+    border: none;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    color: #616161;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .node-toggle-btn.active {
+    background-color: #81c784;
+    color: #ffffff;
+  }
+
+  .node-toggle-btn:not(.active) {
+    background-color: #e57373;
+    color: #ffffff;
+  }
+
+  .node-data {
+    font-family: monospace;
+    font-size: 0.75rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.4rem;
+  }
+
+  .data-label {
+    color: var(--text-muted);
+  }
+
+  .data-value {
+    font-weight: 700;
+    color: #1e88e5;
+  }
+
+  .data-ver {
+    font-weight: 700;
+    color: #43a047;
+  }
+
+  .server-node.offline {
+    border-color: #ffcdd2;
+    opacity: 0.7;
+    background-color: #ffebee;
+  }
+
+  .server-node.offline .data-value,
+  .server-node.offline .data-ver {
+    color: var(--text-muted);
+  }
+
+  /* Partition toggle panel */
+  .partition-controls {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 3;
+  }
+
+  .partition-toggle-btn {
+    background-color: #fff9c4;
+    border: 1px solid #fbc02d;
+    color: #f57f17;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .partition-toggle-btn:hover {
+    background-color: #fff59d;
+  }
+
+  .partition-toggle-btn.partitioned {
+    background-color: #ffe0b2;
+    border-color: #f57c00;
+    color: #e65100;
+  }
+
+  /* Log Panel */
+  .simulator-log-panel {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .log-header {
+    background-color: var(--bg-color);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .text-btn {
+    background: none;
+    border: none;
+    font-size: 0.65rem;
+    color: #0d47a1;
+    cursor: pointer;
+  }
+
+  .log-contents {
+    height: 110px;
+    overflow-y: auto;
+    padding: 0.5rem 0.8rem;
+    font-family: monospace;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    background-color: #fafafa;
+  }
+
+  .log-entry {
+    margin-bottom: 0.2rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.1rem;
+  }
+
+  .log-entry.system { color: var(--text-muted); }
+  .log-entry.write { color: #0d47a1; }
+  .log-entry.read { color: #2e7d32; }
+  .log-entry.error { color: #c62828; font-weight: bold; }
+  .log-entry.warning { color: #ef6c00; }
+</style>
+
+<script>
+  // Distributed System Simulator with CAP & Network Partition simulation
+  
+  interface ServerNode {
+    id: number;
+    name: string;
+    active: boolean;
+    value: string;
+    version: number;
+  }
+
+  class DistributedSystem {
+    nodes: ServerNode[] = [
+      { id: 1, name: 'Node A', active: true, value: '10', version: 1 },
+      { id: 2, name: 'Node B', active: true, value: '10', version: 1 },
+      { id: 3, name: 'Node C', active: true, value: '10', version: 1 }
+    ];
+    mode: 'CP' | 'AP' = 'CP';
+    partitioned: boolean = false; // Node C is partitioned from A and B
+
+    addLogCallback: (msg: string, type: string) => void = () => {};
+
+    setLogHandler(cb: (msg: string, type: string) => void) {
+      this.addLogCallback = cb;
+    }
+
+    log(msg: string, type: string = 'system') {
+      this.addLogCallback(msg, type);
+    }
+
+    setMode(newMode: 'CP' | 'AP') {
+      this.mode = newMode;
+      this.log(`システムモードが ${newMode}モード に変更されました。`, 'system');
+    }
+
+    toggleNode(id: number): boolean {
+      const idx = id - 1;
+      this.nodes[idx].active = !this.nodes[idx].active;
+      const status = this.nodes[idx].active ? '正常稼働' : 'オフライン';
+      this.log(`${this.nodes[idx].name} の状態が「${status}」に変更されました。`, 'system');
+      return this.nodes[idx].active;
+    }
+
+    togglePartition(): boolean {
+      this.partitioned = !this.partitioned;
+      if (this.partitioned) {
+        this.log(`ネットワーク分断が発生しました！[Node A, Node B] ⚡️ [Node C] 間で通信が行えません。`, 'warning');
+      } else {
+        this.log(`ネットワークが復旧しました。全ノードの通信が再開されます。`, 'system');
+        // Synchronize in background if needed (for eventual consistency)
+        this.healPartition();
+      }
+      return this.partitioned;
+    }
+
+    // Eventual consistency resolution when partition heals
+    healPartition() {
+      if (!this.nodes[0].active && !this.nodes[1].active && !this.nodes[2].active) return;
+      
+      // Find the highest version number among active nodes
+      let maxVer = -1;
+      let newestVal = '10';
+      this.nodes.forEach(n => {
+        if (n.active && n.version > maxVer) {
+          maxVer = n.version;
+          newestVal = n.value;
+        }
+      });
+
+      if (maxVer !== -1) {
+        let synchronized = false;
+        this.nodes.forEach(n => {
+          if (n.active && n.version < maxVer) {
+            n.value = newestVal;
+            n.version = maxVer;
+            synchronized = true;
+          }
+        });
+        if (synchronized) {
+          this.log(`分断の復旧に伴い、最新のデータ（バージョン: ${maxVer}, 値: ${newestVal}）がノード間で同期されました（結果一貫性の担保）。`, 'system');
+        }
+      }
+    }
+
+    // Write operation
+    write(newValue: string, callback: (path: string, success: boolean) => void) {
+      this.log(`[Write] クライアントから値 '${newValue}' の書込み要求を受信。`, 'write');
+      
+      // Load balancer picks a healthy node from the major partition or random
+      // Let's assume write request hits LB, LB routes to Node A or Node B first (representing major partition)
+      // Node A tries to coordinate.
+      const coordinator = this.nodes[0].active ? this.nodes[0] : (this.nodes[1].active ? this.nodes[1] : null);
+
+      if (!coordinator) {
+        this.log(`[LB] 稼働中の主要コーディネーターノードが見つかりません。書込みに失敗しました。`, 'error');
+        callback('', false);
+        return;
+      }
+
+      this.log(`[LB] リクエストを ${coordinator.name} にルーティングしました。`, 'write');
+
+      const nextVersion = Math.max(this.nodes[0].version, this.nodes[1].version, this.nodes[2].version) + 1;
+      
+      // Check nodes in the same partition
+      // If partitioned, Node A and B can communicate, but not C.
+      const reachableNodes = [coordinator];
+      const unreachableNodes: ServerNode[] = [];
+
+      this.nodes.forEach(n => {
+        if (n.id === coordinator.id) return;
+        if (!n.active) {
+          unreachableNodes.push(n);
+          return;
+        }
+        
+        // Check partition
+        if (this.partitioned) {
+          if ((coordinator.id === 1 || coordinator.id === 2) && n.id === 3) {
+            unreachableNodes.push(n);
+          } else {
+            reachableNodes.push(n);
+          }
+        } else {
+          reachableNodes.push(n);
+        }
+      });
+
+      // CP mode require all active/configured nodes to reach consensus (or quorum)
+      // To simplify: CP requires consensus among *all reachable and active configured nodes*.
+      // If partitioned, Node C is offline to A/B. In CP mode, we cannot reach Node C.
+      // Since C is partitioned, A and B cannot confirm if C is active.
+      // In CP mode, a network partition prevents reaching 100% of nodes, so we reject the write to prevent split-brain.
+      if (this.mode === 'CP' && this.partitioned) {
+        this.log(`[${coordinator.name}] CPモードのため、分断先の Node C と一貫性を確保できません。データ保護のため書込みを拒否（可用性を破棄）します。`, 'error');
+        callback('lb-node1', false);
+        return;
+      }
+
+      // AP mode: write to whatever active nodes are reachable in this partition
+      this.log(`[${coordinator.name}] データをローカルに更新し、複製（レプリケーション）を開始します。`, 'write');
+      
+      // Update reachable nodes
+      reachableNodes.forEach(n => {
+        n.value = newValue;
+        n.version = nextVersion;
+        this.log(`[${n.name}] レプリケーション成功。値: ${newValue} (Ver: ${nextVersion})`, 'system');
+      });
+
+      if (unreachableNodes.length > 0) {
+        const offlineNames = unreachableNodes.map(n => n.name).join(', ');
+        if (this.partitioned) {
+          this.log(`[${coordinator.name}] 分断隔離中のノード [${offlineNames}] への同期は失敗（保留）しました。`, 'warning');
+        } else {
+          this.log(`[${coordinator.name}] オフライン中のノード [${offlineNames}] への同期はスキップされました。`, 'warning');
+        }
+      }
+
+      this.log(`[Write] クライアントへ「書込み完了」を応答。`, 'write');
+      callback('lb-node1', true);
+    }
+
+    // Read operation
+    read(callback: (path: string, val: string | null) => void) {
+      this.log(`[Read] クライアントからデータ読出し要求を受信。`, 'read');
+      
+      // Load balancer routes request to a node
+      // If partition exists, let's say LB routes to a node.
+      // We simulates that client might read from Node C (if it gets routed there or if client sits in partitioned area)
+      // To make it educational, let's say: 
+      // LB randomly targets Node A, B or C.
+      // Let's route to Node C if partitioned to show stale data (AP) vs error (CP).
+      // Or we can randomly choose. Let's make it route to Node C with 50% probability if Node C is active, 
+      // to demonstrate stale reads.
+      const activeNodes = this.nodes.filter(n => n.active);
+      if (activeNodes.length === 0) {
+        this.log(`[LB] 稼働中のノードが存在しません。読出し不可。`, 'error');
+        callback('', null);
+        return;
+      }
+
+      // If partitioned, Node C has stale data. Let's explicitly choose Node C to demonstrate inconsistency.
+      let targetNode = activeNodes[Math.floor(Math.random() * activeNodes.length)];
+      if (this.partitioned && this.nodes[2].active && Math.random() > 0.3) {
+        targetNode = this.nodes[2]; // Read from C
+      }
+
+      this.log(`[LB] リクエストを ${targetNode.name} にルーティング。`, 'read');
+
+      if (this.partitioned && targetNode.id === 3) {
+        if (this.mode === 'CP') {
+          this.log(`[Node C] CPモード：主要パーティション（A, B）と分断されているため、古い値を返すことを防止し、読み出しエラー（Unavailable）を応答します。`, 'error');
+          callback('lb-node3', null);
+          return;
+        } else {
+          this.log(`[Node C] APモード：可用性重視のため、主要部と分断されていますがローカルの古いデータ（値: ${targetNode.value}, Ver: ${targetNode.version}）を返答します（データ不整合）。`, 'warning');
+          callback('lb-node3', targetNode.value);
+          return;
+        }
+      }
+
+      // Normal read
+      this.log(`[${targetNode.name}] 最新のデータ（値: ${targetNode.value}, Ver: ${targetNode.version}）を返答。`, 'read');
+      callback(targetNode.id === 1 ? 'lb-node1' : (targetNode.id === 2 ? 'lb-node2' : 'lb-node3'), targetNode.value);
+    }
+  }
+
+  // DOM Wiring
+  function initDistributedSystem() {
+    const sys = new DistributedSystem();
+    const simLogs = document.getElementById('sim-logs');
+    const clearLogBtn = document.getElementById('clear-log-btn');
+    const writeValueInput = document.getElementById('write-value') as HTMLInputElement;
+    const writeBtn = document.getElementById('write-btn');
+    const readBtn = document.getElementById('read-btn');
+    const clientReadVal = document.getElementById('client-read-val');
+    const togglePartitionBtn = document.getElementById('toggle-partition-c');
+    
+    const nodeVals = [
+      document.getElementById('n1-val'),
+      document.getElementById('n2-val'),
+      document.getElementById('n3-val')
+    ];
+    const nodeVers = [
+      document.getElementById('n1-ver'),
+      document.getElementById('n2-ver'),
+      document.getElementById('n3-ver')
+    ];
+    const nodeToggleBtns = document.querySelectorAll('.node-toggle-btn');
+    const serverNodes = document.querySelectorAll('.server-node');
+
+    const animPacket = document.getElementById('anim-packet');
+    const cpRadio = document.getElementById('mode-cp') as HTMLInputElement;
+    const apRadio = document.getElementById('mode-ap') as HTMLInputElement;
+
+    if (!simLogs || !clearLogBtn || !writeValueInput || !writeBtn || !readBtn || !clientReadVal || !togglePartitionBtn || !animPacket) return;
+
+    // Log printer
+    sys.setLogHandler((msg, type) => {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      simLogs.appendChild(entry);
+      simLogs.scrollTop = simLogs.scrollHeight;
+    });
+
+    function updateNodeUI() {
+      sys.nodes.forEach((node, i) => {
+        const sNode = serverNodes[i];
+        const valSpan = nodeVals[i];
+        const verSpan = nodeVers[i];
+        const btn = nodeToggleBtns[i];
+
+        if (node.active) {
+          sNode.classList.remove('offline');
+          valSpan!.textContent = node.value;
+          verSpan!.textContent = node.version.toString();
+          btn.textContent = '稼働中';
+          btn.classList.add('active');
+        } else {
+          sNode.classList.add('offline');
+          valSpan!.textContent = 'OFF';
+          verSpan!.textContent = '-';
+          btn.textContent = '停止中';
+          btn.classList.remove('active');
+        }
+      });
+
+      // Update lines based on partition
+      const lineN1N3 = document.getElementById('line-n1-n3');
+      const lineN2N3 = document.getElementById('line-n2-n3');
+
+      if (sys.partitioned) {
+        lineN1N3?.setAttribute('stroke', '#ff8a80');
+        lineN1N3?.setAttribute('stroke-dasharray', '2');
+        lineN2N3?.setAttribute('stroke', '#ff8a80');
+        lineN2N3?.setAttribute('stroke-dasharray', '2');
+      } else {
+        lineN1N3?.setAttribute('stroke', 'var(--border-color)');
+        lineN1N3?.removeAttribute('stroke-dasharray');
+        lineN2N3?.setAttribute('stroke', 'var(--border-color)');
+        lineN2N3?.removeAttribute('stroke-dasharray');
+      }
+    }
+
+    // Packet Animation along SVG paths
+    function animateMessage(pathId: string, duration: number = 800, callback: () => void = () => {}) {
+      const path = document.getElementById(pathId) as unknown as SVGPathElement;
+      if (!path) {
+        callback();
+        return;
+      }
+
+      animPacket!.classList.remove('hidden');
+      const length = path.getTotalLength();
+      
+      let start: number | null = null;
+      function step(timestamp: number) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const ratio = Math.min(progress / duration, 1);
+        
+        const point = path.getPointAtLength(ratio * length);
+        animPacket!.setAttribute('cx', point.x.toString());
+        animPacket!.setAttribute('cy', point.y.toString());
+
+        if (ratio < 1) {
+          requestAnimationFrame(step);
+        } else {
+          animPacket!.classList.add('hidden');
+          callback();
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Controls
+    cpRadio.addEventListener('change', () => {
+      if (cpRadio.checked) sys.setMode('CP');
+    });
+
+    apRadio.addEventListener('change', () => {
+      if (apRadio.checked) sys.setMode('AP');
+    });
+
+    nodeToggleBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const nodeId = parseInt(target.getAttribute('data-node') || '1');
+        sys.toggleNode(nodeId);
+        updateNodeUI();
+      });
+    });
+
+    togglePartitionBtn.addEventListener('click', () => {
+      const parted = sys.togglePartition();
+      if (parted) {
+        togglePartitionBtn.classList.add('partitioned');
+        togglePartitionBtn.textContent = '⚡ Node C のネットワーク分断を解除';
+      } else {
+        togglePartitionBtn.classList.remove('partitioned');
+        togglePartitionBtn.textContent = '⚡ Node C のネットワーク分断を切り替え (通信遮断)';
+      }
+      updateNodeUI();
+    });
+
+    clearLogBtn.addEventListener('click', () => {
+      simLogs.innerHTML = '';
+    });
+
+    writeBtn.addEventListener('click', () => {
+      const val = writeValueInput.value.trim();
+      if (!val) return;
+      
+      writeBtn.setAttribute('disabled', 'true');
+      
+      // Step 1: Client to LB animation
+      animateMessage('line-client-lb', 300, () => {
+        // Step 2: LB to coordinating Node (Node 1)
+        sys.write(val, (targetLineId, success) => {
+          if (targetLineId) {
+            animateMessage(`line-lb-node1`, 400, () => {
+              if (success) {
+                // If replication succeeded, trigger node-to-node replication lines
+                animateMessage('line-n1-n2', 300);
+                if (!sys.partitioned) {
+                  animateMessage('line-n2-n3', 300);
+                }
+              }
+              updateNodeUI();
+              writeBtn.removeAttribute('disabled');
+            });
+          } else {
+            writeBtn.removeAttribute('disabled');
+          }
+        });
+      });
+    });
+
+    readBtn.addEventListener('click', () => {
+      readBtn.setAttribute('disabled', 'true');
+      
+      // Step 1: Client to LB animation
+      animateMessage('line-client-lb', 300, () => {
+        sys.read((targetLineId, val) => {
+          if (targetLineId) {
+            // Anim packet down the read path
+            animateMessage(targetLineId, 400, () => {
+              if (val !== null) {
+                clientReadVal.textContent = val;
+              } else {
+                clientReadVal.textContent = 'ERR';
+              }
+              readBtn.removeAttribute('disabled');
+            });
+          } else {
+            clientReadVal.textContent = 'ERR';
+            readBtn.removeAttribute('disabled');
+          }
+        });
+      });
+    });
+
+    updateNodeUI();
+  }
+
+  // Load handles
+  document.addEventListener('DOMContentLoaded', initDistributedSystem);
+  document.addEventListener('astro:page-load', initDistributedSystem);
+  
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initDistributedSystem();
+  }
+</script>

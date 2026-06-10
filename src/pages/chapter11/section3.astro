@@ -1,0 +1,134 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="11-3. 誤差逆伝播法" 
+  description="多層ネットワークの学習を可能にしたブレイクスルーである『誤差逆伝播法（バックプロパゲーション）』の数学的原理（チェインルール）を学びます。"
+  currentPath={`${baseUrl}chapter11/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第11章: AIと機械学習の計算モデル</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第11章 3節</div>
+    <h1 class="section-title">誤差逆伝播法 (Backpropagation)</h1>
+    <p class="section-intro">
+      人工ニューロンを何層にも重ねたマルチレイヤーのネットワークにおいて、「途中の隠れ層にあるパラメータ」がどれだけ最終出力の誤差に影響を与えているかを計算することは容易ではありません。微分の連鎖律（チェインルール）を用いて、出力層から入力層に向けて誤差の責任（勾配）を巻き戻すように計算し、すべての重みを一度に効率よく更新するアルゴリズム「誤差逆伝播法」の数理を学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 隠れ層のパラメータ調整問題</h2>
+    <p>
+      出力層に近い重みパラメータであれば、「予測値と正解の誤差」を直接反映して調整できます。しかし、入力層と出力層の間に挟まれた<b>「隠れ層（Hidden Layer）」</b>のニューロンの重みについては、それが最終的な出力のズレにどれだけ寄与したのかを直接測定できません。
+    </p>
+    <p>
+      この課題をクリアし、多層のニューラルネットワークの学習を可能にしたのが、1980年代にデビッド・ラメルハートらによって普及した<b>誤差逆伝播法（バックプロパゲーション）</b>です。
+    </p>
+
+    <h2>2. 合成関数の微分とチェインルール（連鎖律）</h2>
+    <p>
+      誤差逆伝播法の数学的根拠は、微積分における<b>チェインルール（Chain Rule / 連鎖律）</b>です。
+      チェインルールとは、「複数の関数が合成されているとき、合成関数の微分は、それぞれの関数の微分の掛け算として求められる」という性質です。
+    </p>
+    <p>
+      例えば、変数 $x$ から中間変数 $y$ が決まり、$y$ から最終変数 $z$ が決まる合成関数があるとします（$z = g(y), y = f(x)$）。
+      このとき、$x$ の微小な変化が最終的な $z$ に与える影響度（微分 dz/dx）は、次のように掛け算の形で表せます。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.15rem; color: var(--accent-color);">
+      dz / dx = (dz / dy) * (dy / dx)
+    </p>
+    <p>
+      この原理をニューラルネットワークに適用します。
+      ネットワークは、各層のニューロンが計算した結果を次の層へ渡す「巨大な合成関数の連鎖」とみなせます。
+      したがって、最終出力の誤差（Loss）に対する、最も手前（入力層側）にある重み $w$ の寄与度（偏微分 ∂Loss / ∂w）は、出力側から各ノードでの局所的な微分係数を逆向きに順次掛け算していくことで算出できます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Forward pass -->
+          <g transform="translate(10, 0)">
+            <rect x="10" y="20" width="80" height="30" rx="3" fill="#E6EEF8" stroke="#1E3A60" />
+            <text x="50" y="38" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">入力層</text>
+            <path d="M 90 35 L 160 35" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow-blue)" />
+            <text x="125" y="27" font-family="var(--font-sans)" font-size="7" fill="#1e88e5">順伝播</text>
+
+            <rect x="170" y="20" width="80" height="30" rx="3" fill="#E6EEF8" stroke="#1E3A60" />
+            <text x="210" y="38" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">隠れ層</text>
+            <path d="M 250 35 L 320 35" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow-blue)" />
+            
+            <rect x="330" y="20" width="80" height="30" rx="3" fill="#E6EEF8" stroke="#1E3A60" />
+            <text x="370" y="38" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">出力層</text>
+          </g>
+
+          <!-- Backward pass -->
+          <g transform="translate(10, 50)">
+            <path d="M 330 45 L 260 45" stroke="#E53935" stroke-width="1.2" marker-end="url(#arrow-red)" />
+            <text x="295" y="37" font-family="var(--font-sans)" font-size="7" fill="#e53935">逆伝播 (誤差)</text>
+            <text x="295" y="58" font-family="var(--font-mono)" font-size="7" fill="#e53935">∂Loss/∂y</text>
+
+            <path d="M 170 45 L 100 45" stroke="#E53935" stroke-width="1.2" marker-end="url(#arrow-red)" />
+            <text x="135" y="58" font-family="var(--font-mono)" font-size="7" fill="#e53935">∂Loss/∂w = (∂L/∂y) * (∂y/∂w)</text>
+          </g>
+
+          <defs>
+            <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#1e88e5" />
+            </marker>
+            <marker id="arrow-red" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#e53935" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 11-3：順伝播による値の計算と、逆伝播による微分係数（責任）の伝達関係</figcaption>
+    </figure>
+
+    <h2>3. アルゴリズムとしての効率的な逆伝播計算</h2>
+    <p>
+      誤差逆伝播法のアルゴリズムは、以下の2つのステップを繰り返すことで、効率的なパラメータ調整を実現しています。
+    </p>
+
+    <ol>
+      <li>
+        <b>順伝播（Forward Propagation）フェーズ：</b><br/>
+        入力をネットワークに通し、各ニューロンの出力値を計算してメモリに保存しながら、最終出力と目的関数による「誤差（Loss）」を算出します。
+      </li>
+      <li>
+        <b>逆伝播（Backward Propagation）フェーズ：</b><br/>
+        算出された誤差を出発点として、各ノードの出力値を用いて局所的な微分（偏微分）を計算し、それを掛け合わせながら逆方向に伝播します。この過程で、すべての重み・バイアスに対する勾配（調整すべき方向）が決定されます。
+      </li>
+    </ol>
+
+    <p>
+      この手法の最大の利点は<b>「計算コストの低さ」</b>にあります。
+      もし、数値微分（各パラメータを個別に少しだけ増やして誤差がどう変わるか調べる手法）を行っていた場合、パラメータ数が1億個あれば、1回更新するために1億回以上の順伝播計算が必要になります。
+      しかし、誤差逆伝播法を使えば、<b>わずか1回の順伝播と1回の逆伝播（順伝播とほぼ同じ計算コスト）</b>だけで、1億個すべてのパラメータの勾配を厳密かつ同時に計算することができます。
+    </p>
+    <p>
+      次節では、この効率的な誤差逆伝播法をベースに、層を極限まで深くした「深層学習（ディープラーニング）」と、現代のChatGPTなどに代表される大規模言語モデル（LLM）の核心的アーキテクチャについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter11/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">11-2. 人工ニューロンモデルとテンソル演算</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter11/section4`}>
+        <span class="label">11-4. 深層学習から大規模言語モデル（LLM）へ</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

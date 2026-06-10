@@ -1,0 +1,733 @@
+---
+---
+
+<div class="interactive-simulator-card">
+  <div class="simulator-header">
+    <div class="simulator-title-tag">SIMULATOR</div>
+    <h3 class="simulator-title">ニューラルネットワーク計算シミュレータ</h3>
+    <p class="simulator-desc">
+      入力値や接続の「重み」を調整した際の順伝播（フォワード）プロセスと、目標値との誤差から重みを自動学習する逆伝播（バックプロパゲーション）プロセスの流れを視覚的に理解します。
+    </p>
+  </div>
+
+  <div class="simulator-controls">
+    <div class="nn-control-grid">
+      <!-- Input Controls -->
+      <div class="nn-control-card">
+        <h4 class="ctrl-card-title">① 入力の調整（順伝播）</h4>
+        <div class="nn-slider-group">
+          <div class="slider-row">
+            <span class="slider-label">入力 1 (x₁):</span>
+            <input type="range" id="nn-x1" min="0" max="1" step="0.1" value="0.5" />
+            <span class="slider-value" id="nn-x1-val">0.5</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">入力 2 (x₂):</span>
+            <input type="range" id="nn-x2" min="0" max="1" step="0.1" value="0.7" />
+            <span class="slider-value" id="nn-x2-val">0.7</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Controls -->
+      <div class="nn-control-card">
+        <h4 class="ctrl-card-title">② 誤差逆伝播（学習）</h4>
+        <div class="nn-slider-group">
+          <div class="slider-row">
+            <span class="slider-label">教師データ (目標値):</span>
+            <input type="range" id="nn-target" min="0" max="1" step="0.05" value="0.1" />
+            <span class="slider-value" id="nn-target-val">0.10</span>
+          </div>
+          <div class="btn-row">
+            <button id="nn-step-btn" class="primary-btn">学習を1ステップ進める (Backprop)</button>
+            <button id="nn-reset-btn" class="secondary-btn">重みをリセット</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Canvas -->
+  <div class="network-canvas-wrapper">
+    <svg id="nn-svg" width="100%" height="240" viewBox="0 0 540 240">
+      <!-- Weight connections (lines) with distinct IDs -->
+      <!-- Input 1 to Hidden 1 & 2 -->
+      <line id="link-x1-h1" class="nn-link" x1="80" y1="70" x2="260" y2="70" />
+      <line id="link-x1-h2" class="nn-link" x1="80" y1="70" x2="260" y2="170" />
+      <!-- Input 2 to Hidden 1 & 2 -->
+      <line id="link-x2-h1" class="nn-link" x1="80" y1="170" x2="260" y2="70" />
+      <line id="link-x2-h2" class="nn-link" x1="80" y1="170" x2="260" y2="170" />
+      <!-- Hidden 1 & 2 to Output -->
+      <line id="link-h1-y" class="nn-link" x1="260" y1="70" x2="440" y2="120" />
+      <line id="link-h2-y" class="nn-link" x1="260" y1="170" x2="440" y2="120" />
+
+      <!-- Text labels for weights on top of lines -->
+      <text id="lbl-w11" class="weight-label" x="145" y="62" text-anchor="middle">w₁₁</text>
+      <text id="lbl-w12" class="weight-label" x="145" y="112" text-anchor="middle">w₁₂</text>
+      <text id="lbl-w21" class="weight-label" x="145" y="128" text-anchor="middle">w₂₁</text>
+      <text id="lbl-w22" class="weight-label" x="145" y="178" text-anchor="middle">w₂₂</text>
+      <text id="lbl-v1" class="weight-label" x="350" y="85" text-anchor="middle">v₁</text>
+      <text id="lbl-v2" class="weight-label" x="350" y="155" text-anchor="middle">v₂</text>
+
+      <!-- Animated signal particles for forward/backward propagation -->
+      <circle id="part-x1-h1" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+      <circle id="part-x1-h2" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+      <circle id="part-x2-h1" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+      <circle id="part-x2-h2" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+      <circle id="part-h1-y" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+      <circle id="part-h2-y" class="signal-particle hidden" cx="0" cy="0" r="4" fill="#2196f3"></circle>
+
+      <!-- Nodes -->
+      <!-- Input Nodes -->
+      <g class="node-group">
+        <circle cx="80" cy="70" r="22" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" />
+        <text x="80" y="65" class="node-symbol">x₁</text>
+        <text x="80" y="80" id="node-x1-val" class="node-val">0.5</text>
+      </g>
+      <g class="node-group">
+        <circle cx="80" cy="170" r="22" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" />
+        <text x="80" y="165" class="node-symbol">x₂</text>
+        <text x="80" y="180" id="node-x2-val" class="node-val">0.7</text>
+      </g>
+
+      <!-- Hidden Nodes -->
+      <g class="node-group">
+        <circle cx="260" cy="70" r="22" fill="#efebe9" stroke="#795548" stroke-width="2" />
+        <text x="260" y="65" class="node-symbol">h₁</text>
+        <text x="260" y="80" id="node-h1-val" class="node-val">0.0</text>
+      </g>
+      <g class="node-group">
+        <circle cx="260" cy="170" r="22" fill="#efebe9" stroke="#795548" stroke-width="2" />
+        <text x="260" y="165" class="node-symbol">h₂</text>
+        <text x="260" y="180" id="node-h2-val" class="node-val">0.0</text>
+      </g>
+
+      <!-- Output Node -->
+      <g class="node-group">
+        <circle cx="440" cy="120" r="24" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" />
+        <text x="440" y="115" class="node-symbol">y (出力)</text>
+        <text x="440" y="130" id="node-y-val" class="node-val">0.0</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="simulator-log-panel">
+    <div class="log-grid">
+      <div class="log-stat">
+        <span class="stat-lbl">現在の出力 (y):</span>
+        <span class="stat-val" id="stat-output-val">0.00</span>
+      </div>
+      <div class="log-stat">
+        <span class="stat-lbl">目標値 (Target):</span>
+        <span class="stat-val" id="stat-target-val">0.10</span>
+      </div>
+      <div class="log-stat highlight-loss">
+        <span class="stat-lbl">二乗誤差 (Loss):</span>
+        <span class="stat-val" id="stat-loss-val">0.0000</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .interactive-simulator-card {
+    background-color: var(--quote-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-sans);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .simulator-header {
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.8rem;
+  }
+
+  .simulator-title-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.4rem;
+  }
+
+  .simulator-title {
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.15rem;
+    color: var(--accent-color);
+  }
+
+  .simulator-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
+
+  /* Control Panel */
+  .simulator-controls {
+    margin-bottom: 1.2rem;
+  }
+
+  .nn-control-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .nn-control-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .nn-control-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+  }
+
+  .ctrl-card-title {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 0.3rem;
+  }
+
+  .nn-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .slider-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+    width: 90px;
+    white-space: nowrap;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .slider-value {
+    font-family: monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    width: 32px;
+    text-align: right;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-row button {
+    flex: 1;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .primary-btn {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .primary-btn:hover {
+    opacity: 0.9;
+  }
+
+  .secondary-btn {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .secondary-btn:hover {
+    background-color: var(--code-bg);
+  }
+
+  /* SVGs Canvas */
+  .network-canvas-wrapper {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  }
+
+  #nn-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .nn-link {
+    stroke-linecap: round;
+    transition: stroke-width 0.3s, stroke 0.3s;
+  }
+
+  .weight-label {
+    font-family: monospace;
+    font-size: 0.7rem;
+    font-weight: bold;
+    fill: var(--text-muted);
+    background-color: #ffffff;
+  }
+
+  .signal-particle {
+    filter: drop-shadow(0 0 2px rgba(33, 150, 243, 0.8));
+  }
+
+  .signal-particle.backward {
+    fill: #f44336;
+    filter: drop-shadow(0 0 2px rgba(244, 67, 54, 0.8));
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Node Typography */
+  .node-symbol {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    text-anchor: middle;
+    fill: var(--text-color);
+  }
+
+  .node-val {
+    font-family: monospace;
+    font-size: 9px;
+    font-weight: 600;
+    text-anchor: middle;
+    fill: var(--text-muted);
+  }
+
+  /* Stat details */
+  .simulator-log-panel {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.8rem;
+  }
+
+  .log-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .log-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .log-stat:last-child {
+    border-right: none;
+  }
+
+  .stat-lbl {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .stat-val {
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--accent-color);
+  }
+
+  .highlight-loss .stat-val {
+    color: #e53935;
+  }
+</style>
+
+<script>
+  // Simple Neural Network Simulator (2 Inputs -> 2 Hidden -> 1 Output)
+  // Relies on Sigmoid activation
+  
+  class SimpleNeuralNetwork {
+    // Inputs
+    x1: number = 0.5;
+    x2: number = 0.7;
+
+    // Weights Input -> Hidden
+    w11: number = 0.4;
+    w12: number = -0.2;
+    w21: number = 0.1;
+    w22: number = 0.5;
+
+    // Weights Hidden -> Output
+    v1: number = 0.6;
+    v2: number = -0.4;
+
+    // Biases
+    bh1: number = 0.1;
+    bh2: number = -0.15;
+    by: number = 0.05;
+
+    // Outputs
+    h1: number = 0.0;
+    h2: number = 0.0;
+    y: number = 0.0;
+
+    target: number = 0.1;
+    learningRate: number = 0.5;
+
+    constructor() {
+      this.resetWeights();
+    }
+
+    resetWeights() {
+      this.w11 = 0.5;
+      this.w12 = -0.3;
+      this.w21 = 0.2;
+      this.w22 = 0.6;
+      this.v1 = 0.7;
+      this.v2 = -0.4;
+      this.bh1 = 0.1;
+      this.bh2 = -0.2;
+      this.by = 0.05;
+      this.forward();
+    }
+
+    private sigmoid(z: number): number {
+      return 1 / (1 + Math.exp(-z));
+    }
+
+    private sigmoidDerivative(a: number): number {
+      // a is the output of sigmoid(z)
+      return a * (1 - a);
+    }
+
+    // Forward propagation
+    forward() {
+      const z_h1 = this.x1 * this.w11 + this.x2 * this.w21 + this.bh1;
+      const z_h2 = this.x1 * this.w12 + this.x2 * this.w22 + this.bh2;
+      
+      this.h1 = this.sigmoid(z_h1);
+      this.h2 = this.sigmoid(z_h2);
+
+      const z_y = this.h1 * this.v1 + this.h2 * this.v2 + this.by;
+      this.y = this.sigmoid(z_y);
+    }
+
+    // Single step of backpropagation
+    trainStep() {
+      this.forward();
+
+      // Output error term delta_y = (y - target) * sigmoid'(y)
+      const d_y = (this.y - this.target) * this.sigmoidDerivative(this.y);
+
+      // Hidden error terms
+      const d_h1 = d_y * this.v1 * this.sigmoidDerivative(this.h1);
+      const d_h2 = d_y * this.v2 * this.sigmoidDerivative(this.h2);
+
+      // Update weights from Hidden to Output
+      this.v1 -= this.learningRate * d_y * this.h1;
+      this.v2 -= this.learningRate * d_y * this.h2;
+      this.by -= this.learningRate * d_y;
+
+      // Update weights from Input to Hidden
+      this.w11 -= this.learningRate * d_h1 * this.x1;
+      this.w21 -= this.learningRate * d_h1 * this.x2;
+      this.w12 -= this.learningRate * d_h2 * this.x1;
+      this.w22 -= this.learningRate * d_h2 * this.x2;
+      
+      this.bh1 -= this.learningRate * d_h1;
+      this.bh2 -= this.learningRate * d_h2;
+
+      this.forward();
+    }
+
+    getLoss(): number {
+      return 0.5 * Math.pow(this.y - this.target, 2);
+    }
+  }
+
+  function initNNSimulator() {
+    const nn = new SimpleNeuralNetwork();
+
+    // DOM selectors
+    const x1Slider = document.getElementById('nn-x1') as HTMLInputElement;
+    const x2Slider = document.getElementById('nn-x2') as HTMLInputElement;
+    const x1ValLbl = document.getElementById('nn-x1-val');
+    const x2ValLbl = document.getElementById('nn-x2-val');
+
+    const targetSlider = document.getElementById('nn-target') as HTMLInputElement;
+    const targetValLbl = document.getElementById('nn-target-val');
+
+    const stepBtn = document.getElementById('nn-step-btn');
+    const resetBtn = document.getElementById('nn-reset-btn');
+
+    // Stats
+    const statOutput = document.getElementById('stat-output-val');
+    const statTarget = document.getElementById('stat-target-val');
+    const statLoss = document.getElementById('stat-loss-val');
+
+    // Node contents in SVG
+    const nodeX1 = document.getElementById('node-x1-val');
+    const nodeX2 = document.getElementById('node-x2-val');
+    const nodeH1 = document.getElementById('node-h1-val');
+    const nodeH2 = document.getElementById('node-h2-val');
+    const nodeY = document.getElementById('node-y-val');
+
+    if (!x1Slider || !x2Slider || !targetSlider || !stepBtn || !resetBtn || !statOutput || !statTarget || !statLoss) return;
+
+    function renderWeightLine(linkId: string, lblId: string, w: number) {
+      const line = document.getElementById(linkId);
+      const label = document.getElementById(lblId);
+      if (!line || !label) return;
+
+      const normW = Math.abs(w);
+      const strokeWidth = Math.max(0.8, Math.min(6, normW * 4.5));
+      line.setAttribute('stroke-width', strokeWidth.toString());
+      
+      // Positive = blue, Negative = red/orange
+      if (w >= 0) {
+        line.setAttribute('stroke', '#1e88e5');
+      } else {
+        line.setAttribute('stroke', '#e53935');
+      }
+
+      // Update text label
+      label.textContent = w.toFixed(2);
+    }
+
+    function updateUI() {
+      // 1. Outputs on nodes
+      nodeX1!.textContent = nn.x1.toFixed(1);
+      nodeX2!.textContent = nn.x2.toFixed(1);
+      nodeH1!.textContent = nn.h1.toFixed(2);
+      nodeH2!.textContent = nn.h2.toFixed(2);
+      nodeY!.textContent = nn.y.toFixed(2);
+
+      // 2. Weight lines
+      renderWeightLine('link-x1-h1', 'lbl-w11', nn.w11);
+      renderWeightLine('link-x1-h2', 'lbl-w12', nn.w12);
+      renderWeightLine('link-x2-h1', 'lbl-w21', nn.w21);
+      renderWeightLine('link-x2-h2', 'lbl-w22', nn.w22);
+      renderWeightLine('link-h1-y', 'lbl-v1', nn.v1);
+      renderWeightLine('link-h2-y', 'lbl-v2', nn.v2);
+
+      // 3. Stat panel
+      statOutput!.textContent = nn.y.toFixed(3);
+      statTarget!.textContent = nn.target.toFixed(2);
+      statLoss!.textContent = nn.getLoss().toFixed(5);
+    }
+
+    // Signal flow particles
+    function animateParticles(isForward: boolean, callback: () => void = () => {}) {
+      const particlesInput = [
+        document.getElementById('part-x1-h1'),
+        document.getElementById('part-x1-h2'),
+        document.getElementById('part-x2-h1'),
+        document.getElementById('part-x2-h2')
+      ];
+      const particlesOutput = [
+        document.getElementById('part-h1-y'),
+        document.getElementById('part-h2-y')
+      ];
+
+      const duration = 500;
+      let start: number | null = null;
+
+      particlesInput.forEach(p => {
+        p?.classList.remove('hidden');
+        if (!isForward) p?.classList.add('backward');
+        else p?.classList.remove('backward');
+      });
+
+      // Simple interpolation helper
+      function animate(timestamp: number) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const ratio = Math.min(progress / duration, 1);
+
+        // Map positions
+        if (isForward) {
+          // Layer 1: Input -> Hidden
+          particlesInput.forEach((p, idx) => {
+            const fromX = 80;
+            const fromY = idx < 2 ? 70 : 170;
+            const toX = 260;
+            const toY = (idx % 2 === 0) ? 70 : 170;
+            const currX = fromX + (toX - fromX) * ratio;
+            const currY = fromY + (toY - fromY) * ratio;
+            p?.setAttribute('cx', currX.toString());
+            p?.setAttribute('cy', currY.toString());
+          });
+        } else {
+          // Layer 2: Output -> Hidden (Backprop)
+          particlesOutput.forEach((p, idx) => {
+            const fromX = 440;
+            const fromY = 120;
+            const toX = 260;
+            const toY = idx === 0 ? 70 : 170;
+            const currX = fromX + (toX - fromX) * ratio;
+            const currY = fromY + (toY - fromY) * ratio;
+            p?.setAttribute('cx', currX.toString());
+            p?.setAttribute('cy', currY.toString());
+          });
+        }
+
+        if (ratio < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Trigger next layer
+          if (isForward) {
+            particlesInput.forEach(p => p?.classList.add('hidden'));
+            start = null;
+            particlesOutput.forEach(p => {
+              p?.classList.remove('hidden');
+              p?.classList.remove('backward');
+            });
+            requestAnimationFrame(animateNextLayer);
+          } else {
+            particlesOutput.forEach(p => p?.classList.add('hidden'));
+            start = null;
+            particlesInput.forEach(p => {
+              p?.classList.remove('hidden');
+              p?.classList.add('backward');
+            });
+            requestAnimationFrame(animateNextLayer);
+          }
+        }
+      }
+
+      function animateNextLayer(timestamp: number) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const ratio = Math.min(progress / duration, 1);
+
+        if (isForward) {
+          // Layer 2: Hidden -> Output
+          particlesOutput.forEach((p, idx) => {
+            const fromX = 260;
+            const fromY = idx === 0 ? 70 : 170;
+            const toX = 440;
+            const toY = 120;
+            const currX = fromX + (toX - fromX) * ratio;
+            const currY = fromY + (toY - fromY) * ratio;
+            p?.setAttribute('cx', currX.toString());
+            p?.setAttribute('cy', currY.toString());
+          });
+        } else {
+          // Layer 1: Hidden -> Input (Backprop)
+          particlesInput.forEach((p, idx) => {
+            const fromX = 260;
+            const fromY = idx % 2 === 0 ? 70 : 170;
+            const toX = 80;
+            const toY = idx < 2 ? 70 : 170;
+            const currX = fromX + (toX - fromX) * ratio;
+            const currY = fromY + (toY - fromY) * ratio;
+            p?.setAttribute('cx', currX.toString());
+            p?.setAttribute('cy', currY.toString());
+          });
+        }
+
+        if (ratio < 1) {
+          requestAnimationFrame(animateNextLayer);
+        } else {
+          particlesOutput.forEach(p => p?.classList.add('hidden'));
+          particlesInput.forEach(p => p?.classList.add('hidden'));
+          callback();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    // Input handlers
+    x1Slider.addEventListener('input', () => {
+      const val = parseFloat(x1Slider.value);
+      x1ValLbl!.textContent = val.toFixed(1);
+      nn.x1 = val;
+      nn.forward();
+      updateUI();
+    });
+
+    x2Slider.addEventListener('input', () => {
+      const val = parseFloat(x2Slider.value);
+      x2ValLbl!.textContent = val.toFixed(1);
+      nn.x2 = val;
+      nn.forward();
+      updateUI();
+    });
+
+    targetSlider.addEventListener('input', () => {
+      const val = parseFloat(targetSlider.value);
+      targetValLbl!.textContent = val.toFixed(2);
+      nn.target = val;
+      updateUI();
+    });
+
+    stepBtn.addEventListener('click', () => {
+      stepBtn.setAttribute('disabled', 'true');
+      
+      // Step 1: Forward flow
+      animateParticles(true, () => {
+        // Step 2: Backward error flow
+        animateParticles(false, () => {
+          nn.trainStep();
+          updateUI();
+          stepBtn.removeAttribute('disabled');
+        });
+      });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      nn.resetWeights();
+      updateUI();
+    });
+
+    updateUI();
+  }
+
+  // Bind loaders
+  document.addEventListener('DOMContentLoaded', initNNSimulator);
+  document.addEventListener('astro:page-load', initNNSimulator);
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initNNSimulator();
+  }
+</script>

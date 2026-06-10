@@ -1,0 +1,143 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="11-2. 人工ニューロンモデルとテンソル演算" 
+  description="生物のニューロンをモデル化した人工ニューロンの基本計算（重み・バイアス・活性化関数）と、現代のAI処理を高速化するための『テンソル演算』の概念を学びます。"
+  currentPath={`${baseUrl}chapter11/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第11章: AIと機械学習の計算モデル</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第11章 2節</div>
+    <h1 class="section-title">人工ニューロンモデルとテンソル演算</h1>
+    <p class="section-intro">
+      現代の複雑なAIを構成する最小の計算ブロックが「人工ニューロン」です。生物の神経細胞の振る舞いを数式へと抽象化したこのモデルの動作メカニズムと、それを数百万・数億個集めて並列に超高速処理するための「テンソル表現」について学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 神経細胞の抽象化：人工ニューロン</h2>
+    <p>
+      人間の脳には、<b>ニューロン（Neuron: 神経細胞）</b>と呼ばれる細胞が約860億個あり、複雑なネットワークを形成して思考を司っています。ひとつのニューロンは、他の複数のニューロンから電気信号を受け取り、その刺激の合計がある閾値を超えると、自身の軸索を通して次のニューロンへ信号を「発火（送信）」します。
+    </p>
+    <p>
+      このメカニズムを数学的に記述したのが<b>人工ニューロンモデル</b>です。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="150" viewBox="0 0 450 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Input x1 -->
+          <text x="30" y="45" font-family="var(--font-mono)" font-size="10" fill="var(--text-color)" font-weight="600">x₁</text>
+          <path d="M 50 42 L 180 85" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="110" y="55" font-family="var(--font-sans)" font-size="8" fill="var(--text-muted)">重み w₁</text>
+
+          <!-- Input x2 -->
+          <text x="30" y="115" font-family="var(--font-mono)" font-size="10" fill="var(--text-color)" font-weight="600">x₂</text>
+          <path d="M 50 112 L 180 95" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="110" y="118" font-family="var(--font-sans)" font-size="8" fill="var(--text-muted)">重み w₂</text>
+
+          <!-- Summing & Activation Node -->
+          <circle cx="210" cy="90" r="30" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="210" y="87" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle" font-weight="600">総和とバイアス</text>
+          <text x="210" y="100" font-family="var(--font-mono)" font-size="8" fill="#1E3A60" text-anchor="middle">z = w·x + b</text>
+
+          <path d="M 240 90 L 300 90" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+          
+          <!-- Activation function node -->
+          <rect x="310" y="70" width="60" height="40" rx="3" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1.2" />
+          <text x="340" y="87" font-family="var(--font-sans)" font-size="8" fill="#FBC02D" text-anchor="middle" font-weight="600">活性化関数</text>
+          <text x="340" y="99" font-family="var(--font-mono)" font-size="9" fill="#FBC02D" text-anchor="middle">a = σ(z)</text>
+
+          <path d="M 370 90 L 410 90" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="420" y="93" font-family="var(--font-mono)" font-size="10" fill="var(--text-color)" font-weight="600">a (出力)</text>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="var(--text-muted)" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 11-2：人工ニューロンの計算モデルのフロー</figcaption>
+    </figure>
+
+    <h2>2. 重み、バイアス、活性化関数の役割</h2>
+    <p>
+      人工ニューロンの計算は、大きく「線形結合（総和）」と「非線形変換（活性化）」の2つのステップで行われます。
+    </p>
+
+    <h3>① 線形結合（重みとバイアス）</h3>
+    <p>
+      入力値 $x_1, x_2$ に対し、それぞれの入力の重要度を表す<b>重み（Weight: $w_1, w_2$）</b>を掛け合わせ、ニューロン自体の興奮しやすさを調整する定数<b>バイアス（Bias: $b$）</b>を加算します。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.1rem; color: var(--accent-color);">
+      z = w₁x₁ + w₂x₂ + b
+    </p>
+
+    <h3>② 活性化関数（Activation Function）</h3>
+    <p>
+      得られた総和 $z$ を、次のニューロンへの出力信号 $a$ へと変換する非線形関数です。ニューロンの発火のシミュレーションと、モデルに「複雑なパターン（非線形性）」を学習させるために不可欠な役割を果たします。
+    </p>
+    <ul>
+      <li>
+        <b>シグモイド関数（Sigmoid Function）：</b><br/>
+        出力を $0.0$ から $1.0$ の範囲に滑らかに圧縮する関数。確率としての解釈に適しています。
+      </li>
+      <li>
+        <b>ReLU関数（Rectified Linear Unit）：</b><br/>
+        入力が $0$ 以下の場合は $0$ を出力し、$0$ より大きい場合は入力をそのまま出力する単純な関数。現代の深層学習で計算が高速であるため最も多用されます。
+      </li>
+    </ul>
+
+    <h2>3. 多次元配列としてのテンソル（Tensor）演算</h2>
+    <p>
+      ニューロンが1つだけであれば上記のような単純な数式で済みますが、深層学習ではこれらを縦横に何重にも重ねたネットワーク（層）を扱います。
+      数百万のニューロンの計算を個別のループ処理で行うと、CPUのオーバーヘッドにより処理が非常に遅くなります。
+    </p>
+    <p>
+      そのため、現代のAI処理（PyTorchやTensorFlowなど）では、すべてのデータを行列や多次元配列にまとめて一度に計算します。この多次元配列データの数理モデルを<b>テンソル（Tensor）</b>と呼びます。
+    </p>
+    <ul>
+      <li>0次元テンソル： スカラー（ただの数値）</li>
+      <li>1次元テンソル： ベクトル（数値の並び）</li>
+      <li>2次元テンソル： 行列（表）</li>
+      <li>3次元以上テンソル： 立体的な配列（例：縦×横×RGBチャンネルの画像データ）</li>
+    </ul>
+    <p>
+      ある層のニューロン群の計算は、入力ベクトル $X$ と重み行列 $W$ の<b>「行列の積（内積）」</b>として一発で表現できます。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.1rem; color: var(--accent-color);">
+      A = σ( X · W + B )
+    </p>
+    <p>
+      さらに、複数のデータを束にして並列計算する「バッチ処理」を行うことで、グラフィックボード（GPU）の持つ大量の並列コアを活用した超高速な行列計算が可能になります。
+    </p>
+    <p>
+      次節では、このように複雑に何重にも重ねられたニューロンの重み行列 $W$ を、出力結果の誤差から一気に逆算して自動調整する「誤差逆伝播法」の仕組みを解き明かします。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter11/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">11-1. ルールベースから学習へのアプローチ</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter11/section3`}>
+        <span class="label">11-3. 誤差逆伝播法 (Backpropagation)</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

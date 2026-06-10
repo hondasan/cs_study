@@ -1,0 +1,166 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="9-2. 字句解析" 
+  description="ソースコードの文字列から最小の文法単位である『トークン』を切り出す、コンパイルの第1ステップ『字句解析』の仕組みと、その背景理論である有限オートマトンを学びます。"
+  currentPath={`${baseUrl}chapter9/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第9章: コンパイラとプログラミング言語の設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第9章 2節</div>
+    <h1 class="section-title">字句解析 (Lexical Analysis)</h1>
+    <p class="section-intro">
+      コンパイラにソースコードを読み込ませたとき、それは単なる文字の並び（文字ストリーム）に過ぎません。この生の文字列から、意味を持つ最小の文法単位である「トークン」を抽出するフェーズが<b>「字句解析」</b>です。その内部の動作原理と、状態遷移を自動化する数学的モデルについて学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 字句解析の役割とトークン分割</h2>
+    <p>
+      字句解析を行うプログラム（レキサー/スキャナー）は、ソースコードの文字列を左から右へ1文字ずつスキャンし、空白や改行を取り除きながら、意味のまとまりごとに分割します。この分割された部分文字列と、その種類をセットにしたデータを<b>トークン（Token）</b>と呼びます。
+    </p>
+    
+    <p>
+      例えば、ソースコード上に次のような1行があったとします。
+    </p>
+    <pre class="code-output"><code>total = count * 10;</code></pre>
+    
+    <p>
+      字句解析器は、これをスキャンして次のようなトークン列に切り分けます。
+    </p>
+    
+    <table class="textbook-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse; margin: 1rem 0;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+          <th style="padding: 0.5rem;">部分文字列</th>
+          <th style="padding: 0.5rem;">トークンの種類（Type）</th>
+          <th style="padding: 0.5rem;">意味</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>total</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#4e342e; font-weight:600;">IDENTIFIER</span></td>
+          <td style="padding: 0.5rem;">識別子（変数名）</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>=</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#d84315; font-weight:600;">ASSIGN_OP</span></td>
+          <td style="padding: 0.5rem;">代入演算子</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>count</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#4e342e; font-weight:600;">IDENTIFIER</span></td>
+          <td style="padding: 0.5rem;">識別子（変数名）</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>*</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#d84315; font-weight:600;">MULT_OP</span></td>
+          <td style="padding: 0.5rem;">乗算演算子</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>10</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#0d47a1; font-weight:600;">NUMBER_LITERAL</span></td>
+          <td style="padding: 0.5rem;">数値リテラル</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem;"><code>;</code></td>
+          <td style="padding: 0.5rem;"><span style="color:#4a148c; font-weight:600;">SEMICOLON</span></td>
+          <td style="padding: 0.5rem;">文の終端記号</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      このように、文字列を「文法上意味のある記号」に分類することで、後段の構文解析が扱いやすい構造にします。
+    </p>
+
+    <h2>2. トークン検出の基礎理論：正規表現</h2>
+    <p>
+      各トークンがどのようなパターンの文字列であるかは、通常、形式言語理論における<b>正規表現（Regular Expression）</b>で定義されます。
+    </p>
+    <ul>
+      <li>数値（整数）のパターン： <code>[0-9]+</code> （0から9の文字が1回以上繰り返す）</li>
+      <li>識別子（変数名など）のパターン： <code>[a-zA-Z_][a-zA-Z0-9_]*</code> （アルファベットまたは下線で始まり、2文字目以降は数字も許容）</li>
+      <li>予約語（if, while等）： 固有の文字列に完全一致するパターン</li>
+    </ul>
+
+    <h2>3. 実行モデル：決定性有限オートマトン (DFA)</h2>
+    <p>
+      正規表現で定義されたパターンを、コンピュータプログラムで高速に識別するために使われる数学的モデルが、<b>有限状態オートマトン（Finite State Automaton）</b>です。
+    </p>
+    <p>
+      オートマトンは、「現在の状態」と「入力された文字」によって次の状態へ遷移する仕組みです。プログラムがあるトークンパターンを検出するとき、状態遷移を繰り返して最終的に「受理状態（Accept State）」と呼ばれる合格状態に到達すれば、そのトークンとして正しいと認識します。
+    </p>
+    <p>
+      例えば、数値リテラル（<code>[0-9]+</code>）を検出するための極めて単純なオートマトンは以下のようになります。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- State S (Start) -->
+          <circle cx="80" cy="75" r="25" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
+          <text x="80" y="79" font-family="var(--font-sans)" font-size="10" fill="#1E3A60" text-anchor="middle" font-weight="600">状態S (初期)</text>
+          
+          <!-- Transition Arrow -->
+          <path d="M 105 75 L 210 75" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="157" y="65" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle">数字 [0-9]</text>
+          
+          <!-- State A (Accept) - Double circle representing accept state -->
+          <circle cx="240" cy="75" r="25" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.5" />
+          <circle cx="240" cy="75" r="21" fill="none" stroke="#4CAF50" stroke-width="1" />
+          <text x="240" y="79" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">状態A (受理)</text>
+
+          <!-- Self loop on A -->
+          <path d="M 245 51 C 260 20, 280 20, 255 51" stroke="#4CAF50" stroke-width="1.2" fill="none" marker-end="url(#arrow-green)" />
+          <text x="278" y="25" font-family="var(--font-sans)" font-size="8" fill="#4CAF50" text-anchor="middle">数字 [0-9]</text>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#1E3A60" />
+            </marker>
+            <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#4CAF50" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 9-2：数値リテラル [0-9]+ を判定する決定性有限オートマトン (DFA)</figcaption>
+    </figure>
+
+    <p>
+      このオートマトンでは、開始の「状態S」において数字（0〜9）が与えられると「状態A（受理状態）」に遷移します。それ以降、数字が続く限り「状態A」のループに残り、数字以外の文字が入力された時点でその手前までの文字列を「数値リテラル（NUMBER_LITERAL）」として確定します。
+    </p>
+    <p>
+      このような遷移ルールを「決定性有限オートマトン（DFA）」と呼びます。DFAは、どの状態にあっても入力文字に対して次の遷移先が一意に決定されるため、プログラムのループ処理として非常に効率よく実装できます。
+    </p>
+    <p>
+      文字列をトークン列に無事分解したのち、コンパイラはそれをプログラミング言語の構造的な文法ルールに照らし合わせる「構文解析」のフェーズに進みます。次節では、この構文解析のメカニズムを解説します。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter9/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">9-1. プログラミング言語の分類と翻訳処理</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter9/section3`}>
+        <span class="label">9-3. 構文解析 (AST) と意味解析</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

@@ -1,0 +1,166 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="9-1. プログラミング言語の分類と翻訳処理" 
+  description="高水準言語と機械語の橋渡しとなるコンパイラ、インタプリタ、JITコンパイル方式の仕組みと、それぞれの特徴・トレードオフを体系的に学びます。"
+  currentPath={`${baseUrl}chapter9/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第9章: コンパイラとプログラミング言語の設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第9章 1節</div>
+    <h1 class="section-title">プログラミング言語の分類と翻訳処理</h1>
+    <p class="section-intro">
+      私たちが普段記述しているソースコードは、人間が理解しやすい「高水準言語」で書かれています。しかし、CPUが直接実行できるのは、第3章で学んだ「機械語」のみです。このギャップを埋めるために不可欠な、プログラミング言語の分類と、それを翻訳して実行する仕組み（翻訳方式）について解説します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 高水準言語と低水準言語の階層</h2>
+    <p>
+      プログラミング言語は、ハードウェア（CPU）からの抽象化の度合いによって、大きく「低水準言語」と「高水準言語」に分類されます。
+    </p>
+
+    <ul>
+      <li>
+        <b>低水準言語（Low-Level Language）：</b><br/>
+        機械語（バイナリコード）やアセンブリ言語がこれに該当します。ハードウェアのレジスタやメモリのアドレスを直接指定して操作するため、実行速度やメモリ効率は極めて高いですが、人間にとって読み書きが難しく、CPUのアーキテクチャごとにコードを書き直す必要があります。
+      </li>
+      <li>
+        <b>高水準言語（High-Level Language）：</b><br/>
+        C、C++、Java、Python、JavaScript、TypeScriptなど、現代の多くの言語がこれに該当します。英語に近い表現や数式を用いて、ハードウェアの詳細（メモリ管理やレジスタの割り当てなど）を意識せずにプログラムを記述できます。また、一度書いたコードは異なるプラットフォームでも再利用可能です。
+      </li>
+    </ul>
+
+    <h2>2. 翻訳処理の3つの方式</h2>
+    <p>
+      高水準言語で記述されたプログラムを実行するために、ソースコードを機械語へと変換（または解釈実行）するアプローチには、主に「コンパイル方式」「インタプリタ方式」、そして両者を組み合わせた「JITコンパイル方式」の3つが存在します。
+    </p>
+
+    <h3>① コンパイル方式（Ahead-Of-Time: AOT）</h3>
+    <p>
+      実行前にソースコード全体を一括して機械語に翻訳し、実行可能ファイル（バイナリ）を生成する方式です。C、C++、Rust、Goなどが採用しています。
+    </p>
+    <p>
+      <b>メリット：</b> 実行時にはすでに翻訳が完了しているため、実行速度が極めて高速です。また、配布時にソースコードを隠蔽できます。<br/>
+      <b>デメリット：</b> コンパイルにかかる待ち時間が発生するほか、コンパイル後のバイナリは特定のOSやCPUアーキテクチャに依存するため、移植性が制限されます。
+    </p>
+
+    <h3>② インタプリタ方式</h3>
+    <p>
+      プログラムの実行時に、ソースコードを1行（または1ステップ）ずつ逐次読み込み、解釈しながら実行する方式です。PythonやRuby、初期のJavaScriptなどがこれに該当します。
+    </p>
+    <p>
+      <b>メリット：</b> 事前のコンパイルが不要なため、コード修正後に即座に動作確認が可能です。また、プラットフォームに対応したインタプリタさえあれば、同じソースコードをそのまま実行できる高い移植性を持ちます。<br/>
+      <b>デメリット：</b> 実行と並行して「翻訳処理」を常に行うため、コンパイル方式に比べて実行速度が大幅に低下します。
+    </p>
+
+    <h3>③ JIT（Just-In-Time）コンパイル方式</h3>
+    <p>
+      コンパイル方式とインタプリタ方式のハイブリッドです。Java（JVM）や、V8エンジンを搭載した現代のJavaScriptなどで広く採用されています。
+    </p>
+    <p>
+      まず、ソースコードを一括して「中間コード（バイトコード）」と呼ばれるプラットフォーム非依存の軽量コードに事前コンパイルします。実行時は中間コードを仮想マシンが逐次解釈しますが、何度も実行されるループ処理や頻繁に呼び出される関数（ホットスポット）を検知すると、その部分だけを実行中にネイティブ機械語へ動的コンパイルします。
+    </p>
+    <p>
+      これにより、インタプリタの持つ「移植性と起動の速さ」と、コンパイラの持つ「実行速度の高さ」を両立させることができます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="240" viewBox="0 0 450 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- AOT Compiler Flow -->
+          <g transform="translate(10, 20)">
+            <rect x="0" y="0" width="120" height="40" rx="3" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1" />
+            <text x="60" y="24" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle" font-weight="600">AOT（コンパイル）</text>
+            <path d="M 60 40 L 60 70" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+            <text x="70" y="58" font-family="var(--font-sans)" font-size="7" fill="#555555">事前一括コンパイル</text>
+            
+            <rect x="0" y="70" width="120" height="40" rx="3" fill="#FCE8E6" stroke="#E06C75" stroke-width="1" />
+            <text x="60" y="94" font-family="var(--font-sans)" font-size="9" fill="#E06C75" text-anchor="middle" font-weight="600">機械語バイナリ</text>
+            <path d="M 60 110 L 60 140" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+            
+            <rect x="0" y="140" width="120" height="40" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1" />
+            <text x="60" y="164" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">超高速実行</text>
+          </g>
+
+          <!-- Interpreter Flow -->
+          <g transform="translate(160, 20)">
+            <rect x="0" y="0" width="120" height="40" rx="3" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1" />
+            <text x="60" y="24" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle" font-weight="600">インタプリタ</text>
+            <path d="M 60 40 L 60 140" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+            <text x="70" y="90" font-family="var(--font-sans)" font-size="7" fill="#555555">実行時に1行ずつ解釈</text>
+            
+            <rect x="0" y="140" width="120" height="40" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1" />
+            <text x="60" y="164" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">即時実行（低速）</text>
+          </g>
+
+          <!-- JIT Compiler Flow -->
+          <g transform="translate(310, 20)">
+            <rect x="0" y="0" width="120" height="40" rx="3" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1" />
+            <text x="60" y="24" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle" font-weight="600">JITコンパイラ</text>
+            <path d="M 60 40 L 60 70" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+            
+            <rect x="0" y="70" width="120" height="40" rx="3" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1" />
+            <text x="60" y="94" font-family="var(--font-sans)" font-size="9" fill="#FBC02D" text-anchor="middle" font-weight="600">中間コード（バイト）</text>
+            <path d="M 60 110 L 60 140" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+            <text x="70" y="125" font-family="var(--font-sans)" font-size="7" fill="#555555">動的コンパイル</text>
+            
+            <rect x="0" y="140" width="120" height="40" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1" />
+            <text x="60" y="164" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">最適化実行（高速）</text>
+          </g>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#1E3A60" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 9-1：主要な3つの翻訳・実行方式の処理フロー比較</figcaption>
+    </figure>
+
+    <h2>3. 実行モデル：ネイティブと仮想マシンの対比</h2>
+    <p>
+      翻訳方式は、その最終ターゲットが物理的なハードウェアなのか、それともソフトウェアで構築された仮想的な計算機なのかによって、実行モデルが分類されます。
+    </p>
+
+    <ul>
+      <li>
+        <b>ネイティブ実行モデル：</b><br/>
+        CやRustなどで生成されたバイナリが該当します。特定のCPU命令セット（x86_64、ARM64など）に直結した機械語として実行されます。物理メモリやレジスタを直接駆動するため無駄がありませんが、他のプラットフォームへの互換性はありません。
+      </li>
+      <li>
+        <b>仮想マシン（Virtual Machine）実行モデル：</b><br/>
+        JavaのJava Virtual Machine（JVM）や、Node.js/ブラウザのV8エンジンが該当します。プログラムは論理的なレジスタや論理スタックを備えた「ソフトウェア的なCPU」を想定してコンパイルされ、仮想マシンのインタプリタやJITが実CPUの命令へと動的にマッピングします。これにより、「一度書けばどこでも動く（Write Once, Run Anywhere）」という汎用性が保障されます。
+      </li>
+    </ul>
+
+    <p>
+      次節からは、コンパイラ（AOTコンパイラやJITコンパイラのフロントエンド）が、プレーンなソースコード文字列をどのように解析し、構造化されたデータに変換していくのか、その第一段階である「字句解析」について詳しく学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter8/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">8-4. P ≠ NP予想と計算量の壁</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter9/section2`}>
+        <span class="label">9-2. 字句解析 (Lexical Analysis)</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

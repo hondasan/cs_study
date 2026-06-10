@@ -1,0 +1,123 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="11-1. ルールベースから『学習』へのアプローチ" 
+  description="明示的なプログラミング（ルールベース）から、データに基づいてパラメータを自己最適化する機械学習へのパラダイムシフトと、その基盤である勾配降下法を学びます。"
+  currentPath={`${baseUrl}chapter11/section1`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第11章: AIと機械学習の計算モデル</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第11章 1節</div>
+    <h1 class="section-title">ルールベースから『学習』へのアプローチ</h1>
+    <p class="section-intro">
+      コンピュータにタスクを実行させるために、これまでは人間がアルゴリズム（明示的な処理手順）をすべて記述してきました。しかし、画像認識や自然言語理解のように「ルールを言葉で定義しきれない問題」に対して、コンピュータ自身がデータから規則性を発見する「機械学習」の考え方と、その最適化を支える「勾配降下法」の数学的アプローチを解説します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. 明示的な記述からデータの「学習」への転換</h2>
+    <p>
+      従来のプログラミングは<b>ルールベースアプローチ</b>と呼ばれます。人間が「猫の画像とは、耳が三角形で、ヒゲがあり……」とルール（条件分岐）を定義し、コンピュータはその指示に従って判定します。しかし、角度や照明、毛並みのバリエーションが無限にあるため、このアプローチは破綻します。
+    </p>
+    <p>
+      これに対し、<b>機械学習（Machine Learning）アプローチ</b>では、人間は具体的な判定ルールを書きません。代わりに、大量のデータ（例：猫の画像と犬の画像のペア）と、数式モデル（パラメータを含む関数）をコンピュータに与えます。コンピュータは、「正解と予測値がどれだけズレているか」を計算し、そのズレが最小になるように関数の「重み（パラメータ）」を自動で調整していきます。これが「学習（Training）」の定義です。
+    </p>
+
+    <h2>2. 予測モデルと目的関数（Loss Function）</h2>
+    <p>
+      機械学習モデルは、入力データ $x$ に対して予測値 $y$ を出力する関数 $f(x; W)$ と考えることができます。ここで $W$ は、関数の性質を決めるパラメータ（重み）です。
+    </p>
+    <p>
+      モデルの予測の悪さを測る指標を<b>目的関数（または損失関数: Loss Function）</b>と呼びます。
+      例えば、代表的な目的関数である<b>二乗誤差（Squared Error）</b>は次のように定義されます。
+    </p>
+    <p style="text-align: center; font-style: italic;">
+      Loss = 1/2 * (予測値 - 正解値)²
+    </p>
+    <p>
+      予測値が正解値に近づくほど、損失（Loss）の値は $0$ に近づきます。機械学習の目標は、この目的関数の出力を限りなく $0$ に近づける最適なパラメータ $W$ の値を探索することに集約されます。
+    </p>
+
+    <h2>3. 勾配降下法（Gradient Descent）のアルゴリズム</h2>
+    <p>
+      無数のパラメータの組み合わせの中から、損失を最小にする値を手探りで効率よく見つけ出す数学的手法が<b>勾配降下法</b>です。
+    </p>
+    <p>
+      目的関数の形状を山と谷がある地形に見立てます。現在のパラメータの位置において、目的関数をパラメータで微分した値（＝傾き・勾配）を計算します。
+      この傾きは「山を登る方向」を指し示すため、その逆方向（マイナス方向）に向けてパラメータの値を一歩進めることで、最も低い谷底（損失の最小値）へ下ることができます。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="200" viewBox="0 0 450 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Loss Curve (Parabola) -->
+          <path d="M 80 40 Q 225 240 370 40" stroke="#1E3A60" stroke-width="2" fill="none" />
+          
+          <!-- Axis -->
+          <line x1="60" y1="180" x2="390" y2="180" stroke="var(--text-muted)" stroke-width="1.2" />
+          <text x="390" y="195" font-family="var(--font-sans)" font-size="9" fill="var(--text-muted)" text-anchor="end">パラメータ W</text>
+          <text x="60" y="30" font-family="var(--font-sans)" font-size="9" fill="var(--text-muted)" text-anchor="start">損失 (Loss)</text>
+          
+          <!-- Current Position -->
+          <circle cx="125" cy="98" r="5" fill="#E53935" />
+          <text x="125" y="88" font-family="var(--font-sans)" font-size="8" fill="#E53935" text-anchor="middle">現在値</text>
+
+          <!-- Tangent Line (Gradient indication) -->
+          <line x1="90" y1="135" x2="160" y2="61" stroke="#E53935" stroke-width="1" stroke-dasharray="2" />
+          
+          <!-- Step arrows -->
+          <path d="M 125 98 C 150 125, 175 140, 200 152" stroke="#4CAF50" stroke-width="1.5" stroke-dasharray="2" marker-end="url(#arrow-green)" fill="none" />
+          <text x="175" y="120" font-family="var(--font-sans)" font-size="8" fill="#4CAF50" text-anchor="middle">勾配の逆方向へ更新</text>
+
+          <!-- Minimum -->
+          <circle cx="225" cy="160" r="4" fill="#4CAF50" />
+          <text x="225" y="175" font-family="var(--font-sans)" font-size="8" fill="#4CAF50" text-anchor="middle">最小値（目標）</text>
+
+          <defs>
+            <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#4CAF50" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 11-1：勾配降下法によるパラメータ $W$ の最適化プロセス概念図</figcaption>
+    </figure>
+
+    <p>
+      具体的な数式での更新は次のように表されます（η は1歩の大きさを決める学習率）。
+    </p>
+    <p style="text-align: center; font-family: monospace; font-size: 1.1rem; color: var(--accent-color);">
+      W ➔ W - η * (∂Loss / ∂W)
+    </p>
+    <p>
+      偏微分（∂Loss / ∂W）を求めることで、数万〜数十億のパラメータがあっても、各パラメータを「少し増やすべきか、減らすべきか」を一度に計算し、最適化を進めることができます。
+    </p>
+    <p>
+      次節では、この予測モデル $f(x; W)$ の最も強力な構成単位である「人工ニューロン」の計算式と、それを効率的に実装するためのデータ表現である「テンソル演算」について学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter10/section4`}>
+        <span class="arrow">←</span>
+        <span class="label">10-4. 分散合意アルゴリズム</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter11/section2`}>
+        <span class="label">11-2. 人工ニューロンモデルとテンソル演算</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

@@ -1,0 +1,150 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="10-2. CAP定理とPACELC定理" 
+  description="分散データストア設計における不変の物理的限界であるCAP定理と、平常時のトレードオフまでを含めた現代的な拡張であるPACELC定理の理論を学びます。"
+  currentPath={`${baseUrl}chapter10/section2`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第10章: 分散システムとクラウドの設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第10章 2節</div>
+    <h1 class="section-title">CAP定理とPACELC定理</h1>
+    <p class="section-intro">
+      複数のサーバーノードにデータを複製して保持する分散データベースにおいて、物理的な「ネットワークの分断」は確率的に必ず発生します。このような制約の下で、システムはデータの正確性とアクセスの容易さをどのように両立すべきなのでしょうか。分散システムの根底を支える「CAP定理」と、その現代的な拡張である「PACELC定理」を解説します。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. ネットワーク分断（Partition Tolerance）とは</h2>
+    <p>
+      分散システムでは、複数の物理サーバーがネットワークのスイッチやケーブルを介して相互に通信し合っています。しかし、通信機器の故障、ノードの急な再起動、ネットワークスイッチの輻輳などにより、一部のノード同士が一時的に通信できなくなる現象が発生します。これを<b>ネットワーク分断（Partition）</b>と呼びます。
+    </p>
+    <p>
+      どれほど高価なインフラを構築しても、長時間の稼働を前提とすればネットワーク分断の発生確率をゼロにすることは物理的に不可能です。そのため、分散システムを設計する際には、最初から「分断は発生するもの」として前提を置かなければなりません（これが分断耐性: P です）。
+    </p>
+
+    <h2>2. 古典的な限界定理：CAP定理</h2>
+    <p>
+      2000年にエリック・ブリュワーが提唱した<b>CAP定理（Brewer's CAP Theorem）</b>は、分散システムにおいて次の3つの特性のうち、同時に満たすことができるのは最大でも2つまでであるという定理です。
+    </p>
+
+    <ul>
+      <li>
+        <b>一貫性（Consistency: C）：</b><br/>
+        すべてのクライアントが、どのノードからデータを読み出しても、常に「最も新しく書き込まれたデータ」を同時に受け取れる特性。
+      </li>
+      <li>
+        <b>可用性（Availability: A）：</b><br/>
+        クラッシュしていない任意のノードが、クライアントからの読み書き要求に対してエラーを返さず、必ず正常なレスポンスを返す特性（古いデータを返しても構わない）。
+      </li>
+      <li>
+        <b>分断耐性（Partition tolerance: P）：</b><br/>
+        一部のネットワーク分断（ノード間の通信遮断）が発生しても、システム全体が動作を維持する特性。
+      </li>
+    </ul>
+
+    <p>
+      前述の通り、現実世界のシステムでは「分断（P）」の発生を避けることはできません。したがって、実質的な選択肢は<b>「CP（分断時の一貫性重視）」</b>か<b>「AP（分断時の可用性重視）」</b>のどちらか一方を選択することになります。
+    </p>
+
+    <div class="note-box" style="border-left-color: var(--accent-color);">
+      <b>ネットワーク分断発生時の選択肢：</b>
+      <ul>
+        <li>
+          <b>CPを選択した場合：</b> ネットワークが分断された際、隔離されたノードは他のノードとデータの同期が取れなくなります。一貫性（C）を崩さないために、そのノードはクライアントからの書き込みや読み込みの要求を拒否（エラーを返却）します。このため可用性（A）は失われます。
+        </li>
+        <li>
+          <b>APを選択した場合：</b> ネットワークが分断されても、システムは応答を維持し続けます。隔離されたノードも手元のローカルにあるデータをそのまま返し、書き込みもローカルに受け入れます。このため、ノード間でデータの不整合が生じ、一貫性（C）は失われます。
+        </li>
+      </ul>
+    </div>
+
+    <h2>3. 現代的な拡張：PACELC定理</h2>
+    <p>
+      CAP定理は分散システムの設計に多大な影響を与えましたが、「ネットワークが分断（P）されている特殊な状況下」のことしか説明していないという限界がありました。
+      そこで2012年、ダニエル・アバディによって提唱されたのが<b>PACELC定理（パセルク定理）</b>です。
+    </p>
+    <p>
+      PACELC定理は、システムを次のようにモデル化してトレードオフを記述します。
+    </p>
+    <p style="text-align: center; font-weight: bold; font-size: 1.1rem; color: var(--accent-color);">
+      If <span style="color: #e53935;">P</span> (Partition) ➔ choose <span style="color: #e53935;">A</span> or <span style="color: #e53935;">C</span><br/>
+      Else (平常時) ➔ choose <span style="color: #1e88e5;">L</span> (Latency) or <span style="color: #1e88e5;">C</span> (Consistency)
+    </p>
+    <p>
+      つまり、「もしネットワークが<b>P</b>（分断）されたら、<b>A</b>（可用性）と<b>C</b>（一貫性）のどちらを取るか。<b>E</b>lse（そうでない平常時）は、応答時間（<b>L</b>atency）とデータの一貫性（<b>C</b>onsistency）のどちらを優先するか」という二重のトレードオフを示しています。
+    </p>
+    
+    <p>
+      この分類により、分散データベースは以下の4つの象限に分類されます。
+    </p>
+
+    <table class="textbook-table" style="font-size: 0.85rem; width: 100%; border-collapse: collapse; margin: 1rem 0;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+          <th style="padding: 0.5rem;">タイプ</th>
+          <th style="padding: 0.5rem;">分断時 (P)</th>
+          <th style="padding: 0.5rem;">平常時 (E)</th>
+          <th style="padding: 0.5rem;">データベースの傾向と代表例</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem; font-weight: 700; color: #b71c1c;">PC / EC</td>
+          <td style="padding: 0.5rem;">一貫性 (C)</td>
+          <td style="padding: 0.5rem;">一貫性 (C)</td>
+          <td style="padding: 0.5rem;">平常時も複数ノードの同期を待つため遅いが、データは常に正確。金融系。RDB、Bigtableなど。</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem; font-weight: 700; color: #e65100;">PA / EL</td>
+          <td style="padding: 0.5rem;">可用性 (A)</td>
+          <td style="padding: 0.5rem;">レイテンシ (L)</td>
+          <td style="padding: 0.5rem;">分断時も動き、平常時も同期を待たず即答する極めて高速な設計。DynamoDB、Cassandraなど。</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem; font-weight: 700; color: #0d47a1;">PC / EL</td>
+          <td style="padding: 0.5rem;">一貫性 (C)</td>
+          <td style="padding: 0.5rem;">レイテンシ (L)</td>
+          <td style="padding: 0.5rem;">分断時はエラーを吐くが、平常時は高速。MongoDBなど。</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 0.5rem; font-weight: 700; color: #0d47a1;">PA / EC</td>
+          <td style="padding: 0.5rem;">可用性 (A)</td>
+          <td style="padding: 0.5rem;">一貫性 (C)</td>
+          <td style="padding: 0.5rem;">（理論的には可能だが、この設定を取る実用的なデータベースは稀）。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      このように、データベースを評価する際、「平常時のレスポンス時間とデータの同期度合い」という実稼働に即した尺度を導入することで、システムの設計思想をより深く理解することが可能になります。
+    </p>
+    <p>
+      次節では、一貫性（C）の厳しさのレベルの定義と、複数のノードでデータを同期するレプリケーションの様々な仕組みについて学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter10/section1`}>
+        <span class="arrow">←</span>
+        <span class="label">10-1. スケールアウトとロードバランシング</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter10/section3`}>
+        <span class="label">10-3. 一貫性モデルと非同期メッセージング</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>

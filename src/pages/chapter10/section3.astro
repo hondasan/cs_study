@@ -1,0 +1,131 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+---
+
+<BookLayout 
+  title="10-3. 一貫性モデルと非同期メッセージング" 
+  description="分散システムにおけるデータ複製に伴う一貫性モデルの違いや、レプリケーションのトポロジー、および非同期メッセージング（Pub/Sub）による疎結合設計を学びます。"
+  currentPath={`${baseUrl}chapter10/section3`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">第10章: 分散システムとクラウドの設計</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">第10章 3節</div>
+    <h1 class="section-title">一貫性モデルと非同期メッセージング</h1>
+    <p class="section-intro">
+      データを複数のサーバーへ複製（レプリケーション）する際、一瞬で同期が完了するわけではありません。地理的に離れたノード間でのデータ同期には、物理法則である光の速度による遅延が伴います。この非同期同期プロセスにおけるデータの整合性の定義（一貫性モデル）と、システム同士を疎結合にする非同期メッセージングの仕組みを学びます。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <h2>1. データの整合性を決める一貫性モデル</h2>
+    <p>
+      一貫性モデル（Consistency Model）とは、「データが更新された際、それが他のシステムやユーザーからどのように見えるか」を取り決めた契約・規則です。主なモデルは以下の通りです。
+    </p>
+
+    <ul>
+      <li>
+        <b>強い一貫性（Strong Consistency / 線形化可能性：Linearizability）：</b><br/>
+        書き込み操作が完了した瞬間、それ以降のすべての読み出しにおいて、世界のどこからアクセスしても確実にその最新の値が読み出せることを保証するモデル。データの一時的なズレも許さないため、分散環境では極めてコスト（遅延）が高くなります。
+      </li>
+      <li>
+        <b>結果一貫性（Eventual Consistency）：</b><br/>
+        新しい書き込みの後、十分な時間が経過すれば、すべてのノードが最終的に同じ最新値に収束することを保証するモデル。同期の過渡期には古いデータを読み出す可能性がありますが、平常時の処理パフォーマンスを最高に保つことができます。
+      </li>
+    </ul>
+
+    <h2>2. データレプリケーションのトポロジー</h2>
+    <p>
+      どのノードが書き込みを受け入れ、どのようにデータを他のノードに流す（複製する）かによって、レプリケーションの設計パターンが分かれます。
+    </p>
+
+    <ul>
+      <li>
+        <b>シングルリーダー方式（Single-Leader Replication）：</b><br/>
+        書き込みを受け入れることができるノード（リーダー/プライマリ）を1台に固定し、他のノード（フォロワー/セカンダリ）はリーダーからの更新履歴を読み取って自身のデータを追従させる方式。RDBなどで最も一般的です。競合が起きないため一貫性の維持が比較的容易ですが、リーダーが故障すると書き込み不能になります。
+      </li>
+      <li>
+        <b>マルチリーダー方式（Multi-Leader Replication）：</b><br/>
+        複数のアクティブなリーダーを配置し、それぞれが独立して書き込みを受け入れ、裏側でデータを同期し合う方式。異なるデータセンター間でデータを同期する際などに使用されます。競合の解決（コンフリクト解決）が複雑になります。
+      </li>
+      <li>
+        <b>リーダーレス方式（Leaderless Replication）：</b><br/>
+        特定のリーダーを設けず、クライアントが直接複数のノードへ書き込みと読み出しを同時に送信する方式。例えば3ノード中2ノードから「書き込み完了」の応答（クォーラム）が得られれば処理を成功とみなすことで、一部ノードがダウンしていても書き込みを継続できます（Cassandraなどで採用）。
+      </li>
+    </ul>
+
+    <h2>3. システムを疎結合にする非同期メッセージング</h2>
+    <p>
+      分散システムを構築する際、サービス同士が直接APIなどで通信（同期通信）し合っていると、呼び出し先のサービスが停止した瞬間に、呼び出し元の処理も停止してしまう「障害の連鎖」が発生します。
+      この連鎖を断ち切り、システム同士を<b>疎結合（Loose Coupling）</b>に保つために、<b>非同期メッセージング</b>が活用されます。
+    </p>
+    <p>
+      これは、送信元（Publisher）がデータをメッセージキューまたはメッセージブローカーに投げ入れ、受信側（Subscriber）が自分のペースでキューからメッセージを取り出して処理する<b>Pub/Subモデル</b>です。
+    </p>
+
+    <figure>
+      <div class="diagram-container">
+        <svg width="450" height="130" viewBox="0 0 450 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+          <!-- Publisher -->
+          <rect x="10" y="45" width="90" height="40" rx="3" fill="#E6EEF8" stroke="#1E3A60" stroke-width="1.2" />
+          <text x="55" y="69" font-family="var(--font-sans)" font-size="9" fill="#1E3A60" text-anchor="middle" font-weight="600">Publisher</text>
+          
+          <path d="M 100 65 L 140 65" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="120" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555">送信</text>
+
+          <!-- Message Queue -->
+          <rect x="150" y="30" width="130" height="70" rx="3" fill="#FFF9C4" stroke="#FBC02D" stroke-width="1.2" />
+          <text x="215" y="47" font-family="var(--font-sans)" font-size="9" fill="#FBC02D" text-anchor="middle" font-weight="600">Message Queue</text>
+          
+          <!-- Queue slots -->
+          <rect x="160" y="60" width="25" height="25" fill="#ffffff" stroke="#FBC02D" />
+          <rect x="190" y="60" width="25" height="25" fill="#ffffff" stroke="#FBC02D" />
+          <rect x="220" y="60" width="25" height="25" fill="#ffffff" stroke="#FBC02D" />
+          <text x="202" y="76" font-family="var(--font-sans)" font-size="8" fill="#555555" text-anchor="middle">msg</text>
+
+          <path d="M 280 65 L 320 65" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
+          <text x="300" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555">非同期受信</text>
+
+          <!-- Subscriber -->
+          <rect x="330" y="45" width="90" height="40" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.2" />
+          <text x="375" y="69" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">Subscriber</text>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 2 L 10 5 L 0 8 z" fill="#1E3A60" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <figcaption>図 9-4：メッセージキューを介した非同期通信モデル（Pub/Sub）</figcaption>
+    </figure>
+
+    <p>
+      このアーキテクチャでは、たとえ受信側のSubscriberサーバーが過負荷や故障で一時停止していても、送信側のPublisherはキューに書き込むだけで正常に応答を終えられます。溜まったメッセージはSubscriberが再起動した段階で順次処理されるため、システム全体としての可用性・弾力性（レジリエンス）が飛躍的に高まります。
+    </p>
+    <p>
+      次節では、これらの複数ノードが自律的に協調し合い、「どれが正しいデータか」を決定するための分散合意アルゴリズムについて詳しく学びます。
+    </p>
+  </div>
+
+  <!-- Textbook navigation (Footer pagination) -->
+  <div class="textbook-pagination">
+    <div class="pagination-prev">
+      <a href={`${baseUrl}chapter10/section2`}>
+        <span class="arrow">←</span>
+        <span class="label">10-2. CAP定理とPACELC定理</span>
+      </a>
+    </div>
+    <div class="pagination-next">
+      <a href={`${baseUrl}chapter10/section4`}>
+        <span class="label">10-4. 分散合意アルゴリズム</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</BookLayout>
