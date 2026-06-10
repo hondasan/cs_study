@@ -152,6 +152,13 @@ const jsonLd = isHomepage
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+    <script is:inline>
+      if (window.location.hostname.endsWith('github.io')) {
+        const newBase = "https://cs-study-9cf.pages.dev";
+        const newPath = window.location.pathname.replace(/^\/cs_study/, '');
+        window.location.replace(newBase + newPath + window.location.search + window.location.hash);
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} | コンピュータサイエンスの教科書</title>
