@@ -5,7 +5,6 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://hondasan.github.io',
-  base: '/cs_study',
+  site: 'https://cs-study-9cf.pages.dev',
   integrations: [sitemap()],
 });
