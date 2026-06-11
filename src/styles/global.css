@@ -467,12 +467,12 @@ tr:nth-child(even) {
     margin: 1.2em 0;
   }
 
-  /* 簡易テーブル：折り返しを有効にし、画面幅に収める */
+  /* 簡易テーブル：はみ出す場合は横スクロールさせる */
   table.responsive-simple-table {
-    display: table !important;
+    display: block !important;
     width: 100% !important;
-    table-layout: auto !important;
-    overflow-x: visible !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   table.responsive-simple-table th, 
