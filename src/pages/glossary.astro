@@ -1,0 +1,123 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import glossaryData from '../data/glossary.json';
+
+const rawBaseUrl = import.meta.env.BASE_URL;
+const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
+
+// 用語を簡易的にソートする
+const sortedGlossary = [...glossaryData].sort((a, b) => {
+  return a.term.localeCompare(b.term, 'ja');
+});
+---
+
+<BookLayout 
+  title="用語集（Glossary）" 
+  description="コンピュータサイエンスの教科書に登場する重要な専門用語の一覧です。"
+  currentPath={`${baseUrl}glossary`}
+>
+  <div class="section-nav-breadcrumbs">
+    <a href={baseUrl}>ホーム</a> ＞ <span class="muted">付録: 用語集</span>
+  </div>
+
+  <header class="section-header">
+    <div class="section-number">付録</div>
+    <h1 class="section-title">用語集（Glossary）</h1>
+    <p class="section-intro">
+      本書で登場する重要な専門用語の一覧です。
+    </p>
+  </header>
+
+  <div class="section-body">
+    <div class="glossary-list">
+      {sortedGlossary.map((item) => (
+        <div class="glossary-item" id={item.id}>
+          <div class="glossary-term-group">
+            <h2 class="glossary-term">{item.term}</h2>
+            {item.termEn && <span class="glossary-en">{item.termEn}</span>}
+          </div>
+          <p class="glossary-summary">{item.summary}</p>
+          <p class="glossary-desc">{item.description}</p>
+          <div class="glossary-meta">
+            関連: 第{item.relatedChapter}章
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <style>
+    .glossary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .glossary-item {
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .glossary-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+    }
+
+    .glossary-term-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .glossary-term {
+      font-size: 1.3rem;
+      margin: 0;
+      color: var(--accent-color);
+      border-bottom: none;
+    }
+
+    .glossary-en {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+    }
+
+    .glossary-summary {
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+
+    .glossary-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .glossary-meta {
+      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      color: var(--text-muted);
+      text-align: right;
+    }
+    
+    @media (max-width: 600px) {
+      .glossary-item {
+        padding: 1.2rem;
+      }
+      .glossary-term {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</BookLayout>

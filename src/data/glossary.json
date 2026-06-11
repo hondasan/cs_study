@@ -1,0 +1,266 @@
+[
+  {
+    "id": "bit",
+    "term": "ビット",
+    "termEn": "Bit",
+    "summary": "コンピュータにおける情報の最小単位。",
+    "description": "Binary digitの略で、0か1のどちらかの状態を表します。電球のオン・オフのように、2つの状態のいずれかを示す最も基本的な情報の器です。",
+    "relatedChapter": "1"
+  },
+  {
+    "id": "byte",
+    "term": "バイト",
+    "termEn": "Byte",
+    "summary": "8つのビットをまとめた情報量の単位。",
+    "description": "1バイトで256通り（2の8乗）の状態を表現でき、アルファベットや数字などの1文字を表すのに十分な情報量です。メモリの基本アクセス単位として使われます。",
+    "relatedChapter": "1"
+  },
+  {
+    "id": "endian",
+    "term": "エンディアン",
+    "termEn": "Endian",
+    "summary": "複数バイトのデータをメモリに配置する順序。",
+    "description": "上位バイトから順に配置するビッグエンディアンと、下位バイトから配置するリトルエンディアンがあります。CPUアーキテクチャやネットワークプロトコルで異なります。",
+    "relatedChapter": "1"
+  },
+  {
+    "id": "logic-gate",
+    "term": "論理ゲート",
+    "termEn": "Logic Gate",
+    "summary": "論理演算を行う電子回路の基本構成要素。",
+    "description": "AND、OR、NOTなどの演算を行い、入力された電圧（0と1）から新しい出力を生成します。これらを組み合わせることで複雑な計算回路（CPU）が構築されます。",
+    "relatedChapter": "2"
+  },
+  {
+    "id": "transistor",
+    "term": "トランジスタ",
+    "termEn": "Transistor",
+    "summary": "電気信号を増幅・スイッチングする半導体素子。",
+    "description": "コンピュータ内部で極小の「スイッチ」として働き、電流のオン・オフを制御します。現代のCPUには数十億個のトランジスタが集積されています。",
+    "relatedChapter": "2"
+  },
+  {
+    "id": "cpu",
+    "term": "CPU（中央処理装置）",
+    "termEn": "Central Processing Unit",
+    "summary": "コンピュータの頭脳として演算と制御を行う装置。",
+    "description": "メモリから命令を読み込み、解読し、実行するというサイクルを高速で繰り返します。論理回路とレジスタの集合体で構成されています。",
+    "relatedChapter": "2"
+  },
+  {
+    "id": "stack",
+    "term": "スタック",
+    "termEn": "Stack",
+    "summary": "後入れ先出し（LIFO）でデータを管理するメモリ領域。",
+    "description": "関数の呼び出し履歴やローカル変数を一時的に保存するために使用されます。関数が終了すると自動的にデータが解放される特徴があります。",
+    "relatedChapter": "3"
+  },
+  {
+    "id": "heap",
+    "term": "ヒープ",
+    "termEn": "Heap",
+    "summary": "プログラム実行時に動的に確保されるメモリ領域。",
+    "description": "サイズが変動するデータや、関数の実行後も保持したいデータを保存します。プログラマが明示的に確保と解放を管理する必要があります。",
+    "relatedChapter": "3"
+  },
+  {
+    "id": "memory-hierarchy",
+    "term": "メモリ階層",
+    "termEn": "Memory Hierarchy",
+    "summary": "速度と容量が異なる記憶装置を組み合わせた構造。",
+    "description": "レジスタ、キャッシュ、メインメモリ、ストレージの順で、CPUに近いほど高速ですが容量が小さく高価になります。効率的なデータ処理のための設計です。",
+    "relatedChapter": "3"
+  },
+  {
+    "id": "kernel",
+    "term": "カーネル",
+    "termEn": "Kernel",
+    "summary": "OSの中核としてハードウェアとソフトウェアを橋渡しするプログラム。",
+    "description": "メモリ管理、プロセス管理、デバイス制御などを担い、アプリケーションが安全かつ効率的にハードウェアリソースを利用できるように仲介します。",
+    "relatedChapter": "4"
+  },
+  {
+    "id": "process",
+    "term": "プロセス",
+    "termEn": "Process",
+    "summary": "実行中のプログラムのインスタンス。",
+    "description": "OSによって独立したメモリ空間とリソースが割り当てられます。複数のプロセスが同時に動いているように見せるため、OSがCPU時間を細かく分割して割り当てます。",
+    "relatedChapter": "4"
+  },
+  {
+    "id": "file-system",
+    "term": "ファイルシステム",
+    "termEn": "File System",
+    "summary": "データをファイルやディレクトリとして整理・管理する仕組み。",
+    "description": "ストレージ上の物理的なデータ配置を隠蔽し、人間やプログラムが直感的にデータを読み書きできるようにします。権限管理やメタデータも扱います。",
+    "relatedChapter": "4"
+  },
+  {
+    "id": "time-complexity",
+    "term": "時間計算量",
+    "termEn": "Time Complexity",
+    "summary": "アルゴリズムの実行時間が入力サイズに応じてどう増加するかを示す指標。",
+    "description": "通常O記法（ビッグオー）で表され、O(1)、O(n)、O(n²)などがあります。データ量が増えた際のパフォーマンスを評価するために重要です。",
+    "relatedChapter": "5"
+  },
+  {
+    "id": "binary-search",
+    "term": "二分探索",
+    "termEn": "Binary Search",
+    "summary": "ソート済みのデータから効率よく目的の値を探索するアルゴリズム。",
+    "description": "探索範囲を半分に分割しながら目的のデータを探すため、線形探索に比べて非常に高速（O(log n)）に検索が完了します。",
+    "relatedChapter": "5"
+  },
+  {
+    "id": "graph",
+    "term": "グラフ",
+    "termEn": "Graph",
+    "summary": "頂点（ノード）と辺（エッジ）で関係性を表現するデータ構造。",
+    "description": "ネットワークのルーティング、SNSの交友関係、地図の最短経路検索など、複雑な相互関係をモデル化する際に広く利用されます。",
+    "relatedChapter": "5"
+  },
+  {
+    "id": "tcp-ip",
+    "term": "TCP/IP",
+    "termEn": "TCP/IP",
+    "summary": "インターネットの基盤となる標準的な通信プロトコル群。",
+    "description": "データの確実な到達を保証するTCPと、宛先への経路制御を担うIPが組み合わさって機能し、世界中のコンピュータを繋ぐ共通言語として働きます。",
+    "relatedChapter": "6"
+  },
+  {
+    "id": "routing",
+    "term": "ルーティング",
+    "termEn": "Routing",
+    "summary": "ネットワーク上でデータを目的地まで届けるための経路選択。",
+    "description": "ルーターが宛先IPアドレスを見て、最適な次の転送先を決定します。障害が発生しても迂回ルートを見つけ出す柔軟性を持っています。",
+    "relatedChapter": "6"
+  },
+  {
+    "id": "dns",
+    "term": "DNS",
+    "termEn": "Domain Name System",
+    "summary": "ドメイン名とIPアドレスを相互に変換するシステム。",
+    "description": "人間が覚えやすいURL（例: example.com）を、コンピュータが通信に使うIPアドレス（例: 192.0.2.1）に変換する、インターネットの電話帳です。",
+    "relatedChapter": "6"
+  },
+  {
+    "id": "relational-database",
+    "term": "リレーショナルデータベース",
+    "termEn": "Relational Database",
+    "summary": "行と列からなる表形式でデータを管理するデータベース。",
+    "description": "データ同士の関連性（リレーション）を表現でき、整合性を保ちながら複雑な条件でデータを検索・更新することに優れています。",
+    "relatedChapter": "7"
+  },
+  {
+    "id": "sql",
+    "term": "SQL",
+    "termEn": "Structured Query Language",
+    "summary": "リレーショナルデータベースを操作するための言語。",
+    "description": "データの検索、追加、更新、削除を行うための標準的な言語です。宣言的な言語であり、何を取得するかを記述すればデータベースが内部で処理方法を決定します。",
+    "relatedChapter": "7"
+  },
+  {
+    "id": "transaction",
+    "term": "トランザクション",
+    "termEn": "Transaction",
+    "summary": "分割不可能な一連のデータ処理の単位。",
+    "description": "途中でエラーが起きた場合は全て無かったこと（ロールバック）にし、成功した場合は全て反映（コミット）することで、データの矛盾を防ぎます（ACID特性）。",
+    "relatedChapter": "7"
+  },
+  {
+    "id": "public-key-cryptography",
+    "term": "公開鍵暗号",
+    "termEn": "Public-key Cryptography",
+    "summary": "暗号化と復号で異なる2つの鍵を使用する暗号方式。",
+    "description": "誰にでも公開する「公開鍵」で暗号化し、自分だけが持つ「秘密鍵」でのみ復号できる仕組みです。安全なインターネット通信（HTTPS）の基盤です。",
+    "relatedChapter": "8"
+  },
+  {
+    "id": "hash-function",
+    "term": "ハッシュ関数",
+    "termEn": "Hash Function",
+    "summary": "任意の長さのデータから固定長の不規則な文字列を生成する関数。",
+    "description": "同じ入力からは必ず同じ出力が得られますが、出力から入力を逆算することは実質不可能です。パスワードの保存やデータの改ざん検知に用いられます。",
+    "relatedChapter": "8"
+  },
+  {
+    "id": "turing-machine",
+    "term": "チューリングマシン",
+    "termEn": "Turing Machine",
+    "summary": "計算という行為を数学的に定義した仮想的な機械モデル。",
+    "description": "アラン・チューリングが考案したモデルで、現代のすべてのコンピュータの理論的基礎となっています。計算可能性（解ける問題と解けない問題）の境界を示します。",
+    "relatedChapter": "8"
+  },
+  {
+    "id": "lexical-analysis",
+    "term": "字句解析",
+    "termEn": "Lexical Analysis",
+    "summary": "ソースコードを意味のある最小単位（トークン）に分割する処理。",
+    "description": "コンパイラの最初の工程で、単なる文字列をキーワード、識別子、記号などのトークン列に変換し、後続の構文解析が行いやすい形式にします。",
+    "relatedChapter": "9"
+  },
+  {
+    "id": "syntax-analysis",
+    "term": "構文解析",
+    "termEn": "Syntax Analysis",
+    "summary": "トークンの列がプログラミング言語の文法に従っているかを確認し、構造化する処理。",
+    "description": "プログラムの構造を木構造（抽象構文木：AST）として表現し、コードの論理的な階層関係や実行順序をコンピュータが理解できる形にします。",
+    "relatedChapter": "9"
+  },
+  {
+    "id": "intermediate-representation",
+    "term": "中間表現",
+    "termEn": "Intermediate Representation (IR)",
+    "summary": "ソースコードと機械語の中間に位置する汎用的なコード表現。",
+    "description": "特定の言語やCPUに依存しない形式で、コードの最適化を効率的に行うために使用されます。LLVMなどの現代的なコンパイラ基盤で重要な役割を果たします。",
+    "relatedChapter": "9"
+  },
+  {
+    "id": "load-balancer",
+    "term": "ロードバランサ",
+    "termEn": "Load Balancer",
+    "summary": "外部からのアクセスを複数のサーバーへ振り分ける装置。",
+    "description": "システムへの負荷を分散（スケールアウト）させ、一部のサーバーがダウンしても正常なサーバーに処理を回すことで、高い可用性を実現します。",
+    "relatedChapter": "10"
+  },
+  {
+    "id": "cap-theorem",
+    "term": "CAP定理",
+    "termEn": "CAP Theorem",
+    "summary": "分散システムが同時に満たすことができない3つの特性の法則。",
+    "description": "一貫性(Consistency)、可用性(Availability)、分断耐性(Partition tolerance)のうち、同時に2つまでしか保証できないという分散データベース設計の根本原則です。",
+    "relatedChapter": "10"
+  },
+  {
+    "id": "replication",
+    "term": "レプリケーション",
+    "termEn": "Replication",
+    "summary": "データを複数のサーバーに複製して保持する仕組み。",
+    "description": "サーバー障害によるデータ消失を防ぎ、読み込み処理を複数の複製サーバーに分散させることでパフォーマンスを向上させるために不可欠な技術です。",
+    "relatedChapter": "10"
+  },
+  {
+    "id": "gradient-descent",
+    "term": "勾配降下法",
+    "termEn": "Gradient Descent",
+    "summary": "関数の最小値を探し出すための最適化アルゴリズム。",
+    "description": "AIの学習において、予測の誤差が最も小さくなるようにパラメータ（重み）を少しずつ調整していく手法です。山を下るように最適解へと向かいます。",
+    "relatedChapter": "11"
+  },
+  {
+    "id": "backpropagation",
+    "term": "誤差逆伝播法",
+    "termEn": "Backpropagation",
+    "summary": "ニューラルネットワークの学習を効率的に行うアルゴリズム。",
+    "description": "出力された結果と正解との誤差を計算し、その誤差を出力層から入力層に向かって逆向きに伝播させながら、各ノードのパラメータを修正します。",
+    "relatedChapter": "11"
+  },
+  {
+    "id": "llm",
+    "term": "大規模言語モデル",
+    "termEn": "Large Language Model (LLM)",
+    "summary": "膨大なテキストデータで学習された高度な自然言語処理モデル。",
+    "description": "数十億以上のパラメータを持ち、次に来る確率が最も高い単語を予測し続けることで、人間のように自然な文章生成や推論、翻訳などを可能にします。",
+    "relatedChapter": "11"
+  }
+]

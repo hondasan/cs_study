@@ -529,6 +529,14 @@ const jsonLd = isHomepage
               </ul>
             </div>
           ))}
+          <div class="chapter-group">
+            <div class="chapter-header">付録</div>
+            <ul class="section-list">
+              <li class={`section-item ${normalizedCurrentPath === baseUrl + 'glossary' ? 'active' : ''}`}>
+                <a href={`${baseUrl}glossary`}>用語集（Glossary）</a>
+              </li>
+            </ul>
+          </div>
         </nav>
         {enableAds && (
           <div class="sidebar-ad no-print">
