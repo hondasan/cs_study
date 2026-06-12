@@ -140,7 +140,7 @@
     "term": "DNS",
     "termEn": "Domain Name System",
     "summary": "ドメイン名とIPアドレスを相互に変換するシステム。",
-    "description": "人間が覚えやすいURL（例: example.com）を、コンピュータが通信に使うIPアドレス（例: 192.0.2.1）に変換する、インターネットの電話帳です。",
+    "description": "人間が覚えやすいURL（例: example.com）を、コンピュータが通信に使うIPアドレス（例: 192.0.2.1）に変換する、ドメイン名とIPアドレスの対応を管理する仕組みです。",
     "relatedChapter": "6"
   },
   {
