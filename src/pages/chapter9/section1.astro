@@ -31,7 +31,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <ul>
       <li>
         <b>低水準言語（Low-Level Language）：</b><br/>
-        機械語（バイナリコード）やアセンブリ言語がこれに該当します。ハードウェアのレジスタやメモリのアドレスを直接指定して操作するため、実行速度やメモリ効率は極めて高いですが、人間にとって読み書きが難しく、CPUのアーキテクチャごとにコードを書き直す必要があります。
+        機械語（バイナリコード）やアセンブリ言語がこれに該当します。ハードウェアのレジスタやメモリのアドレスを直接指定して操作するため、実行速度やメモリ効率は高いですが、人間にとって読み書きが難しく、CPUのアーキテクチャごとにコードを書き直す必要があります。
       </li>
       <li>
         <b>高水準言語（High-Level Language）：</b><br/>
@@ -49,7 +49,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       実行前にソースコード全体を一括して機械語に翻訳し、実行可能ファイル（バイナリ）を生成する方式です。C、C++、Rust、Goなどが採用しています。
     </p>
     <p>
-      <b>メリット：</b> 実行時にはすでに翻訳が完了しているため、実行速度が極めて高速です。また、配布時にソースコードを隠蔽できます。<br/>
+      <b>メリット：</b> 実行時にはすでに翻訳が完了しているため、実行速度が高速です。また、配布時にソースコードを隠蔽できます。<br/>
       <b>デメリット：</b> コンパイルにかかる待ち時間が発生するほか、コンパイル後のバイナリは特定のOSやCPUアーキテクチャに依存するため、移植性が制限されます。
     </p>
 
@@ -59,7 +59,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     </p>
     <p>
       <b>メリット：</b> 事前のコンパイルが不要なため、コード修正後に即座に動作確認が可能です。また、プラットフォームに対応したインタプリタさえあれば、同じソースコードをそのまま実行できる高い移植性を持ちます。<br/>
-      <b>デメリット：</b> 実行と並行して「翻訳処理」を常に行うため、コンパイル方式に比べて実行速度が大幅に低下します。
+      <b>デメリット：</b> 実行と並行して「翻訳処理」を常に行うため、コンパイル方式に比べて実行速度が低下します。
     </p>
 
     <h3>③ JIT（Just-In-Time）コンパイル方式</h3>
@@ -88,7 +88,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
             <path d="M 60 110 L 60 140" stroke="#1E3A60" stroke-width="1.2" marker-end="url(#arrow)" />
             
             <rect x="0" y="140" width="120" height="40" rx="3" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1" />
-            <text x="60" y="164" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">超高速実行</text>
+            <text x="60" y="164" font-family="var(--font-sans)" font-size="9" fill="#4CAF50" text-anchor="middle" font-weight="600">高速実行</text>
           </g>
 
           <!-- Interpreter Flow -->
@@ -139,7 +139,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       </li>
       <li>
         <b>仮想マシン（Virtual Machine）実行モデル：</b><br/>
-        JavaのJava Virtual Machine（JVM）や、Node.js/ブラウザのV8エンジンが該当します。プログラムは論理的なレジスタや論理スタックを備えた「ソフトウェア的なCPU」を想定してコンパイルされ、仮想マシンのインタプリタやJITが実CPUの命令へと動的にマッピングします。これにより、「一度書けばどこでも動く（Write Once, Run Anywhere）」という汎用性が保障されます。
+        JavaのJava Virtual Machine（JVM）や、Node.js/ブラウザのV8エンジンが該当します。プログラムは論理的なレジスタや論理スタックを備えた「ソフトウェア的なCPU」を想定してコンパイルされ、仮想マシンのインタプリタやJITが実CPUの命令へと動的にマッピングします。これにより、「一度書けばどこでも動く（Write Once, Run Anywhere）」という汎用性が確保されます。
       </li>
     </ul>
 

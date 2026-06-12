@@ -7,7 +7,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
 <BookLayout 
   title="10-2. CAP定理とPACELC定理" 
-  description="分散データストア設計における不変の物理的限界であるCAP定理と、平常時のトレードオフまでを含めた現代的な拡張であるPACELC定理の理論を学びます。"
+  description="分散データストア設計における制約を示すCAP定理と、平常時のトレードオフまでを含めた現代的な拡張であるPACELC定理の理論を学びます。"
   currentPath={`${baseUrl}chapter10/section2`}
 >
   <div class="section-nav-breadcrumbs">
@@ -107,7 +107,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
           <td style="padding: 0.5rem; font-weight: 700; color: #e65100;">PA / EL</td>
           <td style="padding: 0.5rem;">可用性 (A)</td>
           <td style="padding: 0.5rem;">レイテンシ (L)</td>
-          <td style="padding: 0.5rem;">分断時も動き、平常時も同期を待たず即答する極めて高速な設計。DynamoDB、Cassandraなど。</td>
+          <td style="padding: 0.5rem;">分断時も動き、平常時も同期を待たず応答する高速な設計。DynamoDB、Cassandraなど。</td>
         </tr>
         <tr style="border-bottom: 1px solid var(--border-color);">
           <td style="padding: 0.5rem; font-weight: 700; color: #0d47a1;">PC / EL</td>

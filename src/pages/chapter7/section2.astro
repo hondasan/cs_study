@@ -41,7 +41,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <div class="note-box">
       <div class="note-box-title">キーの役割</div>
       <ul>
-        <li><b>主キー（Primary Key：PK）：</b><br/>そのテーブル内で、<b>「レコードを絶対に1件に特定できる、重複のない代表の列」</b>です。例えば、「顧客ID」や「社員番号」などです。主キーには、重複した値（同じIDが2つあるなど）や、空の値（NULL）を入れることはできません。</li>
+        <li><b>主キー（Primary Key：PK）：</b><br/>そのテーブル内で、<b>「レコードを一意に特定できる、重複のない代表の列」</b>です。例えば、「顧客ID」や「社員番号」などです。主キーには、重複した値（同じIDが2つあるなど）や、空の値（NULL）を入れることはできません。</li>
         <li><b>外部キー（Foreign Key：FK）：</b><br/>別のテーブルの主キーを参照し、テーブル同士を関連付ける（リンクする）ための列です。</li>
       </ul>
     </div>
@@ -145,7 +145,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
         </li>
       </ul>
       <p>
-        正規化を行うことで、データの重複が排除され、データの挿入・更新・削除にともなう<b>整合性の破綻（整合性異常）</b>を防ぐことができます。
+        正規化を行うことで、データの重複が排除され、データの挿入・更新・削除にともなう<b>不整合（更新時異常など）</b>を防ぐことができます。
       </p>
     </FocusCard>
   </div>
