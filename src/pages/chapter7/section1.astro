@@ -18,7 +18,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <div class="section-number">第7章 1節</div>
     <h1 class="section-title">なぜデータベースが必要か</h1>
     <p class="section-intro">
-      コンピュータが扱うデータ量は、インターネットの普及とともに爆発的に増加しました。第4章でデータをディスクに永続化する「ファイルシステム」を学びましたが、なぜさらに「データベース」という専用システムが必要なのでしょうか。ファイル保存の限界と、データベース管理システム（DBMS）の真価を明らかにします。
+      データは現代のビジネスにおいて重要な資産であり、その量は増加し続けています。第4章でデータをディスクに永続化する「ファイルシステム」を学びましたが、なぜさらに「データベース」という専用システムが必要なのでしょうか。ファイル保存における課題と、データベース管理システム（DBMS）の役割について学びます。
     </p>
   </header>
 
@@ -31,7 +31,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       例えば、小規模な顧客名簿（数十人程度）なら、Excelやテキストエディタで開けるCSVファイルで十分管理できます。しかし、顧客が数万人、数十万人になり、それを複数の部署の異なるシステムから利用するようになると、ファイルによる管理はあっという間に破綻します。
     </p>
     <p>
-      ファイル保存には、主に以下の3つの致命的な課題が存在します。
+      ファイル保存には、主に以下の3つの課題が存在します。
     </p>
 
     <div class="note-box">
@@ -39,7 +39,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       <ol>
         <li><b>データの重複と不整合（Inconsistency）：</b><br/>例えば「営業管理ファイル」と「請求管理ファイル」に、同じ顧客の住所が別々に保存されているとします。顧客が引っ越した際、営業管理ファイルだけを書き換えて請求ファイルを更新し忘れると、同じ顧客なのにシステムによって住所が異なるという「データの不整合」が発生します。</li>
         <li><b>同時アクセスの排他制御の欠如：</b><br/>複数のプログラムが同時に1つのファイルを開いて書き込むと、後に保存した内容でファイルが上書きされ、先に保存したデータが消滅したり、ファイル全体が破損したりします。</li>
-        <li><b>検索や集計の非効率性：</b><br/>100万件のCSVファイルから「東京都在住の顧客」を探すには、ファイル全体をメモリに読み込み、先頭から1行ずつチェック（線形探索）する必要があり、莫大な時間とメモリを消費します。</li>
+        <li><b>検索や集計の非効率性：</b><br/>100万件のCSVファイルから特定のデータを検索するには、ファイル全体を順次読み込む必要があり、多くの処理時間とメモリを消費します。</li>
       </ol>
     </div>
 
@@ -58,7 +58,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
           <!-- Before/After Comparison -->
           <!-- Left: Before (Chaos, direct file access) -->
           <g transform="translate(0, 0)">
-            <text x="90" y="20" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">ファイル直接操作 (カオス)</text>
+            <text x="90" y="20" font-family="var(--font-sans)" font-size="10" fill="#E06C75" font-weight="600" text-anchor="middle">ファイル直接操作（非一元管理）</text>
             
             <rect x="20" y="40" width="50" height="25" rx="2" fill="#FAF9F5" stroke="#1E3A60" stroke-width="1.5" />
             <text x="45" y="55" font-family="var(--font-sans)" font-size="7" fill="#555555" text-anchor="middle">アプリ A</text>
@@ -117,7 +117,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       DBMSを導入すると、アプリケーションはファイルに直接アクセスするのではなく、すべての要求（データの検索、追加、更新、削除）をDBMSに対してのみ送ります。
     </p>
     <p>
-      DBMSは、裏側でデータの重複を排除しつつデータベースを整理し、同時に来る複数のアクセスを交通整理してデータ破壊を防ぎ、さらにインデックス（索引）で検索を高速化します。
+      DBMSは、データを一元管理する役割を持ち、データの重複を排除して整理するとともに、同時アクセスに対する制御（排他制御）を行ってデータ破損を防ぎ、インデックス（索引）を用いて検索を高速化します。
     </p>
 
     <h2>3. データベースの主要な種類</h2>
@@ -129,7 +129,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
       <li><b>NoSQLデータベース：</b> テーブルの固定枠にとらわれず、大量データや変化の速いデータを扱うのに適した比較的新しいシステムです。Key-Value形式やドキュメント形式などがあります。例：MongoDB, Redis</li>
     </ul>
     <p>
-      現在も企業やシステムの根幹を支えているのは、圧倒的な整合性と信頼性を誇る<b>RDBMS（関係データベース）</b>です。
+      現在、多くのシステムで広く利用されているのは、高い整合性と信頼性を持つ<b>RDBMS（関係データベース）</b>です。
     </p>
     <p>
       次のセクションでは、このRDBMSにおけるデータの設計方法である「関係モデルとテーブル設計」について詳しく学びます。

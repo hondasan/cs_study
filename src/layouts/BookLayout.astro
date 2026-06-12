@@ -9,7 +9,7 @@ interface Props {
 
 const { 
   title, 
-  description = "コンピュータサイエンスを体系的に、直感的かつ美しく学ぶ教科書",
+  description = "コンピュータサイエンスを体系的に学ぶ教科書",
   currentPath = "" 
 } = Astro.props;
 
@@ -152,7 +152,7 @@ const jsonLd = isHomepage
       "@context": "https://schema.org",
       "@type": "Book",
       "name": "コンピュータサイエンスの教科書",
-      "description": "物理世界（トランジスタ）から計算限界（P≠NP予想）までを繋ぐ、体系的で美しいコンピュータサイエンスの入門教科書。",
+      "description": "トランジスタの仕組みから計算量理論までを体系的に学べるコンピュータサイエンスの入門教科書。",
       "url": canonicalUrl,
       "inLanguage": "ja",
       "author": {

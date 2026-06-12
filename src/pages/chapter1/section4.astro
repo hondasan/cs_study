@@ -7,7 +7,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
 <BookLayout 
   title="1-4. メモリの中を覗く" 
-  description="メモリ（RAM）内のデータ配置と番地（アドレス）の仕組み、そしてデータを並べる順序「エンディアン」の宗派論争の本質を理解します。"
+  description="メモリ（RAM）内のデータ配置と番地（アドレス）の仕組み、そしてデータを並べる順序「エンディアン」の方式について理解します。"
   currentPath={`${baseUrl}chapter1/section4`}
 >
   <div class="section-nav-breadcrumbs">
@@ -18,7 +18,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
     <div class="section-number">第1章 4節</div>
     <h1 class="section-title">メモリの中を覗く：バイトとエンディアン</h1>
     <p class="section-intro">
-      ここまでに学んだ2進数や16進数のデータは、コンピュータの一時記憶装置「メインメモリ（RAM）」にどう収められているのでしょうか。メモリのアドレスの仕組みと、複数バイトの並び順を巡る「エンディアン論争」の本質に迫ります。
+      ここまでに学んだ2進数や16進数のデータは、コンピュータの一時記憶装置「メインメモリ（RAM）」にどう収められているのでしょうか。メモリのアドレスの仕組みと、複数バイトの並び順「エンディアン」について学びます。
     </p>
   </header>
 
@@ -148,7 +148,7 @@ const baseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl : `${rawBaseUrl}/`;
 
     <blockquote>
       <b>ガリバー旅行記に由来する名前：</b><br/>
-      「エンディアン」という奇妙な名前は、風刺小説『ガリバー旅行記』に由来します。「ゆで卵を丸い端（Big-end）から割るべきか、尖った端（Little-end）から割るべきか」で国を二分する論争が描かれており、コンピュータ業界でも同様の論争が起きたことから、このユーモアある名前が定着しました。
+      「エンディアン」という名称は、風刺小説『ガリバー旅行記』に由来します。「ゆで卵を丸い端（Big-end）から割るべきか、尖った端（Little-end）から割るべきか」という論争が描かれており、コンピュータ業界でもデータの並び順について同様の論争が起きたことから、この名称が定着しました。
     </blockquote>
   </div>
 
